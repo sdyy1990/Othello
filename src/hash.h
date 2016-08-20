@@ -1,4 +1,5 @@
 #pragma once
+#include <functional>
 template <class Key>
 class Hasher32 {
     std::hash<Key> fallback;
