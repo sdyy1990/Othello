@@ -53,15 +53,15 @@ public:
         else
             return mask & (crc1 ^ (*k >> 32) ^ ((uint32_t) *k));
 #else
-#pragma message("Can not build with SSE4.2 support! ")
-        return fallback(k0);
+#pragma message("Build without SSE4.2 support ")
+        return mask & fallback(k0);
 #endif
     }
 
     template <class T = Key>
     typename std::enable_if<!std::is_integral<T>::value, uint32_t>::type
     operator()(const Key& k0) const {
-        return fallback(k0^s ^ (s <<(8+hashshr)));
+        return mask & fallback(k0^s ^ (s <<(8+hashshr)));
     }
 
 };

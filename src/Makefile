@@ -6,3 +6,5 @@ CXXFLAGS+= -std=gnu++11 -march=native
 
 clean:	
 	rm test
+
+
