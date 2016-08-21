@@ -7,8 +7,12 @@ class Hasher32 {
     uint32_t s;
     uint32_t hashshr;
 public:
-    Hasher32(uint32_t hashlength, uint32_t _seed) {
+    Hasher32(uint32_t hashlength, uint32_t _seed = 0) {
        mask = (1U << hashlength) -1;
+       s = _seed;
+       hashshr = s & 7;
+    }
+    void setSeed(uint32_t _seed){
        s = _seed;
        hashshr = s & 7;
     }
