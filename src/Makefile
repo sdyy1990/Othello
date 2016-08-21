@@ -1,6 +1,8 @@
 all: test
 
-CXXFLAGS+= -std=gnu++11 -march=native
+GITVERSION := $(shell git describe --abbrev=4 --dirty --always --tags)
+
+CXXFLAGS+= -std=gnu++11 -march=native -DGITVERSION=\"$(GITVERSION)\"
 
 SRC= *.cc
 

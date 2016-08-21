@@ -11,7 +11,7 @@ class Othello
 {
     
     #include "typedefine.h"
-
+public:
     vector<valueType> mem;
     uint32_t ma;
     uint32_t mb;
@@ -52,7 +52,7 @@ class Othello
     void fillvalue(keyType *keys, valueType *values);
 
     bool trybuild(keyType *keys, valueType *values, uint32_t keycount) {
-        if (testHash(keys, values)) {
+        if (testHash(keys, keycount)) {
             fillvalue(keys, values);
             return true;
         }
@@ -104,6 +104,14 @@ Othello(keyType *_keys, valueType *_values, uint32_t keycount) {
     void printValueTSize() {
         std::cout << sizeof(valueType) << std::endl;
     }
+    
+    void exportInfo(unsigned char * v) {
+        //TODO
+    }
+
+    Othello(unsigned char *v) {
+        //TODO
+    }
 };
 
 
@@ -149,10 +157,10 @@ bool Othello<L,keyType>::testHash(keyType *keys, uint32_t keycount) {
         if (disj.sameset(ha,hb)) {
             return false;
         }
-        nxt1[i] = first[ha];
-        first[ha] = i;
-        nxt2[i] = first[hb];
-        first[hb] = i;
+        (*nxt1)[i] = (*first)[ha];
+        (*first)[ha] = i;
+        (*nxt2)[i] = (*first)[hb];
+        (*first)[hb] = i;
         disj.merge(ha,hb);
     }
     return true;

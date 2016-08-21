@@ -32,11 +32,9 @@ void add(char * fname) {
         cnt++;
     }
     fclose(pFile);
-    printf("key cnt %lld; tot key %lld \n", cnt, keys.size());
+    cout << "Keycnt" << human(cnt) <<"  totKey# "<< human(keys.size())<<endl;
 }
 
-void test(char * fname, MulOth<keyT,valueT> & moth) {
-}
 
 int main(int argc, char * argv[]) {
     if (argc < 4) {
@@ -47,27 +45,16 @@ int main(int argc, char * argv[]) {
     }
     int splitbit;
     sscanf(argv[1],"%d",&splitbit);
-    MulOth<keyT,valueT> * moth;
+    MulOth<sizeof(valueT)*8,keyT> * moth;
     if (splitbit >=0) {
     printf("Split %d groups\n",1U<< splitbit);
-#ifdef BATCH_READ_MUL_OTHELLO
-    printf("Reading files ...\n");
-    for (int i = 2; i< 3; i++) {
-        add (argv[i]);
-    }
-    //for (int i = 0 ; i < keys.size(); i++) {
-    //    printf("%" PRIx64 "-> %d\n", keys[i], values[i]);
-    //}
-    mont = new MulOth<keyT,valueT>(&keys[0],&values[0],keys.size(),splitbit);
-#else
-    moth = new MulOth<keyT,valueT>(argv[2],  splitbit);
-#endif    
+    moth = new MulOth<sizeof(valueT)*8, keyT>(argv[2],  splitbit);
     printf("Build Succ, write to file %s\n", argv[3]);
     //moth.printall();
     moth->writeToFile(argv[3]);
     delete moth;
     }
-    moth = new MulOth<keyT,valueT>( argv[3]);
+    moth = new MulOth<sizeof(valueT)*8, keyT>( argv[3]);
 
     for (int i = 2; i< argc; i+=2) {
         printf("Testing using keys from file %s\n" , argv[i]);
@@ -82,7 +69,7 @@ int main(int argc, char * argv[]) {
             if (!lineToKVpair<keyT,valueT>(buf, &k , &v)) break;
             valueT qv = moth->query(k);
             if (qv !=v ) {
-                printf("Err %" PRIx64 "->%d: %d\n", k,v,qv);
+                cout <<"Err "<<k <<"->"<<v<<":"<<qv<<endl;
                 fclose(pFile);
                 return 0;
             }
