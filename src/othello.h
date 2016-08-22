@@ -40,6 +40,9 @@ public:
             mem[loc] ^= (value << (mv*L));
         }
     }
+    inline void setrand(uint32_t loc){
+        
+    }
 
     void newHash() {
         Ha->setSeed(rand());
@@ -195,9 +198,15 @@ bool Othello<L,keyType>::testHash(keyType *keys, uint32_t keycount) {
 
 template<uint8_t L, class keyType> 
 void Othello<L,keyType>::fillvalue(keyType *keys, valueType *values, uint32_t keycount) {
-    //TODO
     vector<bool> filled;
     filled.resize(keycount);
+    for (int i = 0; i< ma+mb; i++)
+        if (disj.isroot(i)) {
+            //startBFS
+            queue<uint32_t> Q;
+            Q.push_back(i);
+            setrand(i); 
+        }
 }
 
 

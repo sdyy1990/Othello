@@ -22,7 +22,7 @@ public:
     typename std::enable_if<std::is_integral<T>::value, uint32_t>::type
     operator()(const Key& k0) const {
 #if defined(__SSE4_2__)
-#pragma message("Hasher CRC32c");
+#pragma message("Hasher CRC32c")
         uint32_t crc1 = ~0;
         uint64_t *k;
         k = (uint64_t* ) &k0;
