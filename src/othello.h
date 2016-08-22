@@ -2,6 +2,7 @@
 #include <vector>
 #include <iostream>
 #include <array>
+#include <cstring>
 #include "hash.h"
 #include "io_helper.h"
 using namespace std;
@@ -49,15 +50,17 @@ public:
     vector<uint32_t> *first, *nxt1, *nxt2;
     bool testHash(keyType *keys, uint32_t keycount);
 
-    void fillvalue(keyType *keys, valueType *values);
+    void fillvalue(keyType *keys, valueType *values, uint32_t keycount);
 
     bool trybuild(keyType *keys, valueType *values, uint32_t keycount) {
-        if (testHash(keys, keycount)) {
-            fillvalue(keys, values);
-            return true;
+        bool succ;
+        if (succ = testHash(keys, keycount)) {
+            fillvalue(keys, values, keycount);
         }
-        else
-            return false;
+        delete nxt1;
+        delete nxt2;
+        delete first;
+        return succ;
     }
 public:
     Hasher32<keyType> *Ha;
@@ -76,7 +79,7 @@ public:
         get_hash_2(v,ret2);
     }
 
-Othello(keyType *_keys, valueType *_values, uint32_t keycount) {
+    Othello(keyType *_keys, valueType *_values, uint32_t keycount) {
     int hl1 = 0;
     int hl2 = 0 ;
     while ((1<<hl2) <  keycount * 1) hl2++;
@@ -86,7 +89,7 @@ Othello(keyType *_keys, valueType *_values, uint32_t keycount) {
     ma = (1<<hl1);
     mb = (1<<hl2);
     mem.resize(1);
-    mem.resize((ma+mb)*L/sizeof(mem[0]));
+    mem.resize((ma+mb)/(sizeof(mem[0])*8/L));
     cout << "Building Othello " << human(keycount) <<" Keys, ma/mb = " << human(ma) <<"/"<<human(mb) <<" keyType"<< sizeof(keyType)*8<<"b  valueType" << sizeof(valueType)*8<<"b"<<endl;
     while ((!build) && (trycount<MAX_REHASH)) {
         newHash();
@@ -98,19 +101,43 @@ Othello(keyType *_keys, valueType *_values, uint32_t keycount) {
     Othello(vector<keyType> &keys, vector<valueType> &values) :
         Othello(&(keys[0]),&(values[0]),keys.size())
     {}
-    inline valueType query(const keyType &k);
+    inline valueType query(const keyType &k) {
+        //TODO
+    }
 
 
     void printValueTSize() {
         std::cout << sizeof(valueType) << std::endl;
     }
     
-    void exportInfo(unsigned char * v) {
-        //TODO
+    void exportInfo(void * v) {
+         memset(v,0,0x20);
+         uint32_t s1 = Ha->s;
+         uint32_t s2 = Hb->s;
+         memcpy(v,&s1,sizeof(uint32_t));
+         memcpy(v+8,&s2,sizeof(uint32_t));
+         int hl1 = 0, hl2 = 0;
+         while ((1<<hl1)!= ma) hl1++;
+         while ((1<<hl2)!= mb) hl2++;
+         memcpy(v+0x10,&hl1, sizeof(uint32_t));
+         memcpy(v+0x14,&hl2,sizeof(uint32_t));
     }
 
-    Othello(unsigned char *v) {
-        //TODO
+    Othello(void *v) {
+         uint32_t hl1,hl2; 
+         uint32_t s1,s2;
+         memcpy(&(s1),v,sizeof(uint32_t));
+         memcpy(&(s2),v+8,sizeof(uint32_t));
+         memcpy(&hl1, v+0x10, sizeof(uint32_t));
+         memcpy(&hl2, v+0x14, sizeof(uint32_t));
+         Ha = new Hasher32<keyType> (hl1);
+         Hb = new Hasher32<keyType> (hl2);
+         ma = (1<<hl1);
+         mb = (1<<hl2);
+         mem.resize(1);
+         mem.resize((ma+mb)/(sizeof(mem[0])*8/L));
+         Ha->setSeed(s1);
+         Hb->setSeed(s2);
     }
 };
 
@@ -164,6 +191,13 @@ bool Othello<L,keyType>::testHash(keyType *keys, uint32_t keycount) {
         disj.merge(ha,hb);
     }
     return true;
+}
+
+template<uint8_t L, class keyType> 
+void Othello<L,keyType>::fillvalue(keyType *keys, valueType *values, uint32_t keycount) {
+    //TODO
+    vector<bool> filled;
+    filled.resize(keycount);
 }
 
 

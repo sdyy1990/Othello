@@ -2,9 +2,11 @@
 #include <functional>
 template <class Key>
 class Hasher32 {
-    std::hash<Key> fallback;
+public:
     uint32_t mask;
     uint32_t s;
+private:    
+    std::hash<Key> fallback;
     uint32_t hashshr;
 public:
     Hasher32(uint32_t hashlength, uint32_t _seed = 0) {
