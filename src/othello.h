@@ -2,6 +2,7 @@
 #include <vector>
 #include <iostream>
 #include <array>
+#include <queue>
 #include <cstring>
 #include "hash.h"
 #include "io_helper.h"
@@ -25,8 +26,8 @@ public:
     void setLength(int n) {
         fa = new vector<uint32_t> (n,-1);
     }
-    void reset(int n) {
-        memset(&fa[0], 0xFFFFFFFF, sizeof(fa[0])*fa.size());
+    void reset() {
+        memset(&fa[0], 0xFFFFFFFF, sizeof(fa[0])*(fa->size()));
     }
     void merge(int a, int b) {
         if (a==0) swap(a,b); //b!=0
@@ -35,6 +36,9 @@ public:
     bool sameset(int a, int b) {
         return getfa(a)==getfa(b);
     }
+	bool isroot(int a) {
+		return ((*fa)[a]==a);
+	}
 };
 
 
@@ -77,9 +81,30 @@ public:
             mem[loc] ^= (value << (mv*L));
         }
     }
-    inline void setrand(uint32_t loc){
-        
+    
+    template<class VT = valueType>
+    inline typename std::enable_if< std::is_same<VT,array<uint8_t,L/8> >::value, VT>::type
+    getrand(array<uint8_t,L/8> &v){
+        v[0] = 0;
+        //TODO
     }
+
+    template<class VT = valueType>
+    inline typename std::enable_if<std::is_same<VT, uint64_t >::value, VT>::type
+    getrand(valueType &v){
+        //TODO
+        }
+    
+    template<class VT = valueType>
+    inline typename std::enable_if<
+        std::is_same<VT, uint32_t>::value || 
+        std::is_same<VT, uint16_t>::value || 
+        std::is_same<VT, uint8_t>::value
+        , VT>::type
+    getrand(valueType &v){
+        v = rand();
+        }
+
 
     void newHash() {
         Ha->setSeed(rand());
@@ -90,7 +115,20 @@ public:
     vector<uint32_t> *first, *nxt1, *nxt2;
     bool testHash(keyType *keys, uint32_t keycount);
 
-    void fillvalue(keyType *keys, valueType *values, uint32_t keycount);
+    void fillvalue(keyType *keys, valueType *values, uint32_t keycount) {
+
+    vector<bool> filled;
+    filled.resize(keycount);
+    for (int i = 0; i< ma+mb; i++)
+        if (disj.isroot(i)) {
+            queue<uint32_t> Q;
+            Q.push(i);
+            valueType vv;
+            getrand(vv);
+            set(i,vv); 
+            //TODO
+        }
+    }
 
     bool trybuild(keyType *keys, valueType *values, uint32_t keycount) {
         bool succ;
@@ -205,17 +243,5 @@ bool Othello<L,keyType>::testHash(keyType *keys, uint32_t keycount) {
     return true;
 }
 
-template<uint8_t L, class keyType> 
-void Othello<L,keyType>::fillvalue(keyType *keys, valueType *values, uint32_t keycount) {
-    vector<bool> filled;
-    filled.resize(keycount);
-    for (int i = 0; i< ma+mb; i++)
-        if (disj.isroot(i)) {
-            //startBFS
-            queue<uint32_t> Q;
-            Q.push_back(i);
-            setrand(i); 
-        }
-}
 
 
