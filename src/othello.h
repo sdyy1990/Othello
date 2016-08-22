@@ -6,6 +6,38 @@
 #include "hash.h"
 #include "io_helper.h"
 using namespace std;
+
+class DisjointSet {
+    int siz;
+    vector<uint32_t> *fa;
+    uint32_t getfa(int i) {
+        if ((*fa)[i] < 0) (*fa)[i] = i;
+        else
+        if ((*fa)[i]!=i)
+            (*fa)[i] = getfa((*fa)[i]);
+        return (*fa)[i];
+    }
+public:
+    void finish() {
+        fa->clear();
+        delete fa;
+    }
+    void setLength(int n) {
+        fa = new vector<uint32_t> (n,-1);
+    }
+    void reset(int n) {
+        memset(&fa[0], 0xFFFFFFFF, sizeof(fa[0])*fa.size());
+    }
+    void merge(int a, int b) {
+        if (a==0) swap(a,b); //b!=0
+        (*fa)[getfa(a)] = getfa(b);
+    }
+    bool sameset(int a, int b) {
+        return getfa(a)==getfa(b);
+    }
+};
+
+
 template<uint8_t L, class keyType>
 #define MAX_REHASH 100
 class Othello
@@ -16,6 +48,11 @@ public:
     vector<valueType> mem;
     uint32_t ma;
     uint32_t mb;
+    Hasher32<keyType> *Ha;
+    Hasher32<keyType> *Hb;
+    bool build = false;
+    uint32_t trycount = 0;
+    DisjointSet disj;
 
     inline valueType get(uint32_t loc) { // 0..m_a-1 : arra, m_a..m_a+m_b-1 : arrb;
         if ( sizeof(mem[0]) == L) {
@@ -57,19 +94,17 @@ public:
 
     bool trybuild(keyType *keys, valueType *values, uint32_t keycount) {
         bool succ;
+        disj.setLength(keycount);
         if (succ = testHash(keys, keycount)) {
             fillvalue(keys, values, keycount);
         }
         delete nxt1;
         delete nxt2;
         delete first;
+        disj.finish();
         return succ;
     }
 public:
-    Hasher32<keyType> *Ha;
-    Hasher32<keyType> *Hb;
-    bool build = false;
-    uint32_t trycount = 0;
     void inline get_hash_1(const keyType &v, uint32_t &ret1) {
         ret1 = (*Ha)(v);
     }
@@ -147,41 +182,15 @@ public:
 
 
 
-class DisjointSet {
-    int siz;
-    vector<uint32_t> *fa;
-    uint32_t getfa(int i) {
-        if ((*fa)[i] < 0) (*fa)[i] = i;
-        else
-        if ((*fa)[i]!=i)
-            (*fa)[i] = getfa((*fa)[i]);
-        return (*fa)[i];
-    }
-public:
-    DisjointSet(int n) {
-        fa = new vector<uint32_t> (n,-1);
-    }
-    ~DisjointSet() {
-        fa->clear();
-        delete fa;
-    }
-    void merge(int a, int b) {
-        if (a==0) swap(a,b); //b!=0
-        (*fa)[getfa(a)] = getfa(b);
-    }
-    bool sameset(int a, int b) {
-        return getfa(a)==getfa(b);
-    }
-};
 
 
 template<uint8_t L, class keyType>
 bool Othello<L,keyType>::testHash(keyType *keys, uint32_t keycount) {
-    DisjointSet disj(ma+mb);
     uint32_t ha, hb;
     nxt1  = new vector<uint32_t> (keycount);
     nxt2  = new vector<uint32_t> (keycount);
     first = new vector<uint32_t> (ma+mb, -1);
+    disj.reset();
     for (int i = 0 ; i < keycount; i++) {
         get_hash(keys[i], ha, hb);
         if (disj.sameset(ha,hb)) {
