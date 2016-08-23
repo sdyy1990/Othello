@@ -6,7 +6,7 @@ CXXFLAGS+= -std=gnu++11 -march=native -DGITVERSION=\"$(GITVERSION)\" -Wno-format
 
 CXXFLAGS+= -Wno-pointer-arith -g
 
-SRC= test.cc
+SRC= testOthelloKeyValue.cc
 
 HEADERS= *.h
 
