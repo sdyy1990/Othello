@@ -85,19 +85,22 @@ public:
     template<class VT = valueType>
     inline typename std::enable_if< std::is_same<VT,array<uint8_t,L/8> >::value, VT>::type
     getrand(array<uint8_t,L/8> &v) {
-        v[0] = 0;
-        //TODO
+        array<uint8_t, L/8> ret;
+        for (int i = 0; i < L/8; i++) ret[i] = rand();
     }
 
     template<class VT = valueType>
-    inline typename std::enable_if<std::is_same<VT, uint64_t >::value, VT>::type
+    inline typename std::enable_if<std::is_same<VT, uint64_t >::value || std::is_same<VT, uint32_t>::value, VT>::type
     getrand(valueType &v) {
-        //TODO
+        valueType va = rand();
+        va <<=28;
+        va ^= rand();
+        va <<=28;
+        v = (va ^ rand());
     }
 
     template<class VT = valueType>
     inline typename std::enable_if<
-    std::is_same<VT, uint32_t>::value ||
     std::is_same<VT, uint16_t>::value ||
     std::is_same<VT, uint8_t>::value
     , VT>::type

@@ -40,7 +40,7 @@ public:
                 keys.push_back(ph);
                 values.push_back(v);
             }
-            printf("%d %d\n", keys.size(), values.size()); 
+            printf("keycount %d ", keys.size()); 
             Othello<L, keyType> oth(&keys[0], &values[0], keys.size());
             if (!oth.build) {
                 printf("Build Halt!\n");
