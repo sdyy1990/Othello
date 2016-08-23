@@ -69,7 +69,9 @@ int main(int argc, char * argv[]) {
             if (!lineToKVpair<keyT,valueT>(buf, &k , &v)) break;
             valueT qv = moth->query(k);
             if (qv !=v ) {
-                cout <<"Err "<<k <<"->"<<v<<":"<<qv<<endl;
+                cout <<"Err "<<k ;
+                cout <<"->"<<v;
+                cout <<":"<<qv<<endl;
                 fclose(pFile);
                 return 0;
             }
