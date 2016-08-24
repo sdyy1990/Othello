@@ -46,7 +46,6 @@ template<uint8_t L, class keyType>
 #define MAX_REHASH 100
 class Othello
 {
-//TESTCODE
 #include "typedefine.h"
 public:
 	vector<valueType> mem;
