@@ -10,7 +10,7 @@
 #include "io_helper.h"
 using namespace std;
 typedef unsigned long long keyT;
-typedef uint8_t valueT;
+typedef uint64_t valueT;
 
 vector<keyT> keys;
 vector<valueT> values;
@@ -45,16 +45,18 @@ int main(int argc, char * argv[]) {
 	}
 	int splitbit;
 	sscanf(argv[1],"%d",&splitbit);
-	MulOth<sizeof(valueT)*8,keyT> * moth;
+	MulOth<VALUELENGTH,keyT> * moth;
 	if (splitbit >=0) {
 		printf("Split %d groups\n",1U<< splitbit);
-		moth = new MulOth<sizeof(valueT)*8, keyT>(argv[2],  splitbit);
+		moth = new MulOth<VALUELENGTH, keyT>(argv[2],  splitbit);
+        if (!moth->buildsucc) return 1;
+          
 		printf("Build Succ, write to file %s\n", argv[3]);
 		//moth.printall();
 		moth->writeToFile(argv[3]);
 		delete moth;
 	}
-	moth = new MulOth<sizeof(valueT)*8, keyT>( argv[3]);
+	moth = new MulOth<VALUELENGTH, keyT>( argv[3]);
 
 	for (int i = 2; i< argc; i+=2) {
 		printf("Testing using keys from file %s\n", argv[i]);
@@ -68,10 +70,8 @@ int main(int argc, char * argv[]) {
 			valueT v;
 			if (!lineToKVpair<keyT,valueT>(buf, &k, &v)) break;
 			valueT qv = moth->query(k);
-			if (qv !=v ) {
-				cout <<"Err "<<k;
-				cout <<"->"<<v;
-				cout <<":"<<qv<<endl;
+			if ((qv & ((1<<VALUELENGTH)-1))!=(v & ((1<<VALUELENGTH)-1) )) {
+                printf("Err %llx -> %x : %x\n", k,v,qv);
 				fclose(pFile);
 				return 0;
 			}

@@ -8,14 +8,14 @@
 using namespace std;
 const char * VERSION = GITVERSION;
 #pragma message "VERSION: " GITVERSION
-#define split(k,plow,phigh,spl) ((plow)=(k & ((1ULL << spl)-1)), (phigh)=(k >> spl))
+#define split(k,plow,phigh,spl) (((plow)=(k & ((1ULL << spl)-1))), ((phigh)=(k >> spl)))
 template <uint8_t L, typename keyType>
 class MulOth {
 	vector<Othello<L, keyType> *> vOths;
 #include "typedefine.h"
 	unsigned char split;
-	bool buildsucc;
 public:
+	bool buildsucc;
 	MulOth(const char * fname, unsigned char _split) {
 		printf("Building Multi Othello from file %s \n",fname);
 		FILE *pFile;
@@ -39,8 +39,10 @@ public:
 				if (plt != pl) continue;
 				keys.push_back(ph);
 				values.push_back(v);
+                //printf("%llx %llx %x %x\n",k,ph,plt,v);
 			}
 			printf("keycount %d ", keys.size());
+            //for (int i = 0 ; i < keys.size(); i++) printf("%llx %x\n",keys[i],values[i]);
 			Othello<L, keyType> *poth;
            poth = new Othello<L,keyType>(&keys[0], &values[0], keys.size());
 			if (!poth->build) {
@@ -80,11 +82,11 @@ public:
 		}
 		buildsucc = true;
 	}
-	inline valueType query(const keyType &k) {
+	inline valueIntType query(const keyType &k) {
 		uint32_t pl;
 		uint64_t ph;
 		split(k,pl,ph,split);
-		return vOths[pl]->query(ph);
+		return vOths[pl]->queryInt(ph);
 	}
 	void printall () {
 		printf("Printall ...\n");
@@ -106,7 +108,7 @@ public:
 			fwrite(buf0x20,sizeof(buf0x20),1,pFile);
 		}
 		for (int i = 0; i <(1<<split); i++) {
-			fwrite(&(vOths[i]->mem[0]),sizeof(valueType),vOths[i]->mem.size(),pFile);
+			fwrite(&(vOths[i]->mem[0]),sizeof(vOths[i]->mem[0]), vOths[i]->mem.size(), pFile);
 		}
 		fclose(pFile);
 	}
@@ -137,7 +139,7 @@ public:
 			vOths.push_back(poth);
 		}
 		for (int i = 0; i < (1<< split); i++) {
-			fread(&(vOths[i]->mem[0]),sizeof(valueType), vOths[i]->mem.size(), pFile);
+			fread(&(vOths[i]->mem[0]),sizeof(vOths[i]->mem[0]), vOths[i]->mem.size(), pFile);
 		}
 		fclose(pFile);
 		buildsucc = true;

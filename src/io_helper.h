@@ -5,6 +5,7 @@
 #include <iomanip>
 template <typename keyT, typename valueT>
 bool lineToKVpair(char *s, keyT * k, valueT *v) {
+    char *s0; s0 = s;
 	switch (*s) {
 	case 'A':
 	case 'T':

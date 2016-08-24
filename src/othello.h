@@ -57,37 +57,49 @@ public:
 	uint32_t trycount = 0;
 	DisjointSet disj;
 
-	inline valueType get(uint32_t loc) { // 0..m_a-1 : arra, m_a..m_a+m_b-1 : arrb;
-		if ( sizeof(mem[0])*8 == L) {
+	template<class VT = valueType>
+	inline typename std::enable_if< sizeof(valueType)*8 == L, VT>::type
+	get(uint32_t loc) { // 0..m_a-1 : arra, m_a..m_a+m_b-1 : arrb;
 			return mem[loc];
-		} else {
+    }
+
+	template<class VT = valueType>
+	inline typename std::enable_if< !(sizeof(valueType)*8 == L), VT>::type
+    get(uint32_t loc){
 			//partial;  e.g, 33221100
 			const uint32_t percell = sizeof(mem[0])*8/L;
 			return (mem[loc/percell] >> ((loc % percell)*L))&((1<<L)-1);
-
-		}
 	}
-	inline void set(uint32_t loc,valueType &value) {
-		if (sizeof(mem[0])*8 == L) {
-			mem[loc] = value;
-		} else {
+    
+	
+	template<class VT = valueType>
+	inline typename std::enable_if< sizeof(valueType)*8 == L, VT>::type
+    set(uint32_t loc, valueType &value) {
+            return mem[loc] = value;
+    }
+	
+    template<class VT = valueType>
+	inline typename std::enable_if< !(sizeof(valueType)*8 == L), VT>::type
+    set(uint32_t loc, valueType &value) {
 			//partial;
+            value &= ((1<<L)-1);
 			const uint32_t percell = sizeof(mem[0])*8/L;
 			uint32_t mv = loc % percell;
 			// 33221100--> 3322xx00, changedbits = 11^xx
 			valueType mask1 = ~(((1<<L)-1) << (mv*L));
-			mem[loc] &= mask1;
-			mem[loc] ^= (value << (mv*L));
-		}
-	}
-
+			mem[loc/percell] &= mask1;
+			mem[loc/percell] ^= (value << (mv*L));
+            return value;
+    }
+    
+    
 	template<class VT = valueType>
 	inline typename std::enable_if< std::is_same<VT,array<uint8_t,L/8> >::value, VT>::type
 	getrand(array<uint8_t,L/8> &v) {
 		array<uint8_t, L/8> ret;
 		for (int i = 0; i < L/8; i++) ret[i] = rand();
 	}
-
+    
 	template<class VT = valueType>
 	inline typename std::enable_if<std::is_same<VT, uint64_t >::value || std::is_same<VT, uint32_t>::value, VT>::type
 	getrand(valueType &v) {
@@ -143,15 +155,15 @@ public:
 	}
 
 	Othello(keyType *_keys, valueType *_values, uint32_t keycount) {
-		int hl1 = 0;
-		int hl2 = 0;
+		int hl1 = 2;
+		int hl2 = 2;
 		while ((1<<hl2) <  keycount * 1) hl2++;
 		while ((1<<hl1) < keycount* 1.333334) hl1++;
 		ma = (1<<hl1);
 		mb = (1<<hl2);
 		mem.resize(1);
 		mem.resize((ma+mb)/(sizeof(mem[0])*8/L));
-		cout << "Building Othello " << human(keycount) <<" Keys, ma/mb = " << human(ma) <<"/"<<human(mb) <<" keyType"<< sizeof(keyType)*8<<"b  valueType" << sizeof(valueType)*8<<"b"<<endl;
+        cout << "Othello" << human(keycount) <<" Keys, ma/mb = " << human(ma) <<"/"<<human(mb) <<" keyT"<< sizeof(keyType)*8<<"b  valueT" << sizeof(valueType)*8<<"b"<<" L="<<(int) L<<endl;
 		while ((!build) && (trycount<MAX_REHASH)) {
 			newHash();
 			build = trybuild(_keys, _values, keycount);
@@ -169,8 +181,21 @@ public:
 		valueType aa = get(ha);
 		get_hash_2(k,hb);
 		valueType bb = get(hb);
+        //printf("%llx   [%x] %x ^ [%x] %x = %x\n", k,ha,aa,hb,bb,aa^bb);
 		return aa^bb;
 	}
+	
+    template<class VT = valueIntType>
+	inline typename std::enable_if< !std::is_same<VT,valueType>::value, VT>::type
+    queryInt(const keyType &k) {
+        return 0;
+    }
+
+    template<class VT = valueIntType>
+	inline typename std::enable_if< std::is_same<VT,valueType>::value, VT>::type
+    queryInt(const keyType &k) {
+        return query(k);
+    }
 
 
 	void printValueTSize() {
@@ -206,7 +231,17 @@ public:
 	}
     array<uint32_t, L*2> getCnt(); // returns an array (length of 2L), postion x: the number of 1s on the x-th lowest bit, for array A, if x<L; otherwise, for arrayB.
     array<double, L> getRatio(); // returns an array, postion x: the probability that query return 1 on the x-th lowest bit.
+
+
 };
+
+template<size_t L>
+std::array<uint8_t,L> operator ^ (const std::array<uint8_t,L>  &A,const std::array<uint8_t,L>  &B) {
+    std::array<uint8_t, L> v = A;
+    for (int i = 0 ; i < L; i++) v[i]^=B[i];
+    return v;
+    
+}
 
 
 
@@ -262,9 +297,8 @@ void Othello<L,keyType>::fillvalue(keyType *keys, valueType *values, uint32_t ke
 						int hthis = filled[ha] ? ha : hb;
 						valueType newvalue = values[kid] ^ get(hthis);
 						set(helse, newvalue);
-
-						//printf("k%llx ha/hb %llx %llx: %x ^ %x = %x ^ %x = %llx (%llx), helse%llx ,i%llx, %d\n",
-						//    keys[kid], ha, hb, get(hthis), newvalue, get(ha), get(hb), get(ha)^get(hb), values[kid], helse ,this ,(bool)(values[kid]==(get(ha)^(get(hb)))));
+						//printf("k%llx ha/hb %lx %lx: %x ^ %x = %x ^ %x = %x (%x), helse%x ,i%x, %d\n",
+						//    keys[kid], ha, hb, get(hthis), newvalue, get(ha), get(hb), get(ha)^get(hb), values[kid], helse ,hthis ,(bool)(values[kid]==(get(ha)^(get(hb)))));
 						Q.push(helse);
 						filled[helse] = true;
 						kid = nxt->at(kid);
