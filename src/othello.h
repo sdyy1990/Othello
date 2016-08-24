@@ -51,8 +51,8 @@ public:
 	vector<valueType> mem;
 	uint32_t ma;
 	uint32_t mb;
-	Hasher32<keyType> *Ha;
-	Hasher32<keyType> *Hb;
+	Hasher32<keyType> Ha;
+	Hasher32<keyType> Hb;
 	bool build = false;
 	uint32_t trycount = 0;
 	DisjointSet disj;
@@ -109,8 +109,8 @@ public:
 
 
 	void newHash() {
-		Ha->setSeed(rand());
-		Hb->setSeed(rand());
+		Ha.setMaskSeed(ma-1,rand());
+		Hb.setMaskSeed(mb-1,rand());
 		trycount++;
 	}
 
@@ -171,10 +171,10 @@ public:
 	}
 public:
 	void inline get_hash_1(const keyType &v, uint32_t &ret1) {
-		ret1 = (*Ha)(v);
+		ret1 = (Ha)(v);
 	}
 	void inline get_hash_2(const keyType &v, uint32_t &ret1) {
-		ret1 = (*Hb)(v);
+		ret1 = (Hb)(v);
 		ret1 += ma;
 	}
 	void inline get_hash(const keyType &v, uint32_t &ret1, uint32_t &ret2) {
@@ -187,8 +187,6 @@ public:
 		int hl2 = 0;
 		while ((1<<hl2) <  keycount * 1) hl2++;
 		while ((1<<hl1) < keycount* 1.333334) hl1++;
-		Ha = new Hasher32<keyType>(hl1);
-		Hb = new Hasher32<keyType>(hl2);
 		ma = (1<<hl1);
 		mb = (1<<hl2);
 		mem.resize(1);
@@ -221,8 +219,8 @@ public:
 
 	void exportInfo(void * v) {
 		memset(v,0,0x20);
-		uint32_t s1 = Ha->s;
-		uint32_t s2 = Hb->s;
+		uint32_t s1 = Ha.s;
+		uint32_t s2 = Hb.s;
 		memcpy(v,&s1,sizeof(uint32_t));
 		memcpy(v+8,&s2,sizeof(uint32_t));
 		int hl1 = 0, hl2 = 0;
@@ -239,14 +237,12 @@ public:
 		memcpy(&(s2),v+8,sizeof(uint32_t));
 		memcpy(&hl1, v+0x10, sizeof(uint32_t));
 		memcpy(&hl2, v+0x14, sizeof(uint32_t));
-		Ha = new Hasher32<keyType> (hl1);
-		Hb = new Hasher32<keyType> (hl2);
 		ma = (1<<hl1);
 		mb = (1<<hl2);
 		mem.resize(1);
 		mem.resize((ma+mb)/(sizeof(mem[0])*8/L));
-		Ha->setSeed(s1);
-		Hb->setSeed(s2);
+		Ha.setMaskSeed(ma-1,s1);
+		Hb.setMaskSeed(mb-1,s2);
 	}
 };
 
