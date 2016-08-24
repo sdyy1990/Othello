@@ -11,7 +11,7 @@ const char * VERSION = GITVERSION;
 #define split(k,plow,phigh,spl) ((plow)=(k & ((1ULL << spl)-1)), (phigh)=(k >> spl))
 template <uint8_t L, typename keyType>
 class MulOth {
-	vector<Othello<L, keyType> > vOths;
+	vector<Othello<L, keyType> *> vOths;
 #include "typedefine.h"
 	unsigned char split;
 	bool buildsucc;
@@ -41,12 +41,13 @@ public:
 				values.push_back(v);
 			}
 			printf("keycount %d ", keys.size());
-			Othello<L, keyType> oth(&keys[0], &values[0], keys.size());
-			if (!oth.build) {
+			Othello<L, keyType> *poth;
+           poth = new Othello<L,keyType>(&keys[0], &values[0], keys.size());
+			if (!poth->build) {
 				printf("Build Halt!\n");
 				return;
 			}
-			vOths.push_back(oth);
+			vOths.push_back(poth);
 		}
 		buildsucc = true;
 
@@ -68,12 +69,13 @@ public:
 				keys.push_back(ph);
 				values.push_back(_values[i]);
 			}
-			Othello<L, keyType> oth(&keys[0], &values[0], keys.size());
-			if (!oth.builtsucc) {
+			Othello<L, keyType> *poth;
+            poth  = new Othello<L,keyType>(&keys[0], &values[0], keys.size());
+			if (!poth->builtsucc) {
 				printf("Build Halt!\n");
 				return;
 			}
-			vOths.push_back(oth);
+			vOths.push_back(poth);
 			//oth.printall();
 		}
 		buildsucc = true;
@@ -82,7 +84,7 @@ public:
 		uint32_t pl;
 		uint64_t ph;
 		split(k,pl,ph,split);
-		return vOths[pl].query(ph);
+		return vOths[pl]->query(ph);
 	}
 	void printall () {
 		printf("Printall ...\n");
@@ -100,11 +102,11 @@ public:
 		memcpy(buf0x20, &split32, sizeof(uint32_t));
 		fwrite(buf0x20,sizeof(buf0x20),1,pFile);
 		for (int i = 0; i <(1<<split); i++) {
-			vOths[i].exportInfo(buf0x20);
+			vOths[i]->exportInfo(buf0x20);
 			fwrite(buf0x20,sizeof(buf0x20),1,pFile);
 		}
 		for (int i = 0; i <(1<<split); i++) {
-			fwrite(&(vOths[i].mem[0]),sizeof(valueType),vOths[i].mem.size(),pFile);
+			fwrite(&(vOths[i]->mem[0]),sizeof(valueType),vOths[i]->mem.size(),pFile);
 		}
 		fclose(pFile);
 	}
@@ -130,12 +132,12 @@ public:
 		split = split32;
 		for (int i = 0; i < (1<<split); i++) {
 			fread(buf0x20,sizeof(buf0x20),1,pFile);
-			Othello<L,keyType> *oth;
-			oth = new Othello<L,keyType>(buf0x20);
-			vOths.push_back(*oth);
+			Othello<L,keyType> *poth;
+			poth = new Othello<L,keyType>(buf0x20);
+			vOths.push_back(poth);
 		}
 		for (int i = 0; i < (1<< split); i++) {
-			fread(&(vOths[i].mem[0]),sizeof(valueType), vOths[i].mem.size(), pFile);
+			fread(&(vOths[i]->mem[0]),sizeof(valueType), vOths[i]->mem.size(), pFile);
 		}
 		fclose(pFile);
 		buildsucc = true;
