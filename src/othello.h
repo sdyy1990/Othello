@@ -100,8 +100,7 @@ public:
 
 	template<class VT = valueType>
 	inline typename std::enable_if<
-	    std::is_same<VT, uint16_t>::value ||
-	    std::is_same<VT, uint8_t>::value
+	    std::is_same<VT, uint16_t>::value ||  std::is_same<VT, uint8_t>::value
 	    , VT>::type
 	getrand(valueType &v) {
 		v = rand();
@@ -117,46 +116,7 @@ public:
 	vector<int32_t> *first, *nxt1, *nxt2;
 	bool testHash(keyType *keys, uint32_t keycount);
 
-	void fillvalue(keyType *keys, valueType *values, uint32_t keycount) {
-		vector<bool> filled;
-		filled.resize(ma+mb);
-		for (int i = 0; i< ma+mb; i++)
-			if (disj.isroot(i)) {
-				queue<uint32_t> Q;
-				Q.push(i);
-				valueType vv;
-				getrand(vv);
-				set(i,vv);
-				filled[i] = true;
-				while (!Q.empty()) {
-					uint32_t nodeid = (Q.front());
-					Q.pop();
-					vector<int32_t> *nxt;
-					if (nodeid < ma) nxt = nxt1;
-					else nxt = nxt2;
-					int32_t kid = first->at(nodeid);
-					while (kid >=0) {
-						uint32_t ha,hb;
-						get_hash(keys[kid],ha,hb);
-						if (filled[ha] && filled[hb]) {
-							kid = nxt->at(kid);
-							continue;
-						}
-						int helse = filled[ha] ? hb : ha;
-						int hthis = filled[ha] ? ha : hb;
-						valueType newvalue = values[kid] ^ get(hthis);
-						set(helse, newvalue);
-
-						//printf("k%llx ha/hb %llx %llx: %x ^ %x = %x ^ %x = %llx (%llx), helse%llx ,i%llx, %d\n",
-						//    keys[kid], ha, hb, get(hthis), newvalue, get(ha), get(hb), get(ha)^get(hb), values[kid], helse ,this ,(bool)(values[kid]==(get(ha)^(get(hb)))));
-						Q.push(helse);
-						filled[helse] = true;
-						kid = nxt->at(kid);
-					}
-				}
-			}
-	}
-
+	void fillvalue(keyType *keys, valueType *values, uint32_t keycount);
 	bool trybuild(keyType *keys, valueType *values, uint32_t keycount) {
 		bool succ;
 		disj.setLength(ma+mb);
@@ -201,8 +161,8 @@ public:
 
 	Othello(vector<keyType> &keys, vector<valueType> &values) :
 		Othello(& (keys[0]),& (values[0]),keys.size())
-	{
-	}
+	{}
+
 	inline valueType query(const keyType &k) {
 		uint32_t ha,hb;
 		get_hash_1(k,ha);
@@ -244,10 +204,9 @@ public:
 		Ha.setMaskSeed(ma-1,s1);
 		Hb.setMaskSeed(mb-1,s2);
 	}
+    array<uint32_t, L*2> getCnt(); // returns an array (length of 2L), postion x: the number of 1s on the x-th lowest bit, for array A, if x<L; otherwise, for arrayB.
+    array<double, L> getRatio(); // returns an array, postion x: the probability that query return 1 on the x-th lowest bit.
 };
-
-
-
 
 
 
@@ -273,4 +232,83 @@ bool Othello<L,keyType>::testHash(keyType *keys, uint32_t keycount) {
 }
 
 
+template<uint8_t L, class keyType>
+void Othello<L,keyType>::fillvalue(keyType *keys, valueType *values, uint32_t keycount) {
+		vector<bool> filled;
+		filled.resize(ma+mb);
+		for (int i = 0; i< ma+mb; i++)
+			if (disj.isroot(i)) {
+				queue<uint32_t> Q;
+				Q.push(i);
+				valueType vv;
+				getrand(vv);
+				set(i,vv);
+				filled[i] = true;
+				while (!Q.empty()) {
+					uint32_t nodeid = (Q.front());
+					Q.pop();
+					vector<int32_t> *nxt;
+					if (nodeid < ma) nxt = nxt1;
+					else nxt = nxt2;
+					int32_t kid = first->at(nodeid);
+					while (kid >=0) {
+						uint32_t ha,hb;
+						get_hash(keys[kid],ha,hb);
+						if (filled[ha] && filled[hb]) {
+							kid = nxt->at(kid);
+							continue;
+						}
+						int helse = filled[ha] ? hb : ha;
+						int hthis = filled[ha] ? ha : hb;
+						valueType newvalue = values[kid] ^ get(hthis);
+						set(helse, newvalue);
 
+						//printf("k%llx ha/hb %llx %llx: %x ^ %x = %x ^ %x = %llx (%llx), helse%llx ,i%llx, %d\n",
+						//    keys[kid], ha, hb, get(hthis), newvalue, get(ha), get(hb), get(ha)^get(hb), values[kid], helse ,this ,(bool)(values[kid]==(get(ha)^(get(hb)))));
+						Q.push(helse);
+						filled[helse] = true;
+						kid = nxt->at(kid);
+					}
+				}
+			}
+	}
+
+template<uint8_t L, class keyType>
+array<uint32_t, L*2> Othello<L,keyType>::getCnt() {
+    array<uint32_t, L*2> cnt;
+
+    for (int i = 0 ; i < ma; i++) {
+        valueType gv = get(i);
+        uint8_t *vv; vv = &gv;
+        for (int p = 0 ; p < L; p++)  {
+            uint8_t tv; tv =  ((*vv) >> (p & 7));
+            if (tv & 1) cnt[p] ++;
+            if (p & 8) vv++;
+        }
+    }
+
+    for (int i = ma ; i < ma+mb; i++) {
+        valueType gv = get(i);
+        uint8_t *vv; vv = &gv;
+        for (int p = 0 ; p < L; p++)  {
+            uint8_t tv; tv =  ((*vv) >> (p & 7));
+            if (tv & 1) cnt[L+p] ++;
+            if (p & 8) vv++;
+        }
+    }
+    return cnt;
+}
+
+
+template<uint8_t L, class keyType>
+array<double, L> Othello<L,keyType>::getRatio() {
+    array<uint32_t, 2*L> cnt = getCnt();
+    array<double, L> ret;
+    for (int i = 0 ; i < L; i++) {
+        double p1 = 1.0 * cnt[i] / ma;
+        double p2 = 1.0 * cnt[i+L] / mb;
+        ret[i] = p1*(1-p2)+p2*(1-p1);
+    }
+    return ret;
+        
+}
