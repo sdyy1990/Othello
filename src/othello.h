@@ -115,7 +115,8 @@ public:
 	    std::is_same<VT, uint16_t>::value ||  std::is_same<VT, uint8_t>::value
 	    , VT>::type
 	getrand(valueType &v) {
-		v = rand();
+//		v = rand();
+		v = 0;
 	}
 
 
@@ -310,24 +311,23 @@ void Othello<L,keyType>::fillvalue(keyType *keys, valueType *values, uint32_t ke
 template<uint8_t L, class keyType>
 array<uint32_t, L*2> Othello<L,keyType>::getCnt() {
     array<uint32_t, L*2> cnt;
-
+    for (int i = 0 ; i < L+L; i++) cnt[i] =0;
     for (int i = 0 ; i < ma; i++) {
         valueType gv = get(i);
-        uint8_t *vv; vv = &gv;
+        uint8_t *vv; vv = (uint8_t*) ((void *) &gv);
         for (int p = 0 ; p < L; p++)  {
             uint8_t tv; tv =  ((*vv) >> (p & 7));
             if (tv & 1) cnt[p] ++;
-            if (p & 8) vv++;
+            if ((p & 7) == 7) vv++;
         }
     }
-
     for (int i = ma ; i < ma+mb; i++) {
         valueType gv = get(i);
-        uint8_t *vv; vv = &gv;
+        uint8_t *vv; vv = (uint8_t*) ((void *) &gv);
         for (int p = 0 ; p < L; p++)  {
             uint8_t tv; tv =  ((*vv) >> (p & 7));
             if (tv & 1) cnt[L+p] ++;
-            if (p & 8) vv++;
+            if ((p & 7) == 7) vv++;
         }
     }
     return cnt;

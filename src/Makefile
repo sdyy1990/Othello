@@ -1,4 +1,4 @@
-all: test
+all: testRatio
 
 GITVERSION := $(shell git describe --abbrev=4 --dirty --always --tags)
 
@@ -24,3 +24,5 @@ clean:
 
 run: test
 	./test 2 /home/xinan/othello/1M.H100.list.txt tmp
+
+testRatio: testRatio.cc othello.h
