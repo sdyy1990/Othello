@@ -23,6 +23,6 @@ clean:
 	rm test
 
 run: test
-	./test 2 /home/xinan/othello/1M.H100.list.txt tmp
+	./test4 2 /home/xinan/othello/1M.H100.list.txt tmp
 
 testRatio: testRatio.cc othello.h
