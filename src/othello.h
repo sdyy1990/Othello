@@ -248,12 +248,20 @@ public:
 };
 
 template<size_t L, class valueType>
-std::array<int32_t, L>   operator + (const std::array<int32_t, L> &A, valueType &t) {
-     array<int32_t, L> v (A);
+void padd (std::array<int32_t, L> &A, valueType &t) {
      for (int i = 0 ; i <L; i++)
-         if (t & (1<<i)) v[i]++;
-     return v;
+        if  (t & (1<<i))
+            A[i] ++;
 }
+
+template<size_t L, class valueType>
+void pdiff(std::array<int32_t, L> &A, valueType &t) {
+     for (int i = 0 ; i <L; i++)
+        if  (t & (1<<i))
+            A[i]--;
+        else A[i]++;
+}
+
 template<size_t L>
 std::array<uint8_t,L> operator ^ (const std::array<uint8_t,L>  &A,const std::array<uint8_t,L>  &B) {
     std::array<uint8_t, L> v = A;
@@ -423,16 +431,16 @@ void Othello<L,keyType>::setAlienPreference(double ideal) {
         else {
             VL[disj.getfa(i)].push_back(i);
             valueType cur = get(i);
-            if (i<ma) na = na + cur;
-            else nb = nb+cur;
+            if (i<ma) padd(na, cur);
+            else padd(nb,cur);
         }
     }
     for (int i = 0 ; i < ma+mb; i++) {
         array<int32_t,L> diffa,diffb;
         for (auto j = VL[i].begin(); j!=VL[i].end(); j++) {
             valueType cur = get(*j);
-            if (*j < ma) diffa = diffa+ cur;
-            else diffb =diffb + cur;
+            if (*j < ma) pdiff(diffa,cur);
+            else pdiff(diffb, cur);
         }
         for (int bitID = 0; bitID<L; bitID++) 
         for (int j = 0 ; j <8; j++)
