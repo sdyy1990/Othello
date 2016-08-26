@@ -117,8 +117,8 @@ public:
     std::is_same<VT, uint16_t>::value ||  std::is_same<VT, uint8_t>::value
     , VT>::type
     getrand(valueType &v) {
-   //     v = rand();
-		v = 0;
+        //     v = rand();
+        v = 0;
     }
 
 
@@ -247,6 +247,13 @@ public:
     void setAlienPreference(double ideal = 1.0);
 };
 
+template<size_t L, class valueType>
+std::array<int32_t, L>   operator + (const std::array<int32_t, L> &A, valueType &t) {
+     array<int32_t, L> v (A);
+     for (int i = 0 ; i <L; i++)
+         if (t & (1<<i)) v[i]++;
+     return v;
+}
 template<size_t L>
 std::array<uint8_t,L> operator ^ (const std::array<uint8_t,L>  &A,const std::array<uint8_t,L>  &B) {
     std::array<uint8_t, L> v = A;
@@ -392,20 +399,21 @@ double getrate(uint32_t ma, uint32_t mb, uint32_t da, uint32_t db) {
     double ret = pa*(1-pb)+pb*(1-pa);
     return ret;
 }
+
+
 template<uint8_t L, class keyType>
 void Othello<L,keyType>::setAlienPreference(double ideal) {
     int da[] = {1,1,0,-1,-1,-1,0,1};
     int db[] = {0,1,1,1,0,-1,-1,-1};
-    int sa[] = {0,0,0,0,0,0,0,0};
-    int sb[] = {0,0,0,0,0,0,0,0};
+    vector< array<int32_t,L> > sa (8, array<int32_t,L>());
+    vector< array<int32_t,L> > sb (8, array<int32_t,L>());
+    array<int32_t,L> na,nb;
     int emptyA = 0;
-    int emptyB=0;
+    int emptyB = 0;
     if (filled.size() <=1) return;
     printf("TryFilp\n");
     valueType vv;
     vector<list<uint32_t> > VL(ma+mb, list<uint32_t>());
-    vector<list<uint32_t> > IDL(8, list<uint32_t>());
-    int na = 0, nb = 0, na0=0,nb0=0;
     for (int i = 0; i< ma+mb; i++) {
         if (!filled[i]) {
             valueType vv;
@@ -415,17 +423,50 @@ void Othello<L,keyType>::setAlienPreference(double ideal) {
         else {
             VL[disj.getfa(i)].push_back(i);
             valueType cur = get(i);
-            if (cur &1) {
-                if (i<ma) na++;
-                else nb++;
-            }
-            else {
-                if (i<ma) na0++;
-                else nb0++;
-            }
-
+            if (i<ma) na = na + cur;
+            else nb = nb+cur;
         }
     }
+    for (int i = 0 ; i < ma+mb; i++) {
+        array<int32_t,L> diffa,diffb;
+        for (auto j = VL[i].begin(); j!=VL[i].end(); j++) {
+            valueType cur = get(*j);
+            if (*j < ma) diffa = diffa+ cur;
+            else diffb =diffb + cur;
+        }
+        for (int bitID = 0; bitID<L; bitID++) 
+        for (int j = 0 ; j <8; j++)
+            if (da[j]*diffa[bitID] + db[j] *diffb[bitID] > 0)
+            {
+                sa[bitID][j]+=diffa[bitID];
+                sb[bitID][j]+=diffb[bitID];
+            }
+
+    }
+    array<int32_t,L> direction;
+    for (int bitID = 0; bitID <L; bitID++) {
+        for (int dir = 0; dir <8*4; dir++) {
+            double ratemin = 1.0*L;
+            int setA = ((dir & 8) !=0);
+            int setB = ((dir & 16)!=0);
+            double rate = getrate(ma,mb,na[bitID]+setA*emptyA+sa[bitID][dir & 0x7], nb[bitID]+setB*emptyB+sb[bitID][dir & 0x7]);
+            if ((rate-ideal)*(rate-ideal) < ratemin) {
+                ratemin = (rate-ideal)*(rate-ideal);
+                direction[bitID] = dir;
+            }
+        }
+    }
+
+    valueType veA=0, veB=0;
+    for (int bitID = 0; bitID<L; bitID++) {
+        veA |= (direction[bitID] & 8)?(1<<bitID):0;
+        veB |= (direction[bitID] & 16)?(1<<bitID):0;
+    }
+    for (int i = 0 ; i < ma; i++) if (!filled[i])
+            set(i,veA);
+    for (int i = ma; i <ma+mb; i++) if (!filled[i])
+            set(i,veB);
+
     for (int i = 0 ; i < ma+mb; i++) {
         int diffa = 0, diffb= 0;
         for (auto j = VL[i].begin(); j!=VL[i].end(); j++) {
@@ -435,56 +476,19 @@ void Othello<L,keyType>::setAlienPreference(double ideal) {
             else diffb += det;
         }
         if (diffa || diffb) {
-            for (int j = 0 ; j <8; j++)
-                if (da[j]*diffa + db[j] *diffb > 0)
-                {
-                    sa[j]+=diffa;
-                    sb[j]+=diffb;
-                    IDL[j].push_back(i);
-                }
-        }
-    }
-    double ratemin = 1.0;
-    int dd = -1;
-    for (int tid = 0; tid <8*4; tid++) {
-        int setA = ((tid & 8) !=0);
-        int setB = ((tid & 16)!=0);
-        double rate = getrate(ma,mb,na+setA*emptyA+sa[tid & 0x7], nb+setB*emptyB+sb[tid & 0x7]);
-        if ((rate-ideal)*(rate-ideal) < ratemin) {
-            ratemin = (rate-ideal)*(rate-ideal);
-            dd =tid;
-        }
-    }
-    if (dd >=0) {
-        valueType veA, veB;
-        veA = (dd & 8)?1:0;
-        veB = (dd & 16)?1:0;
-        for (int i = 0 ; i < ma; i++) if (!filled[i])
-                set(i,veA);
-        for (int i = ma; i <ma+mb; i++) if (!filled[i])
-                set(i,veB);
-
-        for (int i = 0 ; i < ma+mb; i++) {
-            int diffa = 0, diffb= 0;
+            valueType vv =0;
+            for (int bitID = 0; bitID<L; bitID++) 
+                if (da[direction[bitID] &7 ] * diffa + db[direction[bitID] &7] * diffb > 0) 
+                    vv |= (1<<bitID);
+            
             for (auto j = VL[i].begin(); j!=VL[i].end(); j++) {
-                valueType cur = get(*j);
-                int det = (cur & 1)?-1:1;
-                if (*j < ma) diffa += det;
-                else diffb += det;
+                    valueType newvalue =  get(*j)^vv;
+                    set(*j, newvalue);
             }
-            if (diffa || diffb)
-                if (da[dd &7 ] * diffa + db[dd &7] * diffb > 0) {
-                    valueType vv = 0x1;
-                    for (auto j = VL[i].begin(); j!=VL[i].end(); j++) {
-                        valueType newvalue =  get(*j)^vv;
-                        set(*j, newvalue);
-                    }
-
-                }
 
         }
-
     }
+
 
 
 
