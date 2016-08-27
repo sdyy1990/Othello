@@ -1,6 +1,8 @@
-all: testRatio
+all: test
 
-GITVERSION := $(shell git describe --abbrev=4 --dirty --always --tags)
+#GITVERSION := $(shell git describe --abbrev=4 --dirty --always --tags)
+
+GITVERSION= "no-version"
 
 CXXFLAGS+= -std=gnu++11 -march=native -DGITVERSION=\"$(GITVERSION)\" -Wno-format
 
@@ -23,6 +25,6 @@ clean:
 	rm test
 
 run: test
-	./test 2 /home/xinan/othello/1M.H100.list.txt tmp
+	./test2 2 /home/xinan/othello/1M.H100.list.txt tmp
 
 testRatio: testRatio.cc othello.h
