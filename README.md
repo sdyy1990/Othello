@@ -5,7 +5,7 @@ This repo implements the data structure *Othello* described [here]("https://arxi
 
 #Document
 
-The doxygen docuemnt is avliable [here]("/docs/html/")
+The doxygen docuemnt is avliable [here]("https://sdyy1990.github.io/Othello/")
 #Disclaimer
 
 The current implementation in this repository does **NOT** contain any thread-safe feature. Use at your own risk. 
