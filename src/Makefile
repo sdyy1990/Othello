@@ -6,7 +6,7 @@ GITVERSION= "no-version"
 
 CXXFLAGS+= -std=gnu++11 -march=native -DGITVERSION=\"$(GITVERSION)\" -Wno-format
 
-CXXFLAGS+= -Wno-pointer-arith -O3 -DKMERLENGTH=20 -DBIT_PER_BP=2
+CXXFLAGS+= -Wno-pointer-arith -DKMERLENGTH=20 -DBIT_PER_BP=2 -O3
 
 
 SRC= testOthelloKeyValue.cc

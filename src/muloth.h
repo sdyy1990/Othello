@@ -33,8 +33,22 @@ public:
         FILE *pFile;
         pFile = fopen (fname,"r");
         vOths.clear();
-                    char buf[1024];
+        char buf[1024];
         split = _split;
+        if (split ==0) {
+            keyType k; valueType v; 
+            vector<keyType> keys;
+            vector<valueType> values;
+            while (true) {
+                if (fgets(buf,1024,pFile)==NULL) break;
+                if (!lineToKVpair(buf, &k, &v)) break;
+                keys.push_back(k);
+                values.push_back(v);
+            }
+            if (!addOth(keys,values)) return;
+            buildsucc = true;
+            return;
+        }
         if (fileIsSorted)  {
             uint32_t grpid = 0;
             printf("Reading file for keys in group %02x/%02x\n", grpid,(1<<split)-1);
@@ -48,7 +62,7 @@ public:
                     keyType keyingroup;
                     uint32_t groupid;
                     splitgrp(k,groupid,keyingroup,split);
-                    if (groupid != grpid) {
+                    if ((split !=0) && (groupid != grpid)) {
                         if (!addOth(keys,values)) return;
                         grpid ++;
                         printf("Reading file for keys in group %02x/%02x\n", grpid,(1<<split)-1);
@@ -89,8 +103,12 @@ public:
     inline valueIntType query(const keyType &k) {
         uint32_t grp;
         keyType kgrp;
-        splitgrp(k,grp,kgrp,split);
-        return vOths[grp]->queryInt(kgrp);
+        if (split ==0) 
+            return vOths[0]->queryInt(k);
+        else {
+            splitgrp(k,grp,kgrp,split);
+            return vOths[grp]->queryInt(kgrp);
+        }
     }
     void printall () {
         printf("Printall ...\n");
