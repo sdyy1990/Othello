@@ -4,7 +4,7 @@ GITVERSION := $(shell git describe --abbrev=4 --dirty --always --tags)
 
 CXXFLAGS+= -std=gnu++11 -march=native -DGITVERSION=\"$(GITVERSION)\" -Wno-format
 
-CXXFLAGS+= -Wno-pointer-arith -g
+CXXFLAGS+= -Wno-pointer-arith -O3
 
 
 SRC= testOthelloKeyValue.cc

@@ -8,7 +8,7 @@
 using namespace std;
 typedef uint64_t keyType;
 typedef uint8_t valueType;
-#define VALUELEN (4)
+#define VALUELEN (2)
 std::random_device rd;
 std::uniform_int_distribution<keyType> disKey;
 std::uniform_int_distribution<valueType> disValue;
@@ -58,7 +58,7 @@ int main() {
 
 
     printf("AlienPreference");
-    oth.setAlienPreference(0.0);
+    oth.setAlienPreference(1.0);
     cnt  = oth.getCnt();
     rat  = oth.getRatio();
     for (int j = 0 ; j < VALUELEN; j++) ans[j] =0;
