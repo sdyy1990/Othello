@@ -15,9 +15,9 @@ bool lineToKVpair(char *s, keyT * k, valueT *v) {
 		while (*s == 'A' || *s == 'C' || *s =='T' || *s =='G') {
 			ret <<=2;
 			switch (*s) {
-			case 'G':
-				ret++;
 			case 'T':
+				ret++;
+			case 'G':
 				ret++;
 			case 'C':
 				ret++;
@@ -34,6 +34,7 @@ bool lineToKVpair(char *s, keyT * k, valueT *v) {
 	return false;
 }
 
+
 std::string human(uint64_t word) {
 	std::stringstream ss;
 	if (word <= 1024) ss << word;
@@ -43,4 +44,13 @@ std::string human(uint64_t word) {
 	else if (word <= (1048576<<10)) ss << word/1048576<<"M";
 	else ss << word*1.0/(1<<30) <<"G";
 	std::string s; ss >>s; return s;
+}
+template<typename keyType>
+void splitgrp(const keyType &key, uint32_t &grp, keyType &keyInGroup, uint8_t splitbit) {
+    int mvcnt = KMERLENGTH*BIT_PER_BP - splitbit;
+    keyType  high = (key >> mvcnt);
+    grp = high;
+    keyType lowmask = 1;
+    lowmask <<= mvcnt;
+    keyInGroup = (key & (lowmask-1));
 }

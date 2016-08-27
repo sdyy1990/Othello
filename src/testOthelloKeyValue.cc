@@ -48,7 +48,7 @@ int main(int argc, char * argv[]) {
 	MulOth<VALUELENGTH,keyT> * moth;
 	if (splitbit >=0) {
 		printf("Split %d groups\n",1U<< splitbit);
-		moth = new MulOth<VALUELENGTH, keyT>(argv[2],  splitbit);
+		moth = new MulOth<VALUELENGTH, keyT>(argv[2],  splitbit, true) ;
         if (!moth->buildsucc) return 1;
           
 		printf("Build Succ, write to file %s\n", argv[3]);
