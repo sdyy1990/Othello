@@ -1,4 +1,4 @@
-all: test2 test4 test8 test16 
+all: test2 test4 test8 test16 doc
 
 #GITVERSION := $(shell git describe --abbrev=4 --dirty --always --tags)
 
@@ -34,3 +34,6 @@ run: test4
 	./test4 2 smallkmers.txt tmp
 
 testRatio: testRatio.cc othello.h
+
+doc:
+	doxygen Doxyfile

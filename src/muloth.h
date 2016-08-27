@@ -1,4 +1,8 @@
 #pragma once
+/*!
+ * \file muloth.h
+ * Describes the data structure *Grouped l-Othello*.
+ * */
 #include "othello.h"
 #include "io_helper.h"
 #include <cstdio>
@@ -11,10 +15,17 @@ const char * VERSION = GITVERSION;
 
 // split(k,plow,phigh,spl) (((plow)=(k & ((1ULL << spl)-1))), ((phigh)=(k >> spl)))
 
+/*!
+ * \brief Describes the data structure *Grouped l-Othello*. It classifies keys of *keyType* into *2^L* classes. \n
+ * The keys are first classifed into groups, each group is then maintained by one *l-Othello*. 
+ * \note Query a key of keyType return *L* digit values ( *valueIntType* ). the types *valueType* and *valueIntType* are automatically generated.
+ */
 template <uint8_t L, typename keyType>
 class MulOth {
-    vector<Othello<L, keyType> *> vOths;
+    vector<Othello<L, keyType> *> vOths; //!< list of *l-Othellos*
+//!\cond typedef
 #include "typedefine.h"
+//!\endcond    
     unsigned char split;
     bool addOth(vector<keyType> &keys, vector<valueType> &values) {
         Othello<L, keyType> *poth;
@@ -27,7 +38,13 @@ class MulOth {
         return true;
     }
 public:
-    bool buildsucc;
+    bool buildsucc; 
+    /*!
+     * \brief Construct a Grouped l-Othello from a file.
+     * \param *fname, the file contains key/value pairs, each in a line.
+     * \param _split, the keys are first classifed according to their highest *_split* bits. There are in total 2^_split groups. Classification method as described in *splitgrp*.
+     * \param fileIsSorted. When fileIsSorted, assume that the file is sorted so that the keys appear in the ascending order of groups.
+     * */
     MulOth(const char * fname, unsigned char _split, bool fileIsSorted = false) {
         printf("Building Multi Othello from file %s \n",fname);
         FILE *pFile;
@@ -100,6 +117,10 @@ public:
 
     }
 
+    /*!
+       \brief returns a *L*-bit integer query value for a key.
+       \note enabled when L is in {1,2,4,8,16,32,64}.
+      */
     inline valueIntType query(const keyType &k) {
         uint32_t grp;
         keyType kgrp;
@@ -115,6 +136,7 @@ public:
         for (auto V : vOths)
             V.printall();
     }
+    //! \brief write Grouped l-Othello to a file.
     void writeToFile(const char* fname) {
         FILE *pFile;
         pFile = fopen (fname, "wb");
@@ -136,6 +158,7 @@ public:
         fclose(pFile);
     }
 
+    // \brief construct a Grouped l-Othello from a file.
     MulOth(const char* fname) {
         buildsucc = false;
         printf("Read from binary file %s\n", fname);

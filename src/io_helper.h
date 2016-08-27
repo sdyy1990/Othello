@@ -1,8 +1,19 @@
+/*!
+ * \file io_helper.h
+ * Contains IO utilities.
+ */
 #pragma once
 #include <string>
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+//************************
+//! \brief convert a input-style line to key/value pair.
+//! \param [in] char *s, a line from the input.
+//! \retval boolean value. Return true if convert is success.
+//! \note 
+//! * We consider string as a base-4 number. [A=0,C=1,G=2,T=3].
+//************************
 template <typename keyT, typename valueT>
 bool lineToKVpair(char *s, keyT * k, valueT *v) {
     char *s0; s0 = s;
@@ -34,7 +45,7 @@ bool lineToKVpair(char *s, keyT * k, valueT *v) {
     return false;
 }
 
-
+//! convert a 64-bit Integer to human-readable format in K/M/G. e.g, 102400 is converted to "100K".
 std::string human(uint64_t word) {
     std::stringstream ss;
     if (word <= 1024) ss << word;
@@ -45,6 +56,13 @@ std::string human(uint64_t word) {
     else ss << word*1.0/(1<<30) <<"G";
     std::string s; ss >>s; return s;
 }
+
+
+//************************
+//! \brief split a keyType value into two parts: groupID/keyInGroup by the highest *splitbit* bits.
+//! \note 
+//! * We assume keys are all converted from Kmers of *KMERLENGTH* bps, each bp is equivalent to *BIT_PER_BP* bits. 
+//**************
 template<typename keyType>
 void splitgrp(const keyType &key, uint32_t &grp, keyType &keyInGroup, uint8_t splitbit) {
     int mvcnt = KMERLENGTH*BIT_PER_BP - splitbit;

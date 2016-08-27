@@ -7,8 +7,8 @@
 #include <array>
 using namespace std;
 typedef uint64_t keyType;
-typedef uint8_t valueType;
-#define VALUELEN (2)
+typedef uint16_t valueType;
+#define VALUELEN (16)
 std::random_device rd;
 std::uniform_int_distribution<keyType> disKey;
 std::uniform_int_distribution<valueType> disValue;

@@ -1,4 +1,9 @@
 #pragma once
+/*!
+ \file othello.h 
+ Describes the data structure *l-Othello*.
+*/
+
 #include <vector>
 #include <iostream>
 #include <array>
@@ -7,58 +12,32 @@
 #include <list>
 #include "hash.h"
 #include "io_helper.h"
+#include "disjointset.h"
 using namespace std;
 
-class DisjointSet {
-    int siz;
-    vector<int32_t> *fa;
-public:
-    uint32_t getfa(int i) {
-        if ((*fa)[i] < 0) (*fa)[i] = i;
-        else if ((*fa)[i]!=i)
-            (*fa)[i] = getfa((*fa)[i]);
-        return (*fa)[i];
-    }
-    void finish() {
-        fa->clear();
-        delete fa;
-    }
-    void setLength(int n) {
-        fa = new vector<int32_t> (n,-1);
-    }
-    void clear() {
-        for (auto a : *fa)
-            a = 0;
-    }
-    void merge(int a, int b) {
-        if (a==0) swap(a,b);  //a!=0
-        (*fa)[getfa(b)] = getfa(a);
-    }
-    bool sameset(int a, int b) {
-        return getfa(a)==getfa(b);
-    }
-    bool isroot(int a) {
-        return ((*fa)[a]==a);
-    }
-};
-
-
+/*! 
+ * \brief Describes the data structure *l-Othello*. It classifies keys of *keyType* into *2^L* classes. 
+ * \note Query a key of keyType return *L* digit values ( *valueIntType* ). the types *valueType* and *valueIntType* are automatically generated.
+ */
 template<uint8_t L, class keyType>
-#define MAX_REHASH 100
 class Othello
 {
-#include "typedefine.h"
+    //!\cond typedef
+              #include "typedefine.h"
+    //!\endcond 
+#define MAX_REHASH 100 //!< Maximum number of rehash tries before report an error. If this limit is reached, Othello build fails. TODO: extend the length of ma and mb.
 public:
-    vector<valueType> mem;
-    uint32_t ma;
-    uint32_t mb;
-    Hasher32<keyType> Ha;
-    Hasher32<keyType> Hb;
-    bool build = false;
-    uint32_t trycount = 0;
-    DisjointSet disj;
-    bool autoclear = false;
-    keyType *keys;
+    vector<valueType> mem; //!< actual memory space for arrayA and arrayB. 
+    uint32_t ma; //!< length of arrayA.
+    uint32_t mb; //!< length of arrayB
+    Hasher32<keyType> Ha; //<! hash function Ha
+    Hasher32<keyType> Hb; //<! hash function Hb
+    bool build = false; //!< true if Othello is successfully built.
+    uint32_t trycount = 0; //!< number of rehash before a valid hash pair is found.
+    DisjointSet disj; //!< Disjoint Set data structure that helps to test the acyclicity.
+private:    
+    bool autoclear = false; //!< TODO, clears the memory allocated during construction automatically.
+    keyType *keys; 
     template<class VT = valueType>
     inline typename std::enable_if< sizeof(valueType)*8 == L, VT>::type
     get(uint32_t loc) { // 0..m_a-1 : arra, m_a..m_a+m_b-1 : arrb;
@@ -117,8 +96,7 @@ public:
         std::is_same<VT, uint16_t>::value ||  std::is_same<VT, uint8_t>::value
         , VT>::type
     getrand(valueType &v) {
-        //     v = rand();
-        v = 0;
+        v = rand();
     }
 
 
@@ -144,25 +122,13 @@ public:
         return succ;
     }
 public:
-    void finishBuild() {
-        delete nxt1;
-        delete nxt2;
-        delete first;
-        disj.finish();
-        filled.clear();
-    }
-    void inline get_hash_1(const keyType &v, uint32_t &ret1) {
-        ret1 = (Ha)(v);
-    }
-    void inline get_hash_2(const keyType &v, uint32_t &ret1) {
-        ret1 = (Hb)(v);
-        ret1 += ma;
-    }
-    void inline get_hash(const keyType &v, uint32_t &ret1, uint32_t &ret2) {
-        get_hash_1(v,ret1);
-        get_hash_2(v,ret2);
-    }
-
+    /*
+    ! \brief Construct *l-Othello*.
+    ! \param [in] *_keys, pointer to array of keys.
+    ! \param [in] *_values, pointer to array of values
+    ! \param [in] keycount, number of keys, array size must match this.
+    ! \param [in] _autoclear, clear memory used during construction once completed. Forbid future modification on the structure.
+    */
     Othello(keyType *_keys, valueType *_values, uint32_t keycount, bool _autoclear = true) {
         autoclear = _autoclear;
         keys = _keys;
@@ -182,38 +148,26 @@ public:
         cout << "Build Succ "<< build <<" After "<<trycount << "tries"<< endl;
     }
 
+    //!\brief Construct othello with vectors.
     Othello(vector<keyType> &keys, vector<valueType> &values, bool _autoclear = true) :
         Othello(& (keys[0]),& (values[0]),keys.size(), _autoclear)
     {
     }
 
-    inline valueType query(const keyType &k) {
-        uint32_t ha,hb;
-        get_hash_1(k,ha);
-        valueType aa = get(ha);
-        get_hash_2(k,hb);
-        valueType bb = get(hb);
-        //printf("%llx   [%x] %x ^ [%x] %x = %x\n", k,ha,aa,hb,bb,aa^bb);
-        return aa^bb;
+    //! \brief release memory space used during construction and forbid future modification of arrayA and arrayB.
+    void finishBuild() {
+        delete nxt1;
+        delete nxt2;
+        delete first;
+        disj.finish();
+        filled.clear();
     }
 
-    template<class VT = valueIntType>
-    inline typename std::enable_if< !std::is_same<VT,valueType>::value, VT>::type
-    queryInt(const keyType &k) {
-        return 0;
-    }
-
-    template<class VT = valueIntType>
-    inline typename std::enable_if< std::is_same<VT,valueType>::value, VT>::type
-    queryInt(const keyType &k) {
-        return query(k);
-    }
-
-
-    void printValueTSize() {
-        std::cout << sizeof(valueType) << std::endl;
-    }
-
+    /*!
+        \brief export the information of the *Othello*, not including the array, to a memory space.
+        \note memory space length = 0x20.
+              exporting infomation contains: seedA, seedB, ma , mb (represented as 1<<hl1 and 1<<hl2).
+    */
     void exportInfo(void * v) {
         memset(v,0,0x20);
         uint32_t s1 = Ha.s;
@@ -226,7 +180,10 @@ public:
         memcpy(v+0x10,&hl1, sizeof(uint32_t));
         memcpy(v+0x14,&hl2,sizeof(uint32_t));
     }
-
+    /*!
+       \brief load the infomation of the *Othello* from memory. 
+       \note info is exported using *ExportInro()*
+     */
     Othello(void *v) {
         uint32_t hl1,hl2;
         uint32_t s1,s2;
@@ -241,11 +198,66 @@ public:
         Ha.setMaskSeed(ma-1,s1);
         Hb.setMaskSeed(mb-1,s2);
     }
-    array<uint32_t, L*2> getCnt(); // returns an array (length of 2L), postion x: the number of 1s on the x-th lowest bit, for array A, if x<L; otherwise, for arrayB.
-    array<double, L> getRatio(); // returns an array, postion x: the probability that query return 1 on the x-th lowest bit.
 
-    void randomflip();
-    void setAlienPreference(double ideal = 1.0);
+    /*!
+       \brief NOT IMPLEMENTED returns a *L*-bit integer query value for a key.
+       \note enabled when L is not in {1,2,4,8,16,32,64}
+    */
+    template<class VT = valueIntType>
+    inline typename std::enable_if< !std::is_same<VT,valueType>::value, VT>::type
+    queryInt(const keyType &k) {
+        //TODO
+        return 0;
+    }
+
+    /*!
+       \brief returns a *L*-bit integer query value for a key.
+       \note enabled when L is in {1,2,4,8,16,32,64}.
+      */
+    template<class VT = valueIntType>
+    inline typename std::enable_if< std::is_same<VT,valueType>::value, VT>::type
+    queryInt(const keyType &k) {
+        return query(k);
+    }
+
+
+    void printValueTSize() {
+        std::cout << sizeof(valueType) << std::endl;
+    }
+
+
+    array<uint32_t, L*2> getCnt(); //< \brief returns an array (length of 2L), postion x: the number of 1s on the x-th lowest bit, for array A, if x<L; otherwise, for arrayB.
+    array<double, L> getRatio(); //<\brief returns an array, postion x: the probability that query return 1 on the x-th lowest bit.
+
+    void randomflip(); //<\brief adjust the array so that for random alien query, returns 0 or 1 with equal probability on each bit.
+    /*!
+      \brief adjust the array so that for random alien query, return 1 with probability that is close to the *ideal* value.
+      \param [in] double ideal. \n ideal = 1.0 means return 1 with higher probability. \n ideal = 0.0 means return 1 with loest probability.
+      \note This function is usually able to tune the probabilty within 0.2 ~ 0.8. 
+     */
+    void setAlienPreference(double ideal = 1.0); 
+private:
+    void inline get_hash_1(const keyType &v, uint32_t &ret1) {
+        ret1 = (Ha)(v);
+    }
+    inline valueType query(const keyType &k) {
+        uint32_t ha,hb;
+        get_hash_1(k,ha);
+        valueType aa = get(ha);
+        get_hash_2(k,hb);
+        valueType bb = get(hb);
+        //printf("%llx   [%x] %x ^ [%x] %x = %x\n", k,ha,aa,hb,bb,aa^bb);
+        return aa^bb;
+    }
+public:
+    void inline get_hash_2(const keyType &v, uint32_t &ret1) {
+        ret1 = (Hb)(v);
+        ret1 += ma;
+    }
+    void inline get_hash(const keyType &v, uint32_t &ret1, uint32_t &ret2) {
+        get_hash_1(v,ret1);
+        get_hash_2(v,ret2);
+    }
 };
 
 template<size_t L, class valueType>

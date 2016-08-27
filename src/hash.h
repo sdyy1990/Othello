@@ -1,19 +1,23 @@
+/*!
+  \file hash.h
+  Describes hash functions used in this project.
+*/
+ 
 #pragma once
 #include <functional>
+//*****************
+//! \brief A hash function that hashes Key to uint32_t. When SSE4.2 support is found, use sse4.2 instructions, otherwise use default hash function  std::hash.
+//*****************
 template <class Key>
 class Hasher32 {
 public:
-    uint32_t mask;
-    uint32_t s;
+    uint32_t mask; //!< a bitmask for the return value. return value must be within [0..mask]
+    uint32_t s;   //!< hash seed.
 private:
-    std::hash<Key> fallback;
+    std::hash<Key> fallback; 
     uint32_t hashshr;
 public:
-    //Hasher32(uint32_t hashlength, uint32_t _seed = 0) {
-    //	mask = (1U << hashlength) -1;
-    //	s = _seed;
-    //	hashshr = s & 7;
-    //}
+    //! set bitmask and seed 
     void setMaskSeed(uint32_t _mask, uint32_t _seed){
         mask = _mask;
         s = _seed;
