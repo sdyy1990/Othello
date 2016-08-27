@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstdio>
+#include <cstdlib>
 const char * ac = "ATGC";
 int main(int argc, char * argv[]) {
     int n,l,mx;
