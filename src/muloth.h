@@ -17,14 +17,14 @@ class MulOth {
 #include "typedefine.h"
     unsigned char split;
     bool addOth(vector<keyType> &keys, vector<valueType> &values) {
-            Othello<L, keyType> *poth;
-            poth = new Othello<L,keyType>(&keys[0], &values[0], keys.size());
-            if (!poth->build) {
-                printf("Build Halt!\n");
-                return false;
-            }
-            vOths.push_back(poth);
-            return true;
+        Othello<L, keyType> *poth;
+        poth = new Othello<L,keyType>(&keys[0], &values[0], keys.size());
+        if (!poth->build) {
+            printf("Build Halt!\n");
+            return false;
+        }
+        vOths.push_back(poth);
+        return true;
     }
 public:
     bool buildsucc;
@@ -33,7 +33,7 @@ public:
         FILE *pFile;
         pFile = fopen (fname,"r");
         vOths.clear();
-                    char buf[1024];
+        char buf[1024];
         split = _split;
         if (fileIsSorted)  {
             uint32_t grpid = 0;
@@ -41,30 +41,30 @@ public:
             vector<keyType> keys;
             vector<valueType> values;
             while (true) {
-                keyType k; valueType v; 
+                keyType k; valueType v;
                 void * pp;
                 if (fgets(buf,1024,pFile)==NULL) break;
                 if (!lineToKVpair(buf, &k, &v)) break;
-                    keyType keyingroup;
-                    uint32_t groupid;
-                    splitgrp(k,groupid,keyingroup,split);
-                    if (groupid != grpid) {
-                        if (!addOth(keys,values)) return;
-                        grpid ++;
-                        printf("Reading file for keys in group %02x/%02x\n", grpid,(1<<split)-1);
-                        keys.clear();
-                        values.clear();
-                    }
-                    keys.push_back(keyingroup);
-                    values.push_back(v);
+                keyType keyingroup;
+                uint32_t groupid;
+                splitgrp(k,groupid,keyingroup,split);
+                if (groupid != grpid) {
+                    if (!addOth(keys,values)) return;
+                    grpid++;
+                    printf("Reading file for keys in group %02x/%02x\n", grpid,(1<<split)-1);
+                    keys.clear();
+                    values.clear();
+                }
+                keys.push_back(keyingroup);
+                values.push_back(v);
             }
             if (!addOth(keys,values)) return;
         }
         else
-        for (uint32_t grpid = 0; grpid < (1<<_split); grpid++) {
-            printf("Reading file for keys in group %02x/%02x\n", grpid,(1<<split)-1);
-            vector<keyType> keys;
-            vector<valueType> values;
+            for (uint32_t grpid = 0; grpid < (1<<_split); grpid++) {
+                printf("Reading file for keys in group %02x/%02x\n", grpid,(1<<split)-1);
+                vector<keyType> keys;
+                vector<valueType> values;
                 rewind(pFile);
                 while (true) {
                     keyType k;
@@ -78,9 +78,9 @@ public:
                     keys.push_back(keyingroup);
                     values.push_back(v);
                 }
-            printf("keycount %d ", keys.size());
-            if (!addOth(keys,values)) return;
-        }
+                printf("keycount %d ", keys.size());
+                if (!addOth(keys,values)) return;
+            }
 
         buildsucc = true;
 

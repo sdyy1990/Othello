@@ -14,7 +14,7 @@ typename conditional< L==8u || L==4u || L==2u || L ==1u,     uint8_t,
 typedef
 typename conditional< L==8u || L==4u || L==2u || L ==1u,     uint8_t,
                       typename conditional< L<=16u,  uint16_t,
-                      typename conditional< L<=32u,  uint32_t, uint64_t  > :: type
+                                            typename conditional< L<=32u,  uint32_t, uint64_t  > :: type
                                             >::type
                       >::type valueIntType;
 

@@ -114,8 +114,8 @@ public:
 
     template<class VT = valueType>
     inline typename std::enable_if<
-    std::is_same<VT, uint16_t>::value ||  std::is_same<VT, uint8_t>::value
-    , VT>::type
+        std::is_same<VT, uint16_t>::value ||  std::is_same<VT, uint8_t>::value
+        , VT>::type
     getrand(valueType &v) {
         //     v = rand();
         v = 0;
@@ -184,7 +184,8 @@ public:
 
     Othello(vector<keyType> &keys, vector<valueType> &values, bool _autoclear = true) :
         Othello(& (keys[0]),& (values[0]),keys.size(), _autoclear)
-    {}
+    {
+    }
 
     inline valueType query(const keyType &k) {
         uint32_t ha,hb;
@@ -249,16 +250,16 @@ public:
 
 template<size_t L, class valueType>
 void padd (std::array<int32_t, L> &A, valueType &t) {
-     const valueType one = 1;
-     for (int i = 0 ; i <L; i++)
+    const valueType one = 1;
+    for (int i = 0; i <L; i++)
         if  (t & (one<<i))
-            A[i] ++;
+            A[i]++;
 }
 
 template<size_t L, class valueType>
 void pdiff(std::array<int32_t, L> &A, valueType &t) {
-     const valueType one = 1;
-     for (int i = 0 ; i <L; i++)
+    const valueType one = 1;
+    for (int i = 0; i <L; i++)
         if  (t & (one<<i))
             A[i]--;
         else A[i]++;
@@ -267,7 +268,7 @@ void pdiff(std::array<int32_t, L> &A, valueType &t) {
 template<size_t L>
 std::array<uint8_t,L> operator ^ (const std::array<uint8_t,L>  &A,const std::array<uint8_t,L>  &B) {
     std::array<uint8_t, L> v = A;
-    for (int i = 0 ; i < L; i++) v[i]^=B[i];
+    for (int i = 0; i < L; i++) v[i]^=B[i];
     return v;
 
 }
@@ -339,26 +340,26 @@ void Othello<L,keyType>::fillvalue( valueType *values, uint32_t keycount) {
 template<uint8_t L, class keyType>
 array<uint32_t, L*2> Othello<L,keyType>::getCnt() {
     array<uint32_t, L*2> cnt;
-    for (int i = 0 ; i < L+L; i++) cnt[i] =0;
-    for (int i = 0 ; i < ma; i++) {
+    for (int i = 0; i < L+L; i++) cnt[i] =0;
+    for (int i = 0; i < ma; i++) {
         valueType gv = get(i);
         uint8_t *vv;
         vv = (uint8_t*) ((void *) &gv);
-        for (int p = 0 ; p < L; p++)  {
+        for (int p = 0; p < L; p++)  {
             uint8_t tv;
             tv =  ((*vv) >> (p & 7));
-            if (tv & 1) cnt[p] ++;
+            if (tv & 1) cnt[p]++;
             if ((p & 7) == 7) vv++;
         }
     }
-    for (int i = ma ; i < ma+mb; i++) {
+    for (int i = ma; i < ma+mb; i++) {
         valueType gv = get(i);
         uint8_t *vv;
         vv = (uint8_t*) ((void *) &gv);
-        for (int p = 0 ; p < L; p++)  {
+        for (int p = 0; p < L; p++)  {
             uint8_t tv;
             tv =  ((*vv) >> (p & 7));
-            if (tv & 1) cnt[L+p] ++;
+            if (tv & 1) cnt[L+p]++;
             if ((p & 7) == 7) vv++;
         }
     }
@@ -370,7 +371,7 @@ template<uint8_t L, class keyType>
 array<double, L> Othello<L,keyType>::getRatio() {
     array<uint32_t, 2*L> cnt = getCnt();
     array<double, L> ret;
-    for (int i = 0 ; i < L; i++) {
+    for (int i = 0; i < L; i++) {
         double p1 = 1.0 * cnt[i] / ma;
         double p2 = 1.0 * cnt[i+L] / mb;
         ret[i] = p1*(1-p2)+p2*(1-p1);
@@ -394,7 +395,7 @@ void Othello<L,keyType>::randomflip() {
         else {
             VL[disj.getfa(i)].push_back(i);
         }
-    for (int i = 0 ; i < ma+mb; i++) {
+    for (int i = 0; i < ma+mb; i++) {
         getrand(vv);
         for (auto j = VL[i].begin(); j!=VL[i].end(); j++) {
             valueType newvalue =  get(*j)^vv;
@@ -417,11 +418,11 @@ void Othello<L,keyType>::setAlienPreference(double ideal) {
     int db[] = {0,1,1,1,0,-1,-1,-1};
     vector< array<int32_t,8> > sa (L, array<int32_t,8>());
     vector< array<int32_t,8> > sb (L, array<int32_t,8>());
-    for (int i = 0 ; i < 8; i++)
-        for (int j =0 ;j <L; j++)
+    for (int i = 0; i < 8; i++)
+        for (int j =0; j <L; j++)
             sa[j][i] = sb[j][i] =0;
     array<int32_t,L> na,nb;
-        for (int j =0 ;j <L; j++) na[j]=nb[j] =0;
+    for (int j =0; j <L; j++) na[j]=nb[j] =0;
     int emptyA = 0;
     int emptyB = 0;
     if (filled.size() <=1) return;
@@ -441,7 +442,7 @@ void Othello<L,keyType>::setAlienPreference(double ideal) {
             else padd(nb,cur);
         }
     }
-    for (int i = 0 ; i < ma+mb; i++) {
+    for (int i = 0; i < ma+mb; i++) {
         array<int32_t,L> diffa,diffb;
         for (int j = 0; j< L; j++) diffa[j]=diffb[j] =0;
         for (auto j = VL[i].begin(); j!=VL[i].end(); j++) {
@@ -449,18 +450,18 @@ void Othello<L,keyType>::setAlienPreference(double ideal) {
             if (*j < ma) pdiff(diffa,cur);
             else pdiff(diffb, cur);
         }
-        for (int bitID = 0; bitID<L; bitID++) 
-        for (int j = 0 ; j <8; j++)
-            if (da[j]*diffa[bitID] + db[j] *diffb[bitID] > 0)
-            {
-                sa[bitID][j]+=diffa[bitID];
-                sb[bitID][j]+=diffb[bitID];
-            }
+        for (int bitID = 0; bitID<L; bitID++)
+            for (int j = 0; j <8; j++)
+                if (da[j]*diffa[bitID] + db[j] *diffb[bitID] > 0)
+                {
+                    sa[bitID][j]+=diffa[bitID];
+                    sb[bitID][j]+=diffb[bitID];
+                }
 
     }
     array<int32_t,L> direction;
     for (int bitID = 0; bitID <L; bitID++) {
-            double ratemin = 1.0;
+        double ratemin = 1.0;
         for (int dir = 0; dir <8*4; dir++) {
             int setA = ((dir & 8) !=0);
             int setB = ((dir & 16)!=0);
@@ -474,15 +475,15 @@ void Othello<L,keyType>::setAlienPreference(double ideal) {
     valueType veA=0, veB=0;
 
     for (int bitID = 0; bitID<L; bitID++) {
-        veA |= ((direction[bitID] & 8)?(1<<bitID):0);
-        veB |= ((direction[bitID] & 16)?(1<<bitID):0);
+        veA |= ((direction[bitID] & 8) ? (1<<bitID) : 0);
+        veB |= ((direction[bitID] & 16) ? (1<<bitID) : 0);
     }
-    for (int i = 0 ; i < ma; i++) if (!filled[i])
+    for (int i = 0; i < ma; i++) if (!filled[i])
             set(i,veA);
     for (int i = ma; i <ma+mb; i++) if (!filled[i])
             set(i,veB);
 
-    for (int i = 0 ; i < ma+mb; i++) {
+    for (int i = 0; i < ma+mb; i++) {
         array<int32_t,L> diffa,diffb;
         for (int j = 0; j< L; j++) diffa[j]=diffb[j] =0;
         for (auto j = VL[i].begin(); j!=VL[i].end(); j++) {
@@ -490,15 +491,15 @@ void Othello<L,keyType>::setAlienPreference(double ideal) {
             if (*j < ma) pdiff(diffa,cur);
             else pdiff(diffb, cur);
         }
-            valueType vv =0;
-            for (int bitID = 0; bitID<L; bitID++) 
-                if (da[direction[bitID] &7 ] * diffa[bitID] + db[direction[bitID] &7] * diffb[bitID] > 0) 
-                    vv |= (1<<bitID);
-            
-            for (auto j = VL[i].begin(); j!=VL[i].end(); j++) {
-                    valueType newvalue =  get(*j)^vv;
-                    set(*j, newvalue);
-            }
+        valueType vv =0;
+        for (int bitID = 0; bitID<L; bitID++)
+            if (da[direction[bitID] &7 ] * diffa[bitID] + db[direction[bitID] &7] * diffb[bitID] > 0)
+                vv |= (1<<bitID);
+
+        for (auto j = VL[i].begin(); j!=VL[i].end(); j++) {
+            valueType newvalue =  get(*j)^vv;
+            set(*j, newvalue);
+        }
 
     }
 
