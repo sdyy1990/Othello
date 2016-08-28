@@ -39,7 +39,7 @@ int main() {
     for (int j = 0; j < VALUELEN; j++) ans[j] =0;
     for (int i = 0; i < CCNT; i++) {
         keyType T = disKey(*g);
-        valueType V = oth.query(T);
+        valueType V = oth.queryInt(T);
         for (int j = 0; j < VALUELEN; j++)
             ans[j] += ((V >> j) & 1);
     }

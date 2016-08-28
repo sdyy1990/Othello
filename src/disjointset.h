@@ -1,9 +1,11 @@
 #pragma once
 #include <vector>
 using namespace std;
+/*! \file disjointset.h
+ *  Disjoint Set data structure.  
+ */
 /*!
  * \brief Disjoint Set data structure. Helps to test the acyclicity of the graph during construction. 
- * 
  * */ 
 class DisjointSet {
     int siz;

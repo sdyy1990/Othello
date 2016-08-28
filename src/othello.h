@@ -122,12 +122,12 @@ private:
         return succ;
     }
 public:
-    /*
-    ! \brief Construct *l-Othello*.
-    ! \param [in] *_keys, pointer to array of keys.
-    ! \param [in] *_values, pointer to array of values
-    ! \param [in] keycount, number of keys, array size must match this.
-    ! \param [in] _autoclear, clear memory used during construction once completed. Forbid future modification on the structure.
+    /*!
+     \brief Construct *l-Othello*.
+     \param [in] keyType *_keys, pointer to array of keys.
+     \param [in] valueType * _values, pointer to array of values
+     \param [in] uint32_t keycount, number of keys, array size must match this.
+     \param [in] bool _autoclear, clear memory used during construction once completed. Forbid future modification on the structure.
     */
     Othello(keyType *_keys, valueType *_values, uint32_t keycount, bool _autoclear = true) {
         autoclear = _autoclear;
@@ -168,7 +168,7 @@ public:
         \note memory space length = 0x20.
               exporting infomation contains: seedA, seedB, ma , mb (represented as 1<<hl1 and 1<<hl2).
     */
-    void exportInfo(void * v) {
+    void exportInfo(unsigned char * v) {
         memset(v,0,0x20);
         uint32_t s1 = Ha.s;
         uint32_t s2 = Hb.s;
@@ -184,7 +184,7 @@ public:
        \brief load the infomation of the *Othello* from memory. 
        \note info is exported using *ExportInro()*
      */
-    Othello(void *v) {
+    Othello(unsigned char *v) {
         uint32_t hl1,hl2;
         uint32_t s1,s2;
         memcpy(&(s1),v,sizeof(uint32_t));

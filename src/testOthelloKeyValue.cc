@@ -10,30 +10,19 @@
 #include "io_helper.h"
 using namespace std;
 typedef unsigned long long keyT;
-typedef uint64_t valueT;
+#if VALUELENGTH==1 || VALUELENGTH == 2 || VALUELENGTH ==4 || VALUELENGTH==8
+typedef uint8_t valueT;
+#elif VALUELENGTH==16
+typedef uint16_t valueT;
+#elif VALUELENGTH==32
+typedef uint32_t valueT;
+#endif
+
 
 vector<keyT> keys;
 vector<valueT> values;
 
-
-void add(char * fname) {
-    printf("Reading file %s \n", fname);
-    FILE *pFile;
-    pFile = fopen (fname,"r");
-    uint64_t cnt = 0;
-    while (true) {
-        char buf[1024];
-        if (fgets(buf,1024,pFile)==NULL) break;
-        keyT k;
-        valueT v;
-        if (!lineToKVpair(buf, &k, &v)) break;
-        keys.push_back(k);
-        values.push_back(v);
-        cnt++;
-    }
-    fclose(pFile);
-    cout << "Keycnt" << human(cnt) <<"  totKey# "<< human(keys.size())<<endl;
-}
+IOHelper<keyT,valueT> *helper;
 
 
 int main(int argc, char * argv[]) {
@@ -45,10 +34,12 @@ int main(int argc, char * argv[]) {
     }
     int splitbit;
     sscanf(argv[1],"%d",&splitbit);
+    helper = new ConstantLengthKmerHelper<keyT,valueT>(KMERLENGTH,splitbit);
+
     MulOth<VALUELENGTH,keyT> * moth;
     if (splitbit >=0) {
         printf("Split %d groups\n",1U<< splitbit);
-        moth = new MulOth<VALUELENGTH, keyT>(argv[2],  splitbit, true);
+        moth = new MulOth<VALUELENGTH, keyT>(argv[2],  splitbit, helper, true);
         if (!moth->buildsucc) return 1;
 
         printf("Build Succ, write to file %s\n", argv[3]);
@@ -56,7 +47,7 @@ int main(int argc, char * argv[]) {
         moth->writeToFile(argv[3]);
         delete moth;
     }
-    moth = new MulOth<VALUELENGTH, keyT>( argv[3]);
+    moth = new MulOth<VALUELENGTH, keyT>( argv[3],helper);
 
     for (int i = 2; i< argc; i+=2) {
         printf("Testing using keys from file %s\n", argv[i]);
@@ -68,7 +59,7 @@ int main(int argc, char * argv[]) {
             if (fgets(buf,1024,pFile)==NULL) break;
             keyT k;
             valueT v;
-            if (!lineToKVpair<keyT,valueT>(buf, &k, &v)) break;
+            if (!helper->convert(buf, &k, &v)) break;
             valueT qv = moth->query(k);
             if ((qv & ((1<<VALUELENGTH)-1))!=(v & ((1<<VALUELENGTH)-1) )) {
                 printf("Err %llx -> %x : %x\n", k,v,qv);

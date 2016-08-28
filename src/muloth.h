@@ -39,13 +39,15 @@ class MulOth {
     }
 public:
     bool buildsucc; 
+    IOHelper<keyType,valueType> *helper;
     /*!
      * \brief Construct a Grouped l-Othello from a file.
-     * \param *fname, the file contains key/value pairs, each in a line.
-     * \param _split, the keys are first classifed according to their highest *_split* bits. There are in total 2^_split groups. Classification method as described in *splitgrp*.
-     * \param fileIsSorted. When fileIsSorted, assume that the file is sorted so that the keys appear in the ascending order of groups.
+     * \param char * fname  the file contains key/value pairs, each in a line.
+     * \param unsigned char _split  the keys are first classifed according to their highest *_split* bits. There are in total 2^_split groups. Classification method as described in *splitgrp*.
+	 * \param IOHelper _helper identifies how to convert a raw data to keytype and group.
+     * \param bool fileIsSorted When fileIsSorted, assume that the file is sorted so that the keys appear in the ascending order of groups.
      * */
-    MulOth(const char * fname, unsigned char _split, bool fileIsSorted = false) {
+    MulOth(const char * fname, unsigned char _split, class IOHelper<keyType,valueType> * _helper, bool fileIsSorted = false) : helper(_helper) {
         printf("Building Multi Othello from file %s \n",fname);
         FILE *pFile;
         pFile = fopen (fname,"r");
@@ -58,7 +60,7 @@ public:
             vector<valueType> values;
             while (true) {
                 if (fgets(buf,1024,pFile)==NULL) break;
-                if (!lineToKVpair(buf, &k, &v)) break;
+                if (!helper->convert(buf, &k, &v)) break;
                 keys.push_back(k);
                 values.push_back(v);
             }
@@ -75,10 +77,10 @@ public:
                 keyType k; valueType v;
                 void * pp;
                 if (fgets(buf,1024,pFile)==NULL) break;
-                if (!lineToKVpair(buf, &k, &v)) break;
+                if (!helper->convert(buf, &k, &v)) break;
                 keyType keyingroup;
                 uint32_t groupid;
-                splitgrp(k,groupid,keyingroup,split);
+                helper->splitgrp(k,groupid,keyingroup);
                 if (groupid != grpid) {
                     if (!addOth(keys,values)) return;
                     grpid++;
@@ -101,10 +103,10 @@ public:
                     keyType k;
                     valueType v;
                     if (fgets(buf,1024,pFile)==NULL) break;
-                    if (!lineToKVpair(buf, &k, &v)) break;
+                    if (!helper->convert(buf, &k, &v)) break;
                     keyType keyingroup;
                     uint32_t groupid;
-                    splitgrp(k,groupid,keyingroup,split);
+                    helper->splitgrp(k,groupid,keyingroup);
                     if (groupid != grpid) continue;
                     keys.push_back(keyingroup);
                     values.push_back(v);
@@ -127,7 +129,7 @@ public:
         if (split ==0) 
             return vOths[0]->queryInt(k);
         else {
-            splitgrp(k,grp,kgrp,split);
+            helper->splitgrp(k,grp,kgrp);
             return vOths[grp]->queryInt(kgrp);
         }
     }
@@ -159,7 +161,7 @@ public:
     }
 
     // \brief construct a Grouped l-Othello from a file.
-    MulOth(const char* fname) {
+    MulOth(const char* fname, IOHelper<keyType,valueType> * _helper): helper(_helper) {
         buildsucc = false;
         printf("Read from binary file %s\n", fname);
         FILE *pFile;

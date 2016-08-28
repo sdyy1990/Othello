@@ -1,4 +1,7 @@
-
+/*!
+ * \file typedefine.h
+ * contains templates that expands L-bit integer to uint8_t/uint16_t/uint32_t/uint64_t
+ * */
 typedef
 typename conditional< L==8u || L==4u || L==2u || L ==1u,     uint8_t,
                       typename conditional< L==16u,  uint16_t,

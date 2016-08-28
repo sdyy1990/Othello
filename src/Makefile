@@ -1,7 +1,7 @@
-all: test2 test4 test8 test16 doc
+all: test2 test4 test8 test16 
+
 
 #GITVERSION := $(shell git describe --abbrev=4 --dirty --always --tags)
-
 GITVERSION= "no-version"
 
 CXXFLAGS+= -std=gnu++11 -march=native -DGITVERSION=\"$(GITVERSION)\" -Wno-format
@@ -16,10 +16,10 @@ HEADERS= *.h
 .PHONY: clean
 
 test2: $(SRC) $(HEADERS)
-	g++ $(CXXFLAGS) -o $@ $(SRC) -DVALUELENGTH=2
+	$(CXX) $(CXXFLAGS) -o $@ $(SRC) -DVALUELENGTH=2
 
 test4: $(SRC) $(HEADERS)
-	g++ $(CXXFLAGS) -o $@ $(SRC) -DVALUELENGTH=4
+	$(CXX) $(CXXFLAGS) -o $@ $(SRC) -DVALUELENGTH=4
 
 test8: $(SRC) $(HEADERS)
 	g++ $(CXXFLAGS) -o $@ $(SRC) -DVALUELENGTH=8
@@ -32,6 +32,9 @@ clean:
 
 run: test4
 	./test4 2 smallkmers.txt tmp
+	./test2 2 smallkmers.txt tmp
+	./test8 3 smallkmers.txt tmp
+	./test16 3 smallkmers.txt tmp
 
 testRatio: testRatio.cc othello.h
 
