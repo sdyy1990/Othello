@@ -5,9 +5,7 @@
  
 #pragma once
 #include <functional>
-//*****************
 //! \brief A hash function that hashes Key to uint32_t. When SSE4.2 support is found, use sse4.2 instructions, otherwise use default hash function  std::hash.
-//*****************
 template <class Key>
 class Hasher32 {
 public:
