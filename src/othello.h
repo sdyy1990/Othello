@@ -35,6 +35,7 @@ public:
     bool build = false; //!< true if Othello is successfully built.
     uint32_t trycount = 0; //!< number of rehash before a valid hash pair is found.
     DisjointSet disj; //!< Disjoint Set data structure that helps to test the acyclicity.
+    vector<valueType> fillcount; //!< Enabled only when the values of the query is not pre-defined. This supports othelloIndex query. fillcount[x]==1 if and only if there is an edge pointed to x,
 private:    
     bool autoclear = false; //!< TODO, clears the memory allocated during construction automatically.
     keyType *keys; 
@@ -64,7 +65,7 @@ private:
     set(uint32_t loc, valueType &value) {
         //partial;
         value &= ((1<<L)-1);
-        const uint32_t percell = sizeof(mem[0])*8/L;
+        const uint32_t percell = sizeof(valueType)*8/L;
         uint32_t mv = loc % percell;
         // 33221100--> 3322xx00, changedbits = 11^xx
         valueType mask1 = ~(((1<<L)-1) << (mv*L));
@@ -72,7 +73,7 @@ private:
         mem[loc/percell] ^= (value << (mv*L));
         return value;
     }
-
+    
 
     template<class VT = valueType>
     inline typename std::enable_if< std::is_same<VT,array<uint8_t,L/8> >::value, VT>::type
@@ -129,7 +130,7 @@ public:
      \param [in] bool _autoclear, clear memory used during construction once completed. Forbid future modification on the structure.
      \param [in] valueType * _values, Optional, pointer to array of values. When *_values* is empty, fill othello values such that the query result classifies keys to 2 sets. See more in notes.
      \note keycount should not exceed 2^29 for memory consideration.
-     \n when *_values* is empty, classify keys into two sets X and Y, defined as follow: for each connected compoenents in G, select a node as the root, mark all edges in this connected compoenent as pointing away from the root. for all edges from U to V, query result is 0 (k in X), for all edges from V to u, query result is 1 ( k in Y).
+     \n when *_values* is empty, classify keys into two sets X and Y, defined as follow: for each connected compoenents in G, select a node as the root, mark all edges in this connected compoenent as pointing away from the root. for all edges from U to V, query result is 1 (k in Y), for all edges from V to u, query result is 0 (k in X).
     */
     Othello(keyType *_keys,  uint32_t keycount, bool _autoclear = true  , valueType *_values = NULL  ) {
         autoclear = _autoclear;
@@ -310,11 +311,18 @@ bool Othello<L,keyType>::testHash(uint32_t keycount) {
     return true;
 }
 
-
+/*!
+  \note Fill *Othello* so that the query returns values as defined. 
+  When *values* is NULL, mark edges as 0 or 1 according to their direction.
+ */
 template<uint8_t L, class keyType>
 void Othello<L,keyType>::fillvalue( valueType *values, uint32_t keycount) {
     filled.resize(ma+mb);
     fill(filled.begin(), filled.end(), false);
+    if (values == NULL) {
+        fillcount.resize((ma+mb)/(sizeof(valueType)*8));
+        fill(fillcount.begin(),fillcount.end(),0);
+    }
     for (int i = 0; i< ma+mb; i++)
         if (disj.isroot(i)) {
             queue<uint32_t> Q;
@@ -339,7 +347,17 @@ void Othello<L,keyType>::fillvalue( valueType *values, uint32_t keycount) {
                     }
                     int helse = filled[ha] ? hb : ha;
                     int hthis = filled[ha] ? ha : hb;
-                    valueType newvalue = values[kid] ^ get(hthis);
+                    //! m[hthis] is already filled, now fill m[helse].
+                    valueType valueKid;
+                    if (values != NULL)
+                        valueKid = values[kid];
+                    else {
+                        //! when hthis == ha, this is a edge pointing from U to V, i.e., value of this edge shall be set as 1. 
+                        valueKid = (hthis == ha)?1:0;
+                        fillcount[helse/sizeof(keyType)/8] |= (1<<(helse % (sizeof(keyType)*8)));
+                    }
+                        
+                    valueType newvalue = valueKid ^ get(hthis);
                     set(helse, newvalue);
                     //printf("k%llx ha/hb %lx %lx: %x ^ %x = %x ^ %x = %x (%x), helse%x ,i%x, %d\n",
                     //    keys[kid], ha, hb, get(hthis), newvalue, get(ha), get(hb), get(ha)^get(hb), values[kid], helse ,hthis ,(bool)(values[kid]==(get(ha)^(get(hb)))));

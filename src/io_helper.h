@@ -8,24 +8,24 @@
 #include <iostream>
 #include <iomanip>
 /*!
- * \brief interface for converting a key from its raw format to a keyType. Split key into groups.
+ * \brief interface for converting a key from its raw format to a keyTypeype. Split key into groups.
  */
-template <typename keyT, typename valueT>
+template <typename keyType, typename valueType>
 class IOHelper {
 public:
     /*!
        \brief convert a input-style line to key/value pair.
        \param [in] char *s, a line from the input.
-       \param [out] keyT* T, converted key.
-       \param [out] valueT* V, converted value.
+       \param [out] keyType* T, converted key.
+       \param [out] valueType* V, converted value.
        \retval boolean return true if convert is success.
       */
-    virtual bool convert(char *s, keyT *T, valueT *V)  = 0;
+    virtual bool convert(char *s, keyType *T, valueType *V)  = 0;
 
     /*!
-     \brief split a keyType value into two parts: groupID/keyInGroup by the highest *splitbit* bits.
+     \brief split a keyTypeype value into two parts: groupID/keyInGroup by the highest *splitbit* bits.
     */
-    virtual void splitgrp(const keyT &key, uint32_t &grp, keyT &keyInGroup) = 0;
+    virtual void splitgrp(const keyType &key, uint32_t &grp, keyType &keyInGroup) = 0;
 };
 
 
@@ -35,13 +35,13 @@ public:
  * We consider string as a base-4 number. [A=0,C=1,G=2,T=3]. \n
  * Kmers are grouped according to the highest *splitbit* bits.
  */
-template <typename keyT, typename valueT>
-class ConstantLengthKmerHelper : public IOHelper<keyT,valueT> {
+template <typename keyType, typename valueType>
+class ConstantLengthKmerHelper : public IOHelper<keyType,valueType> {
 public:
     uint8_t kmerlength; //!< Assume all kmers are of the same length.
     uint8_t splitbit;   //!< group the keys according to the highest bits.
     ConstantLengthKmerHelper(uint8_t _kmerlength, uint8_t _splitbit): kmerlength(_kmerlength),splitbit(_splitbit) {};
-    bool convert(char *s, keyT *k, valueT *v) {
+    bool convert(char *s, keyType *k, valueType *v) {
         char *s0;
         s0 = s;
         switch (*s) {
@@ -49,7 +49,7 @@ public:
         case 'T':
         case 'G':
         case  'C':
-            keyT ret = 0;
+            keyType ret = 0;
             while (*s == 'A' || *s == 'C' || *s =='T' || *s =='G') {
                 ret <<=2;
                 switch (*s) {
@@ -63,7 +63,7 @@ public:
                 s++;
             }
             *k = ret;
-            valueT tv;
+            valueType tv;
             sscanf(s,"%d",&tv);
             *v = tv;
             return true;
@@ -73,11 +73,11 @@ public:
 
     }
 
-    void splitgrp(const keyT &key, uint32_t &grp, keyT &keyInGroup) {
+    void splitgrp(const keyType &key, uint32_t &grp, keyType &keyInGroup) {
         int mvcnt = 2 * kmerlength - splitbit;
-        keyT high = (key >> mvcnt);
+        keyType high = (key >> mvcnt);
         grp = high;
-        keyT lowmask = 1;
+        keyType lowmask = 1;
         lowmask <<= mvcnt;
         keyInGroup = (key & (lowmask-1));
     }
