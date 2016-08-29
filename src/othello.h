@@ -35,7 +35,8 @@ public:
     bool build = false; //!< true if Othello is successfully built.
     uint32_t trycount = 0; //!< number of rehash before a valid hash pair is found.
     DisjointSet disj; //!< Disjoint Set data structure that helps to test the acyclicity.
-    vector<valueType> fillcount; //!< Enabled only when the values of the query is not pre-defined. This supports othelloIndex query. fillcount[x]==1 if and only if there is an edge pointed to x,
+    vector<uint32_t> fillcount; //!< Enabled only when the values of the query is not pre-defined. This supports othelloIndex query. fillcount[x]==1 if and only if there is an edge pointed to x,
+#define FILLCNTLEN (sizeof(uint32_t)*8)
 private:    
     bool autoclear = false; //!< TODO, clears the memory allocated during construction automatically.
     keyType *keys; 
@@ -220,7 +221,8 @@ public:
     template<class VT = valueIntType>
     inline typename std::enable_if< std::is_same<VT,valueType>::value, VT>::type
     queryInt(const keyType &k) {
-        return query(k);
+        uint32_t ha,hb;
+        return query(k,ha,hb);
     }
 
 
@@ -243,8 +245,15 @@ private:
     void inline get_hash_1(const keyType &v, uint32_t &ret1) {
         ret1 = (Ha)(v);
     }
-    inline valueType query(const keyType &k) {
-        uint32_t ha,hb;
+public:
+    /*!
+     \brief compute the hash value of key and return query value.
+     \param [in] keyType &k key
+     \param [out] uint32_t &ha  computed hash function ha
+     \param [out] uint32_t &hb  computed hash function hb
+     \retval valueType
+     */
+    inline valueType query(const keyType &k, uint32_t &ha, uint32_t &hb) {
         get_hash_1(k,ha);
         valueType aa = get(ha);
         get_hash_2(k,hb);
@@ -252,7 +261,6 @@ private:
         //printf("%llx   [%x] %x ^ [%x] %x = %x\n", k,ha,aa,hb,bb,aa^bb);
         return aa^bb;
     }
-public:
     void inline get_hash_2(const keyType &v, uint32_t &ret1) {
         ret1 = (Hb)(v);
         ret1 += ma;
@@ -320,7 +328,7 @@ void Othello<L,keyType>::fillvalue( valueType *values, uint32_t keycount) {
     filled.resize(ma+mb);
     fill(filled.begin(), filled.end(), false);
     if (values == NULL) {
-        fillcount.resize((ma+mb)/(sizeof(valueType)*8));
+        fillcount.resize((ma+mb)/32);
         fill(fillcount.begin(),fillcount.end(),0);
     }
     for (int i = 0; i< ma+mb; i++)
@@ -354,7 +362,7 @@ void Othello<L,keyType>::fillvalue( valueType *values, uint32_t keycount) {
                     else {
                         //! when hthis == ha, this is a edge pointing from U to V, i.e., value of this edge shall be set as 1. 
                         valueKid = (hthis == ha)?1:0;
-                        fillcount[helse/sizeof(keyType)/8] |= (1<<(helse % (sizeof(keyType)*8)));
+                        fillcount[helse/FILLCNTLEN] |= (1<<(helse % FILLCNTLEN));
                     }
                         
                     valueType newvalue = valueKid ^ get(hthis);
