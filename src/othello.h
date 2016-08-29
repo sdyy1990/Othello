@@ -125,15 +125,17 @@ public:
     /*!
      \brief Construct *l-Othello*.
      \param [in] keyType *_keys, pointer to array of keys.
-     \param [in] valueType * _values, pointer to array of values
      \param [in] uint32_t keycount, number of keys, array size must match this.
      \param [in] bool _autoclear, clear memory used during construction once completed. Forbid future modification on the structure.
+     \param [in] valueType * _values, Optional, pointer to array of values. When *_values* is empty, fill othello values such that the query result classifies keys to 2 sets. See more in notes.
+     \note keycount should not exceed 2^29 for memory consideration.
+     \n when *_values* is empty, classify keys into two sets X and Y, defined as follow: for each connected compoenents in G, select a node as the root, mark all edges in this connected compoenent as pointing away from the root. for all edges from U to V, query result is 0 (k in X), for all edges from V to u, query result is 1 ( k in Y).
     */
-    Othello(keyType *_keys, valueType *_values, uint32_t keycount, bool _autoclear = true) {
+    Othello(keyType *_keys,  uint32_t keycount, bool _autoclear = true  , valueType *_values = NULL  ) {
         autoclear = _autoclear;
         keys = _keys;
-        int hl1 = 2;
-        int hl2 = 2;
+        int hl1 = 6; //start from ma=64
+        int hl2 = 6; //start from mb=64
         while ((1<<hl2) <  keycount * 1) hl2++;
         while ((1<<hl1) < keycount* 1.333334) hl1++;
         ma = (1<<hl1);
@@ -150,7 +152,7 @@ public:
 
     //!\brief Construct othello with vectors.
     Othello(vector<keyType> &keys, vector<valueType> &values, bool _autoclear = true) :
-        Othello(& (keys[0]),& (values[0]),keys.size(), _autoclear)
+        Othello(& (keys[0]),keys.size(), _autoclear, &(values[0]))
     {
     }
 

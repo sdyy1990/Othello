@@ -29,7 +29,7 @@ class MulOth {
     unsigned char split;
     bool addOth(vector<keyType> &keys, vector<valueType> &values) {
         Othello<L, keyType> *poth;
-        poth = new Othello<L,keyType>(&keys[0], &values[0], keys.size());
+        poth = new Othello<L,keyType>(&keys[0], keys.size(), true, &values[0]);
         if (!poth->build) {
             printf("Build Halt!\n");
             return false;
