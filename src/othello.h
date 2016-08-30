@@ -210,12 +210,12 @@ public:
     template<class VIT = valueIntType>
     inline typename std::enable_if< !std::is_same<VIT,valueType>::value, VIT>::type
     queryInt(const keyType &k) {
-
+		uint32_t ha,hb;
         valueType q = query(k,ha,hb);
         VIT ret = 0;
         memcpy(ret,q,
                  (sizeof(VIT)<sizeof(valueType))?
-                   sizeof(VIT):sizeof(valueType)));
+                   sizeof(VIT):sizeof(valueType));
         return ret;
     }
 
