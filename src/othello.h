@@ -204,14 +204,19 @@ public:
     }
 
     /*!
-       \brief NOT IMPLEMENTED returns a *L*-bit integer query value for a key.
+       \brief returns a *L*-bit integer query value for a key.
        \note enabled when L is not in {1,2,4,8,16,32,64}
     */
-    template<class VT = valueIntType>
-    inline typename std::enable_if< !std::is_same<VT,valueType>::value, VT>::type
+    template<class VIT = valueIntType>
+    inline typename std::enable_if< !std::is_same<VIT,valueType>::value, VIT>::type
     queryInt(const keyType &k) {
-        //TODO
-        return 0;
+
+        valueType q = query(k,ha,hb);
+        VIT ret = 0;
+        memcpy(ret,q,
+                 (sizeof(VIT)<sizeof(valueType))?
+                   sizeof(VIT):sizeof(valueType)));
+        return ret;
     }
 
     /*!
