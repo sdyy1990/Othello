@@ -17,17 +17,19 @@ using namespace std;
 
 /*! 
  * \brief Describes the data structure *l-Othello*. It classifies keys of *keyType* into *2^L* classes. 
- * \note Query a key of keyType return *L* digit values ( *valueIntType* ). the types *valueType* and *valueIntType* are automatically generated.
+ * \note Query a key of keyType always return uint64_t, however, only the lowest L bits are meaningful. \n
+ * The array are all stored in an array of uint64_t. There are actually m_a+m_b cells in this array, each of length L. 
  */
-template<uint8_t L, class keyType>
+template< class keyType>
 class Othello
 {
-    //!\cond typedef
-              #include "typedefine.h"
-    //!\endcond 
+    typedef uint64_t valueType;
 #define MAX_REHASH 100 //!< Maximum number of rehash tries before report an error. If this limit is reached, Othello build fails. TODO: extend the length of ma and mb.
 public:
     vector<valueType> mem; //!< actual memory space for arrayA and arrayB. 
+    uint32_t L; //!< the length of return value.
+//    uint32_t LMASK;  return value must be within [0..2^L-1], i.e., LMASK==((1<<L)-1);
+#define LMASK ((1<<L)-1)    
     uint32_t ma; //!< length of arrayA.
     uint32_t mb; //!< length of arrayB
     Hasher32<keyType> Ha; //<! hash function Ha
@@ -40,67 +42,56 @@ public:
 private:    
     bool autoclear = false; //!< TODO, clears the memory allocated during construction automatically.
     keyType *keys; 
-    template<class VT = valueType>
-    inline typename std::enable_if< sizeof(valueType)*8 == L, VT>::type
-    get(uint32_t loc) { // 0..m_a-1 : arra, m_a..m_a+m_b-1 : arrb;
-        return mem[loc];
+    /*!
+     * \brief Get the consecutive L bits starting from location loc*L bit.
+     * \warning May return garbage info on the higher bits, needs (& LMASK) afterwards.
+     */
+    inline valueType get(uint32_t loc) { // 
+        uint32_t st = loc * L;
+        uint32_t mx = st & 0x3F; //mx = st % 64
+        if ( L & (L-1) ) {
+            //L &(L-1) !=0 ==> L is NOT some power of 2 ==> value may cross the uint64_t barrier.
+            if ( (mx + L) > 64 ) {
+                //mx+L > 64 means the value cross the barrier.
+                //The highest (64-mx) bits of mem[st>>6], 
+                //the lowest L-(64-mx) bits of mem[(st>>6)+1], shl (64-mx)
+                return ((mem[st>>6]>>mx) | (mem[(st>>6)+1]<<(64-mx)));
+            };
+        }
+        else {
+            return (mem[st>>6]>>mx);
+        }
     }
 
-    template<class VT = valueType>
-    inline typename std::enable_if< !(sizeof(valueType)*8 == L), VT>::type
-    get(uint32_t loc) {
-        //partial;  e.g, 33221100
-        const uint32_t percell = sizeof(mem[0])*8/L;
-        return (mem[loc/percell] >> ((loc % percell)*L))&((1<<L)-1);
-    }
 
 
-    template<class VT = valueType>
-    inline typename std::enable_if< sizeof(valueType)*8 == L, VT>::type
-    set(uint32_t loc, valueType &value) {
+    valueType inline set(uint32_t loc, valueType &value) {
+        value &= LMASK;
+        uint32_t st = loc * L;
+        uint32_t mx = st & 0x3F; //mx = st % 64
+        if ( L & (L-1) ) {
+            if ( (mx + L) > 64 ) {
+                mem[st>>6] &=  ((UINT64_MAX) >> (64-mx));
+                mem[st>>6] |=  (value << mx);
+                mem[(st>>6)+1] &= (UINT64_MAX << (64-(mx+L)));
+                mem[(st>>6)+1] |= (value >> (64-mx));
+                return value;
+            };
+        }
+        mem[st>>6] &= (~(LMASK << mx));
+        mem[st>>6] |= (value << mx);
+        
         return mem[loc] = value;
     }
 
-    template<class VT = valueType>
-    inline typename std::enable_if< !(sizeof(valueType)*8 == L), VT>::type
-    set(uint32_t loc, valueType &value) {
-        //partial;
-        value &= ((1<<L)-1);
-        const uint32_t percell = sizeof(valueType)*8/L;
-        uint32_t mv = loc % percell;
-        // 33221100--> 3322xx00, changedbits = 11^xx
-        valueType mask1 = ~(((1<<L)-1) << (mv*L));
-        mem[loc/percell] &= mask1;
-        mem[loc/percell] ^= (value << (mv*L));
-        return value;
-    }
-    
 
-    template<class VT = valueType>
-    inline typename std::enable_if< std::is_same<VT,array<uint8_t,L/8> >::value, VT>::type
-    getrand(array<uint8_t,L/8> &v) {
-        array<uint8_t, L/8> ret;
-        for (int i = 0; i < L/8; i++) ret[i] = rand();
-    }
-
-    template<class VT = valueType>
-    inline typename std::enable_if<std::is_same<VT, uint64_t >::value || std::is_same<VT, uint32_t>::value, VT>::type
-    getrand(valueType &v) {
+    inline valueType getrand(valueType &v) {
         valueType va = rand();
         va <<=28;
         va ^= rand();
         va <<=28;
         v = (va ^ rand());
     }
-
-    template<class VT = valueType>
-    inline typename std::enable_if<
-        std::is_same<VT, uint16_t>::value ||  std::is_same<VT, uint8_t>::value
-        , VT>::type
-    getrand(valueType &v) {
-        v = rand();
-    }
-
 
     void newHash() {
         Ha.setMaskSeed(ma-1,rand());
@@ -112,12 +103,20 @@ private:
     bool testHash(uint32_t keycount);
     vector<bool> filled;
 
-    void fillvalue(valueType *values, uint32_t keycount);
-    bool trybuild(valueType *values, uint32_t keycount) {
+    /*!
+     \brief Fill *Othello* so that the query returns values as defined. 
+     \param [in] void * values, pointer to the array of values. Each value is of *valuesize* bytes.
+     \param [in] uint32_t keycount.
+     \param [in] size_t valuesize. 
+     \note  When *values* is NULL, mark edges as 0 or 1 according to their direction.
+
+    */
+    void fillvalue(void *values, uint32_t keycount, size_t valuesize);
+    bool trybuild(void *values, uint32_t keycount, size_t valuesize) {
         bool succ;
         disj.setLength(ma+mb);
         if (succ = testHash(keycount)) {
-            fillvalue(values, keycount);
+            fillvalue(values, keycount,valuesize);
         }
         if (autoclear || (!succ))
             finishBuild();
@@ -133,7 +132,8 @@ public:
      \note keycount should not exceed 2^29 for memory consideration.
      \n when *_values* is empty, classify keys into two sets X and Y, defined as follow: for each connected compoenents in G, select a node as the root, mark all edges in this connected compoenent as pointing away from the root. for all edges from U to V, query result is 1 (k in Y), for all edges from V to u, query result is 0 (k in X).
     */
-    Othello(keyType *_keys,  uint32_t keycount, bool _autoclear = true  , valueType *_values = NULL  ) {
+    Othello(uint8_t _L, keyType *_keys,  uint32_t keycount, bool _autoclear = true, void *_values = NULL, size_t _valuesize = 0  ) {
+        L = _L;
         autoclear = _autoclear;
         keys = _keys;
         int hl1 = 6; //start from ma=64
@@ -143,18 +143,18 @@ public:
         ma = (1<<hl1);
         mb = (1<<hl2);
         mem.resize(1);
-        mem.resize((ma+mb)/(sizeof(mem[0])*8/L));
+        mem.resize(((ma+mb)*(uint64_t) L)/(sizeof(mem[0])*8));
         cout << "Othello" << human(keycount) <<" Keys, ma/mb = " << human(ma) <<"/"<<human(mb) <<" keyT"<< sizeof(keyType)*8<<"b  valueT" << sizeof(valueType)*8<<"b"<<" L="<<(int) L<<endl;
         while ((!build) && (trycount<MAX_REHASH)) {
             newHash();
-            build = trybuild( _values, keycount);
+            build = trybuild( _values, keycount, _valuesize);
         }
         cout << "Build Succ "<< build <<" After "<<trycount << "tries"<< endl;
     }
 
     //!\brief Construct othello with vectors.
-    Othello(vector<keyType> &keys, vector<valueType> &values, bool _autoclear = true) :
-        Othello(& (keys[0]),keys.size(), _autoclear, &(values[0]))
+    Othello(uint8_t _L, vector<keyType> &keys, vector<valueType> &values, bool _autoclear = true) :
+        Othello(_L, & (keys[0]),keys.size(), _autoclear, &(values[0]))
     {
     }
 
@@ -169,14 +169,21 @@ public:
 
     /*!
         \brief export the information of the *Othello*, not including the array, to a memory space.
-        \note memory space length = 0x20.
-              exporting infomation contains: seedA, seedB, ma , mb (represented as 1<<hl1 and 1<<hl2).
+        \note memory space length = 0x20. \n
+              Exported infomation contains:  \n
+              0x00, 32bit, L; \n
+              0x04, 32bit, seedB; \n
+              0x08, 32bit, seedA; \n
+              0x10, 8bit, hlA;
+              0x14, 8bit, hlB;
+              seedA, seedB, ma , mb (represented as 1<<hl1 and 1<<hl2).
     */
     void exportInfo(unsigned char * v) {
         memset(v,0,0x20);
         uint32_t s1 = Ha.s;
         uint32_t s2 = Hb.s;
-        memcpy(v,&s1,sizeof(uint32_t));
+        memcpy(v,&L, sizeof(uint32_t));
+        memcpy(v+4,&s1,sizeof(uint32_t));
         memcpy(v+8,&s2,sizeof(uint32_t));
         int hl1 = 0, hl2 = 0;
         while ((1<<hl1)!= ma) hl1++;
@@ -191,7 +198,8 @@ public:
     Othello(unsigned char *v) {
         uint32_t hl1,hl2;
         uint32_t s1,s2;
-        memcpy(&(s1),v,sizeof(uint32_t));
+        memcpy(&(L),v,sizeof(uint32_t)); 
+        memcpy(&(s1),v+4,sizeof(uint32_t));
         memcpy(&(s2),v+8,sizeof(uint32_t));
         memcpy(&hl1, v+0x10, sizeof(uint32_t));
         memcpy(&hl2, v+0x14, sizeof(uint32_t));
@@ -204,31 +212,13 @@ public:
     }
 
     /*!
-       \brief returns a *L*-bit integer query value for a key.
-       \note enabled when L is not in {1,2,4,8,16,32,64}
+       \brief returns a 64-bit integer query value for a key.
     */
-    template<class VIT = valueIntType>
-    inline typename std::enable_if< !std::is_same<VIT,valueType>::value, VIT>::type
-    queryInt(const keyType &k) {
+    uint64_t queryInt(const keyType &k) {
 		uint32_t ha,hb;
-        valueType q = query(k,ha,hb);
-        VIT ret = 0;
-        memcpy(ret,q,
-                 (sizeof(VIT)<sizeof(valueType))?
-                   sizeof(VIT):sizeof(valueType));
-        return ret;
-    }
-
-    /*!
-       \brief returns a *L*-bit integer query value for a key.
-       \note enabled when L is in {1,2,4,8,16,32,64}.
-      */
-    template<class VT = valueIntType>
-    inline typename std::enable_if< std::is_same<VT,valueType>::value, VT>::type
-    queryInt(const keyType &k) {
-        uint32_t ha,hb;
         return query(k,ha,hb);
     }
+
 
 
     void printValueTSize() {
@@ -236,10 +226,10 @@ public:
     }
 
 
-    array<uint32_t, L*2> getCnt(); //< \brief returns an array (length of 2L), postion x: the number of 1s on the x-th lowest bit, for array A, if x<L; otherwise, for arrayB.
-    array<double, L> getRatio(); //<\brief returns an array, postion x: the probability that query return 1 on the x-th lowest bit.
+    vector<uint32_t> getCnt(); //!< \brief returns vector, length = 2L. position x: the number of 1s on the x-th lowest bit, for array A, if x<L; otherwise, for arrayB.
+    vector<double> getRatio(); //!<\brief returns vector, length = L. position x: the probability that query return 1 on the x-th lowest bit.
 
-    void randomflip(); //<\brief adjust the array so that for random alien query, returns 0 or 1 with equal probability on each bit.
+    void randomflip(); //!<\brief adjust the array so that for random alien query, returns 0 or 1 with equal probability on each bit.
     /*!
       \brief adjust the array so that for random alien query, return 1 with probability that is close to the *ideal* value.
       \param [in] double ideal. \n ideal = 1.0 means return 1 with higher probability. \n ideal = 0.0 means return 1 with loest probability.
@@ -264,7 +254,7 @@ public:
         get_hash_2(k,hb);
         valueType bb = get(hb);
         //printf("%llx   [%x] %x ^ [%x] %x = %x\n", k,ha,aa,hb,bb,aa^bb);
-        return aa^bb;
+        return LMASK & (aa^bb);
     }
     void inline get_hash_2(const keyType &v, uint32_t &ret1) {
         ret1 = (Hb)(v);
@@ -276,6 +266,7 @@ public:
     }
 };
 
+/*
 template<size_t L, class valueType>
 void padd (std::array<int32_t, L> &A, valueType &t) {
     const valueType one = 1;
@@ -301,10 +292,10 @@ std::array<uint8_t,L> operator ^ (const std::array<uint8_t,L>  &A,const std::arr
 
 }
 
+*/
 
-
-template<uint8_t L, class keyType>
-bool Othello<L,keyType>::testHash(uint32_t keycount) {
+template< class keyType>
+bool Othello<keyType>::testHash(uint32_t keycount) {
     uint32_t ha, hb;
     nxt1  = new vector<int32_t> (keycount);
     nxt2  = new vector<int32_t> (keycount);
@@ -324,12 +315,8 @@ bool Othello<L,keyType>::testHash(uint32_t keycount) {
     return true;
 }
 
-/*!
-  \note Fill *Othello* so that the query returns values as defined. 
-  When *values* is NULL, mark edges as 0 or 1 according to their direction.
- */
-template<uint8_t L, class keyType>
-void Othello<L,keyType>::fillvalue( valueType *values, uint32_t keycount) {
+template< class keyType>
+void Othello<keyType>::fillvalue(void *values, uint32_t keycount, size_t valuesize) {
     filled.resize(ma+mb);
     fill(filled.begin(), filled.end(), false);
     if (values == NULL) {
@@ -338,6 +325,7 @@ void Othello<L,keyType>::fillvalue( valueType *values, uint32_t keycount) {
     }
     for (int i = 0; i< ma+mb; i++)
         if (disj.isroot(i)) {
+            printf("%x\n",i);
             queue<uint32_t> Q;
             Q.push(i);
             valueType vv;
@@ -345,6 +333,7 @@ void Othello<L,keyType>::fillvalue( valueType *values, uint32_t keycount) {
             set(i,vv);
             filled[i] = true;
             while (!Q.empty()) {
+                printf("\n");
                 uint32_t nodeid = (Q.front());
                 Q.pop();
                 vector<int32_t> *nxt;
@@ -361,9 +350,11 @@ void Othello<L,keyType>::fillvalue( valueType *values, uint32_t keycount) {
                     int helse = filled[ha] ? hb : ha;
                     int hthis = filled[ha] ? ha : hb;
                     //! m[hthis] is already filled, now fill m[helse].
-                    valueType valueKid;
+                    valueType valueKid = 0;
+                    printf("%lx %lx %lx ---", kid, ha,hb);
                     if (values != NULL)
-                        valueKid = values[kid];
+                        memcpy(&valueKid, ((uint8_t *)  values) + kid*valuesize, L/8);
+//                        valueKid = values[kid];
                     else {
                         //! when hthis == ha, this is a edge pointing from U to V, i.e., value of this edge shall be set as 1. 
                         valueKid = (hthis == ha)?1:0;
@@ -382,10 +373,9 @@ void Othello<L,keyType>::fillvalue( valueType *values, uint32_t keycount) {
         }
 }
 
-template<uint8_t L, class keyType>
-array<uint32_t, L*2> Othello<L,keyType>::getCnt() {
-    array<uint32_t, L*2> cnt;
-    for (int i = 0; i < L+L; i++) cnt[i] =0;
+template< class keyType>
+vector<uint32_t> Othello<keyType>::getCnt() {
+    vector<uint32_t> cnt(L,0);
     for (int i = 0; i < ma; i++) {
         valueType gv = get(i);
         uint8_t *vv;
@@ -412,10 +402,10 @@ array<uint32_t, L*2> Othello<L,keyType>::getCnt() {
 }
 
 
-template<uint8_t L, class keyType>
-array<double, L> Othello<L,keyType>::getRatio() {
-    array<uint32_t, 2*L> cnt = getCnt();
-    array<double, L> ret;
+template< class keyType>
+vector<double> Othello<keyType>::getRatio() {
+    vector<double> cnt = getCnt();
+    vector<double> ret(L,0.0);
     for (int i = 0; i < L; i++) {
         double p1 = 1.0 * cnt[i] / ma;
         double p2 = 1.0 * cnt[i+L] / mb;
@@ -425,8 +415,8 @@ array<double, L> Othello<L,keyType>::getRatio() {
 
 }
 
-template<uint8_t L, class keyType>
-void Othello<L,keyType>::randomflip() {
+template< class keyType>
+void Othello<keyType>::randomflip() {
     if (filled.size() <=1) return;
     printf("Random flip\n");
     valueType vv;
@@ -457,8 +447,8 @@ double getrate(uint32_t ma, uint32_t mb, uint32_t da, uint32_t db) {
 }
 
 
-template<uint8_t L, class keyType>
-void Othello<L,keyType>::setAlienPreference(double ideal) {
+template< class keyType>
+void Othello<keyType>::setAlienPreference(double ideal) {
     int da[] = {1,1,0,-1,-1,-1,0,1};
     int db[] = {0,1,1,1,0,-1,-1,-1};
     vector< array<int32_t,8> > sa (L, array<int32_t,8>());

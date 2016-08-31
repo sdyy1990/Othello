@@ -22,14 +22,14 @@ const char * VERSION = GITVERSION;
  */
 template <uint8_t L, typename keyType>
 class MulOth {
-    vector<Othello<L, keyType> *> vOths; //!< list of *l-Othellos*
+    vector<Othello<keyType> *> vOths; //!< list of *l-Othellos*
 //!\cond typedef
 #include "typedefine.h"
 //!\endcond    
     unsigned char split;
     bool addOth(vector<keyType> &keys, vector<valueType> &values) {
-        Othello<L, keyType> *poth;
-        poth = new Othello<L,keyType>(&keys[0], keys.size(), true, &values[0]);
+        Othello<keyType> *poth;
+        poth = new Othello<keyType>(L, &keys[0], keys.size(), true, &values[0], sizeof(values[0]));
         if (!poth->build) {
             printf("Build Halt!\n");
             return false;
@@ -183,8 +183,8 @@ public:
         split = split32;
         for (int i = 0; i < (1<<split); i++) {
             fread(buf0x20,sizeof(buf0x20),1,pFile);
-            Othello<L,keyType> *poth;
-            poth = new Othello<L,keyType>(buf0x20);
+            Othello<keyType> *poth;
+            poth = new Othello<keyType>(buf0x20);
             vOths.push_back(poth);
         }
         for (int i = 0; i < (1<< split); i++) {

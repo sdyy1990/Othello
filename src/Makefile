@@ -4,9 +4,10 @@ all: test2 test4 test8 test16
 #GITVERSION := $(shell git describe --abbrev=4 --dirty --always --tags)
 GITVERSION= "no-version"
 
-CXXFLAGS+= -std=gnu++11 -march=native -DGITVERSION=\"$(GITVERSION)\" -Wno-format
+CXXFLAGS+= -std=gnu++11 -DGITVERSION=\"$(GITVERSION)\" -Wno-format
 
-CXXFLAGS+= -Wno-pointer-arith -DKMERLENGTH=20 -DBIT_PER_BP=2 -O3
+CXXFLAGS+= -Wno-pointer-arith -DKMERLENGTH=20 -g  -march=native
+#-DKMERLENGTH=20 -DBIT_PER_BP=2 -g
 
 
 SRC= testOthelloKeyValue.cc
