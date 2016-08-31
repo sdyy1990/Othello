@@ -193,6 +193,10 @@ public:
         fclose(pFile);
         buildsucc = true;
     }
+    ~MulOth() {
+        for (auto p: vOths)
+            delete p;
+    }
 };
 
 

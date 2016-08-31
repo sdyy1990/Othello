@@ -29,7 +29,7 @@ public:
     vector<valueType> mem; //!< actual memory space for arrayA and arrayB. 
     uint32_t L; //!< the length of return value.
 //    uint32_t LMASK;  return value must be within [0..2^L-1], i.e., LMASK==((1<<L)-1);
-#define LMASK ((1<<L)-1)    
+#define LMASK ((1ULL<<L)-1)    
     uint32_t ma; //!< length of arrayA.
     uint32_t mb; //!< length of arrayB
     Hasher32<keyType> Ha; //<! hash function Ha
@@ -80,8 +80,7 @@ private:
         }
         mem[st>>6] &= (~(LMASK << mx));
         mem[st>>6] |= (value << mx);
-        
-        return mem[loc] = value;
+        return value;    
     }
 
 
@@ -206,7 +205,7 @@ public:
         ma = (1<<hl1);
         mb = (1<<hl2);
         mem.resize(1);
-        mem.resize((ma+mb)/(sizeof(mem[0])*8/L));
+        mem.resize(((ma+mb)*(uint64_t) L)/(sizeof(mem[0])*8));
         Ha.setMaskSeed(ma-1,s1);
         Hb.setMaskSeed(mb-1,s2);
     }
@@ -317,6 +316,8 @@ bool Othello<keyType>::testHash(uint32_t keycount) {
 
 template< class keyType>
 void Othello<keyType>::fillvalue(void *values, uint32_t keycount, size_t valuesize) {
+    list<uint32_t> Q;
+    vector<int32_t> *nxt;
     filled.resize(ma+mb);
     fill(filled.begin(), filled.end(), false);
     if (values == NULL) {
@@ -325,18 +326,15 @@ void Othello<keyType>::fillvalue(void *values, uint32_t keycount, size_t valuesi
     }
     for (int i = 0; i< ma+mb; i++)
         if (disj.isroot(i)) {
-            printf("%x\n",i);
-            queue<uint32_t> Q;
-            Q.push(i);
+            while (!Q.empty()) Q.pop_front();
+            Q.push_back(i);
             valueType vv;
             getrand(vv);
             set(i,vv);
             filled[i] = true;
             while (!Q.empty()) {
-                printf("\n");
-                uint32_t nodeid = (Q.front());
-                Q.pop();
-                vector<int32_t> *nxt;
+                uint32_t nodeid = (*Q.begin());
+                Q.pop_front();
                 if (nodeid < ma) nxt = nxt1;
                 else nxt = nxt2;
                 int32_t kid = first->at(nodeid);
@@ -351,9 +349,11 @@ void Othello<keyType>::fillvalue(void *values, uint32_t keycount, size_t valuesi
                     int hthis = filled[ha] ? ha : hb;
                     //! m[hthis] is already filled, now fill m[helse].
                     valueType valueKid = 0;
-                    printf("%lx %lx %lx ---", kid, ha,hb);
-                    if (values != NULL)
-                        memcpy(&valueKid, ((uint8_t *)  values) + kid*valuesize, L/8);
+                    if (values != NULL) {
+                        uint8_t * loc = (uint8_t *) values;
+                        loc += (kid * valuesize);
+                        memcpy(&valueKid, loc, valuesize);
+                    }
 //                        valueKid = values[kid];
                     else {
                         //! when hthis == ha, this is a edge pointing from U to V, i.e., value of this edge shall be set as 1. 
@@ -362,13 +362,15 @@ void Othello<keyType>::fillvalue(void *values, uint32_t keycount, size_t valuesi
                     }
                         
                     valueType newvalue = valueKid ^ get(hthis);
+//                    printf("%x %x %x===", valueKid, get(hthis), newvalue);
                     set(helse, newvalue);
-                    //printf("k%llx ha/hb %lx %lx: %x ^ %x = %x ^ %x = %x (%x), helse%x ,i%x, %d\n",
-                    //    keys[kid], ha, hb, get(hthis), newvalue, get(ha), get(hb), get(ha)^get(hb), values[kid], helse ,hthis ,(bool)(values[kid]==(get(ha)^(get(hb)))));
-                    Q.push(helse);
+//                    printf("k%llx ha/hb %lx %lx: %x ^ %x = %x ^ %x = %x (%x), helse%x ,i%x, %d\n",
+//                       keys[kid], ha, hb, get(hthis), newvalue, get(ha), get(hb), get(ha)^get(hb), valueKid, helse ,hthis ,(bool)(valueKid==(get(ha)^(get(hb)))));
+                    Q.push_back(helse);
                     filled[helse] = true;
                     kid = nxt->at(kid);
                 }
+                
             }
         }
 }

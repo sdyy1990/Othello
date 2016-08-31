@@ -72,5 +72,6 @@ int main(int argc, char * argv[]) {
         fclose(pFile);
         printf("Test Succ\n");
     }
+    delete moth;
     return 0;
 }

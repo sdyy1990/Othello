@@ -41,6 +41,7 @@ public:
     uint8_t kmerlength; //!< Assume all kmers are of the same length.
     uint8_t splitbit;   //!< group the keys according to the highest bits.
     ConstantLengthKmerHelper(uint8_t _kmerlength, uint8_t _splitbit): kmerlength(_kmerlength),splitbit(_splitbit) {};
+    ~ConstantLengthKmerHelper() {};
     bool convert(char *s, keyType *k, valueType *v) {
         char *s0;
         s0 = s;
