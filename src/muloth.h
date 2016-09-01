@@ -18,14 +18,13 @@ const char * VERSION = GITVERSION;
 /*!
  * \brief Describes the data structure *Grouped l-Othello*. It classifies keys of *keyType* into *2^L* classes. \n
  * The keys are first classifed into groups, each group is then maintained by one *l-Othello*. 
- * \note Query a key of keyType return *L* digit values ( *valueIntType* ). the types *valueType* and *valueIntType* are automatically generated.
+ * \note Query a key of keyType always return uint64_t, however, only the lowest L bits are meaningful. \n
  */
-template <uint8_t L, typename keyType>
+template <typename keyType>
 class MulOth {
+    typedef uint64_t valueType;
+    uint32_t L;
     vector<Othello<keyType> *> vOths; //!< list of *l-Othellos*
-//!\cond typedef
-#include "typedefine.h"
-//!\endcond    
     unsigned char split;
     bool addOth(vector<keyType> &keys, vector<valueType> &values) {
         Othello<keyType> *poth;
@@ -47,7 +46,8 @@ public:
 	 * \param IOHelper _helper identifies how to convert a raw data to keytype and group.
      * \param bool fileIsSorted When fileIsSorted, assume that the file is sorted so that the keys appear in the ascending order of groups.
      * */
-    MulOth(const char * fname, unsigned char _split, class IOHelper<keyType,valueType> * _helper, bool fileIsSorted = false) : helper(_helper) {
+    MulOth(uint32_t _L, const char * fname, unsigned char _split, class IOHelper<keyType,valueType> * _helper, bool fileIsSorted = false) : helper(_helper) {
+        L = _L;
         printf("Building Multi Othello from file %s \n",fname);
         FILE *pFile;
         pFile = fopen (fname,"r");
@@ -121,9 +121,8 @@ public:
 
     /*!
        \brief returns a *L*-bit integer query value for a key.
-       \note enabled when L is in {1,2,4,8,16,32,64}.
       */
-    inline valueIntType query(const keyType &k) {
+    inline valueType query(const keyType &k) {
         uint32_t grp;
         keyType kgrp;
         if (split ==0) 
@@ -192,6 +191,7 @@ public:
         }
         fclose(pFile);
         buildsucc = true;
+        L= vOths[0]->L;
     }
     ~MulOth() {
         for (auto p: vOths)

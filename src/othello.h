@@ -58,9 +58,7 @@ private:
                 return ((mem[st>>6]>>mx) | (mem[(st>>6)+1]<<(64-mx)));
             };
         }
-        else {
-            return (mem[st>>6]>>mx);
-        }
+        return (mem[st>>6]>>mx);
     }
 
 
@@ -73,7 +71,7 @@ private:
             if ( (mx + L) > 64 ) {
                 mem[st>>6] &=  ((UINT64_MAX) >> (64-mx));
                 mem[st>>6] |=  (value << mx);
-                mem[(st>>6)+1] &= (UINT64_MAX << (64-(mx+L)));
+                mem[(st>>6)+1] &= (UINT64_MAX << ((mx+L)-64));
                 mem[(st>>6)+1] |= (value >> (64-mx));
                 return value;
             };
@@ -143,6 +141,7 @@ public:
         mb = (1<<hl2);
         mem.resize(1);
         mem.resize(((ma+mb)*(uint64_t) L)/(sizeof(mem[0])*8));
+        while (mem.size()*sizeof(mem[0])*8<(ma+mb)*((uint64_t)L)) mem.push_back(0);
         cout << "Othello" << human(keycount) <<" Keys, ma/mb = " << human(ma) <<"/"<<human(mb) <<" keyT"<< sizeof(keyType)*8<<"b  valueT" << sizeof(valueType)*8<<"b"<<" L="<<(int) L<<endl;
         while ((!build) && (trycount<MAX_REHASH)) {
             newHash();
@@ -206,6 +205,7 @@ public:
         mb = (1<<hl2);
         mem.resize(1);
         mem.resize(((ma+mb)*(uint64_t) L)/(sizeof(mem[0])*8));
+        while (mem.size()*sizeof(mem[0])*8<(ma+mb)*((uint64_t)L)) mem.push_back(0);
         Ha.setMaskSeed(ma-1,s1);
         Hb.setMaskSeed(mb-1,s2);
     }
@@ -252,7 +252,7 @@ public:
         valueType aa = get(ha);
         get_hash_2(k,hb);
         valueType bb = get(hb);
-        //printf("%llx   [%x] %x ^ [%x] %x = %x\n", k,ha,aa,hb,bb,aa^bb);
+        //printf("%llx   [%x] %x ^ [%x] %x = %x\n", k,ha,aa&LMASK,hb,bb&LMASK,(aa^bb)&LMASK);
         return LMASK & (aa^bb);
     }
     void inline get_hash_2(const keyType &v, uint32_t &ret1) {
@@ -364,8 +364,9 @@ void Othello<keyType>::fillvalue(void *values, uint32_t keycount, size_t valuesi
                     valueType newvalue = valueKid ^ get(hthis);
 //                    printf("%x %x %x===", valueKid, get(hthis), newvalue);
                     set(helse, newvalue);
-//                    printf("k%llx ha/hb %lx %lx: %x ^ %x = %x ^ %x = %x (%x), helse%x ,i%x, %d\n",
-//                       keys[kid], ha, hb, get(hthis), newvalue, get(ha), get(hb), get(ha)^get(hb), valueKid, helse ,hthis ,(bool)(valueKid==(get(ha)^(get(hb)))));
+//                    printf("k%llx ha/hb %lx %lx: %x ^ %x = %x ^ %x = %x (%x), helse%x ,i%x, %d ==",
+//                       keys[kid], ha, hb, get(hthis) & LMASK, newvalue & LMASK, get(ha) &LMASK, get(hb) &LMASK, (get(ha)^get(hb)) & LMASK, valueKid &LMASK, helse ,hthis ,(bool)((valueKid &LMASK)==((get(ha)^(get(hb)))&LMASK)));
+//                    printf("%x %x\n", get(0xcf)&LMASK, get(0x73e)&LMASK);
                     Q.push_back(helse);
                     filled[helse] = true;
                     kid = nxt->at(kid);

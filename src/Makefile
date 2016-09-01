@@ -26,6 +26,12 @@ test4: $(SRC) $(HEADERS)
 test8: $(SRC) $(HEADERS)
 	g++ $(CXXFLAGS) -o $@ $(SRC) -DVALUELENGTH=8
 
+test5: $(SRC) $(HEADERS)
+	g++ $(CXXFLAGS) -o $@ $(SRC) -DVALUELENGTH=5
+
+test1: $(SRC) $(HEADERS)
+	g++ $(CXXFLAGS) -o $@ $(SRC) -DVALUELENGTH=1
+
 test16: $(SRC) $(HEADERS)
 	g++ $(CXXFLAGS) -o $@ $(SRC) -DVALUELENGTH=16
 
@@ -35,11 +41,11 @@ testIndex: testIndex.cc *.h
 clean:	
 	rm test
 
-run: test4
-	./test4 2 smallkmers.txt tmp
-	./test2 2 smallkmers.txt tmp
-	./test8 3 smallkmers.txt tmp
-	./test16 3 smallkmers.txt tmp
+run: test4 test1 test2 test5
+	./test5 1 smallkmers.txt tmp
+#	./test4 2 smallkmers.txt tmp
+#	./test2 2 smallkmers.txt tmp
+#	./test1 1 smallkmers.txt tmp
 
 testRatio: testRatio.cc othello.h
 
