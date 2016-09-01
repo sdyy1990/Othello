@@ -1,7 +1,7 @@
 #pragma once
 /*!
  \file othello.h 
- Describes the data structure *l-Othello*.
+ Describes the data structure *l-Othello*...
 */
 
 #include <vector>

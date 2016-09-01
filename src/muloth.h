@@ -40,11 +40,12 @@ public:
     bool buildsucc; 
     IOHelper<keyType,valueType> *helper;
     /*!
-     * \brief Construct a Grouped l-Othello from a file.
-     * \param char * fname  the file contains key/value pairs, each in a line.
-     * \param unsigned char _split  the keys are first classifed according to their highest *_split* bits. There are in total 2^_split groups. Classification method as described in *splitgrp*.
-	 * \param IOHelper _helper identifies how to convert a raw data to keytype and group.
-     * \param bool fileIsSorted When fileIsSorted, assume that the file is sorted so that the keys appear in the ascending order of groups.
+     \brief Construct a Grouped l-Othello from a file.
+     \param uint32_t _L
+     \param char * fname  the file contains key/value pairs, each in a line.
+     \param unsigned char _split  the keys are first classifed according to their highest *_split* bits. There are in total 2^_split groups. Classification method as described in *splitgrp*.
+	 \param IOHelper _helper identifies how to convert a raw data to keytype and group.
+     \param bool fileIsSorted When fileIsSorted, assume that the file is sorted so that the keys appear in the ascending order of groups.
      * */
     MulOth(uint32_t _L, const char * fname, unsigned char _split, class IOHelper<keyType,valueType> * _helper, bool fileIsSorted = false) : helper(_helper) {
         L = _L;
