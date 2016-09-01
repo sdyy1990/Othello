@@ -155,7 +155,8 @@ public:
             fwrite(buf0x20,sizeof(buf0x20),1,pFile);
         }
         for (int i = 0; i <(1<<split); i++) {
-            fwrite(&(vOths[i]->mem[0]),sizeof(vOths[i]->mem[0]), vOths[i]->mem.size(), pFile);
+            vOths[i]->writeDataToBinaryFile(pFile);
+//           fwrite(&(vOths[i]->mem[0]),sizeof(vOths[i]->mem[0]), vOths[i]->mem.size(), pFile);
         }
         fclose(pFile);
     }
@@ -188,7 +189,8 @@ public:
             vOths.push_back(poth);
         }
         for (int i = 0; i < (1<< split); i++) {
-            fread(&(vOths[i]->mem[0]),sizeof(vOths[i]->mem[0]), vOths[i]->mem.size(), pFile);
+            vOths[i]->loadDataFromBinaryFile(pFile);
+            //fread(&(vOths[i]->mem[0]),sizeof(vOths[i]->mem[0]), vOths[i]->mem.size(), pFile);
         }
         fclose(pFile);
         buildsucc = true;

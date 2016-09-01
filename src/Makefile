@@ -43,8 +43,8 @@ clean:
 
 run: test4 test1 test2 test5
 	./test5 1 smallkmers.txt tmp
-#	./test4 2 smallkmers.txt tmp
-#	./test2 2 smallkmers.txt tmp
+	./test4 2 smallkmers.txt tmp
+	./test2 2 smallkmers.txt tmp
 	./test1 1 smallkmers.txt tmp
 
 testRatio: testRatio.cc othello.h

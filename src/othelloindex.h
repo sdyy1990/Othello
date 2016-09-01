@@ -14,35 +14,33 @@
 
  */
 template <class keyType>
-class OthelloIndex {
-    Othello<keyType> *oth;
+class OthelloIndex : public Othello<keyType> {
     vector<uint32_t> offset;
     uint32_t sum(uint32_t h) {
         uint32_t p = (h & 0x1F);
-        return offset[h>>5] + __builtin_popcount(oth->fillcount[h>>5] & ((1<<p)-1));
+        return offset[h>>5] + __builtin_popcount(Othello<keyType>::fillcount[h>>5] & ((1<<p)-1));
     }
 public:    
-    bool build = false; //!< true if OthelloIndex is successfully built.
     /*! 
      \brief Construct *OthelloIndex*
      \param [in] keyType * keys, pointer to array of keys.
      \param [in] uint32_t keycount, number of keys.
      */
-    OthelloIndex(keyType *_keys, uint32_t keycount) {
-        oth = new Othello<keyType>(1,_keys, keycount);
-        build = oth->build;
-        offset.resize(oth->fillcount.size());
+    OthelloIndex(keyType *_keys, uint32_t keycount) :
+        Othello<keyType>(1,_keys, keycount)
+        {
+        offset.resize(Othello<keyType>::fillcount.size());
         offset[0] = 0;
         for (int i = 1 ; i < offset.size(); i++) {
-            offset[i] = offset[i-1] + __builtin_popcount(oth->fillcount[i-1]);
+            offset[i] = offset[i-1] + __builtin_popcount(Othello<keyType>::fillcount[i-1]);
         }
           
-
-    } 
-    ~OthelloIndex() {
-        delete oth;
-        offset.clear();     
     }
+    OthelloIndex(unsigned char *v): 
+        Othello<keyType>(v) {
+        Othello<keyType>::fillcount.resize((Othello<keyType>::ma+Othello<keyType>::mb)/32);
+        offset.resize(Othello<keyType>::fillcount.size());
+        }
     /*!
      \brief return the index of key k, in range [0..n-1]
      \param [in] keyType k
@@ -50,9 +48,27 @@ public:
      */
     uint32_t query(const keyType &k) {
         uint32_t ha,hb;
-        uint8_t v = oth->query(k,ha,hb);
+        uint64_t v = Othello<keyType>::query(k,ha,hb);
         uint32_t h = v?hb:ha;
         return sum(h);
+    }
+
+    /*!
+     \brief load the array from file. 
+     \note only the arrayA and B are loaded. This must be called after using constructor Othello<keyType>::Othello(unsigned char *)
+     */
+    void loadDataFromBinaryFile(FILE *pF) {
+        fread(&(Othello<keyType>::mem[0]),sizeof(Othello<keyType>::mem[0]), Othello<keyType>::mem.size(), pF);
+        fread(&(Othello<keyType>::fillcount[0]),sizeof(Othello<keyType>::fillcount[0]), Othello<keyType>::fillcount.size(), pF);
+        fread(&(offset[0]),sizeof(offset[0]),offset.size(),pF);
+    }
+    /*!
+     \brief write array to binary file.
+     */
+    void writeDataToBinaryFile(FILE *pF) {
+        fwrite(&(Othello<keyType>::mem[0]),sizeof(Othello<keyType>::mem[0]), Othello<keyType>::mem.size(), pF);
+        fwrite(&(Othello<keyType>::fillcount[0]),sizeof(Othello<keyType>::fillcount[0]), Othello<keyType>::fillcount.size(), pF);
+        fwrite(&(offset[0]),sizeof(offset[0]),offset.size(),pF);
     }
 };
 

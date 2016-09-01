@@ -263,6 +263,19 @@ public:
         get_hash_1(v,ret1);
         get_hash_2(v,ret2);
     }
+    /*!
+     \brief load the array from file. 
+     \note only the arrayA and B are loaded. This must be called after using constructor Othello<keyType>::Othello(unsigned char *)
+     */
+    void loadDataFromBinaryFile(FILE *pF) {
+        fread(&(mem[0]),sizeof(mem[0]), mem.size(), pF);
+    }
+    /*!
+     \brief write array to binary file.
+     */
+    void writeDataToBinaryFile(FILE *pF) {
+        fwrite(&(mem[0]),sizeof(mem[0]), mem.size(), pF);
+    }
 void padd (vector<int32_t> &A, valueType &t) {
     const valueType one = 1;
     for (int i = 0; i <L; i++)

@@ -33,8 +33,33 @@ int main() {
         mset.insert(t);
     }
     printf("%d\n", mset.size());
+    printf("Write to file\n");
+    FILE *pF;
+    pF = fopen("testtmp","wb");
+    unsigned char buf0x20[0x20];
+    memset(&(buf0x20[0]),0,sizeof(buf0x20));
+    othidx.exportInfo(buf0x20);
+    fwrite(buf0x20, sizeof(buf0x20),1,pF);
+    othidx.writeDataToBinaryFile(pF);
+    fclose(pF);
+
+    printf("Load from file\n");
+    FILE *pFr;
+    pFr = fopen("testtmp","rb");
+    fread(buf0x20, sizeof(buf0x20),1, pFr);
+    OthelloIndex<keyType> *newoth;
+    newoth = new OthelloIndex<keyType>((unsigned char *) buf0x20);
+    newoth->loadDataFromBinaryFile(pFr);
+
+    for (int i = 0; i< NN; i++) {
+        if (othidx.query(kV[i])!=newoth->query(kV[i])) {
+            printf("Err: %llx %x %x\n", kV[i], othidx.query(kV[i]), newoth->query(kV[i]));
+            return 0;
+        }
+    }
     if (mset.size()==NN && (*mset.begin())==0 && (*mset.rbegin())==NN-1 ) 
         printf("Test Succ!\n");
     else 
         printf("fail\n");
+
 }
