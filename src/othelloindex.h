@@ -15,7 +15,7 @@
  */
 template <class keyType>
 class OthelloIndex {
-    Othello<1, keyType> *oth;
+    Othello<keyType> *oth;
     vector<uint32_t> offset;
     uint32_t sum(uint32_t h) {
         uint32_t p = (h & 0x1F);
@@ -29,7 +29,7 @@ public:
      \param [in] uint32_t keycount, number of keys.
      */
     OthelloIndex(keyType *_keys, uint32_t keycount) {
-        oth = new Othello<1,keyType>(_keys, keycount);
+        oth = new Othello<keyType>(1,_keys, keycount);
         build = oth->build;
         offset.resize(oth->fillcount.size());
         offset[0] = 0;

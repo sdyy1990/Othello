@@ -5,6 +5,7 @@
 #include <inttypes.h>
 #include "othello.h"
 #include <array>
+#include <vector>
 using namespace std;
 typedef uint64_t keyType;
 typedef uint16_t valueType;
@@ -24,11 +25,11 @@ int main() {
         v &= ((1<<VALUELEN)-1);
         vV.push_back(v);
     }
-    Othello<VALUELEN, keyType> oth(kV, vV,false);
+    Othello<keyType> oth(VALUELEN, kV, vV,false);
 
-    array< uint32_t, VALUELEN*2> cnt;
-    array<uint32_t,VALUELEN> ans;
-    array< double, VALUELEN> rat;
+    vector< uint32_t> cnt;
+    vector<uint32_t> ans;
+    vector< double> rat;
 
     cnt  = oth.getCnt();
     rat  = oth.getRatio();
@@ -36,7 +37,7 @@ int main() {
     for (int i = 0; i < VALUELEN; i++) {        printf("%d ", cnt[VALUELEN+i]);    }    printf("\n");
     for (int i = 0; i < VALUELEN; i++) {        printf("%.3lf ", rat[i]);   }    printf("\n");
     const int CCNT = 10000000;
-    for (int j = 0; j < VALUELEN; j++) ans[j] =0;
+    ans.resize(VALUELEN);
     for (int i = 0; i < CCNT; i++) {
         keyType T = disKey(*g);
         valueType V = oth.queryInt(T);
@@ -50,7 +51,7 @@ int main() {
 
 
     for (int i = 0; i < kV.size(); i++) {
-        valueType v = oth.query(kV[i]);
+        valueType v = oth.queryInt(kV[i]);
         if (v!=vV[i]) {            printf("Err!!!!");            return 0; }
     }
     printf("Verify Succ\n");
@@ -66,7 +67,7 @@ int main() {
     for (int i = 0; i < VALUELEN; i++) {        printf("%.3lf ", rat[i]);   }    printf("\n");
     for (int i = 0; i < CCNT; i++) {
         keyType T = disKey(*g);
-        valueType V = oth.query(T);
+        valueType V = oth.queryInt(T);
         for (int j = 0; j < VALUELEN; j++)
             ans[j] += ((V >> j) & 1);
     }
@@ -76,7 +77,7 @@ int main() {
     printf("\n");
 
     for (int i = 0; i < kV.size(); i++) {
-        valueType v = oth.query(kV[i]);
+        valueType v = oth.queryInt(kV[i]);
         if (v!=vV[i]) {            printf("Err!!!!");            return 0; }
     }
     printf("Verify Succ\n");

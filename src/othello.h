@@ -149,10 +149,10 @@ public:
         }
         cout << "Build Succ "<< build <<" After "<<trycount << "tries"<< endl;
     }
-
     //!\brief Construct othello with vectors.
-    Othello(uint8_t _L, vector<keyType> &keys, vector<valueType> &values, bool _autoclear = true) :
-        Othello(_L, & (keys[0]),keys.size(), _autoclear, &(values[0]))
+    template<typename VT>
+    Othello(uint8_t _L, vector<keyType> &keys, vector<VT> &values, bool _autoclear = true) :
+        Othello(_L, & (keys[0]),keys.size(), _autoclear, &(values[0]), sizeof(VT))
     {
     }
 
@@ -263,25 +263,24 @@ public:
         get_hash_1(v,ret1);
         get_hash_2(v,ret2);
     }
-};
-
-/*
-template<size_t L, class valueType>
-void padd (std::array<int32_t, L> &A, valueType &t) {
+void padd (vector<int32_t> &A, valueType &t) {
     const valueType one = 1;
     for (int i = 0; i <L; i++)
         if  (t & (one<<i))
             A[i]++;
 }
 
-template<size_t L, class valueType>
-void pdiff(std::array<int32_t, L> &A, valueType &t) {
+void pdiff(vector<int32_t> &A, valueType &t) {
     const valueType one = 1;
     for (int i = 0; i <L; i++)
         if  (t & (one<<i))
             A[i]--;
         else A[i]++;
 }
+};
+
+/*
+template<size_t L, class valueType>
 
 template<size_t L>
 std::array<uint8_t,L> operator ^ (const std::array<uint8_t,L>  &A,const std::array<uint8_t,L>  &B) {
@@ -378,7 +377,7 @@ void Othello<keyType>::fillvalue(void *values, uint32_t keycount, size_t valuesi
 
 template< class keyType>
 vector<uint32_t> Othello<keyType>::getCnt() {
-    vector<uint32_t> cnt(L,0);
+    vector<uint32_t> cnt; cnt.resize(L+L);
     for (int i = 0; i < ma; i++) {
         valueType gv = get(i);
         uint8_t *vv;
@@ -407,8 +406,8 @@ vector<uint32_t> Othello<keyType>::getCnt() {
 
 template< class keyType>
 vector<double> Othello<keyType>::getRatio() {
-    vector<double> cnt = getCnt();
-    vector<double> ret(L,0.0);
+    vector<uint32_t> cnt = getCnt();
+    vector<double> ret; ret.resize(L);
     for (int i = 0; i < L; i++) {
         double p1 = 1.0 * cnt[i] / ma;
         double p2 = 1.0 * cnt[i+L] / mb;
@@ -459,8 +458,8 @@ void Othello<keyType>::setAlienPreference(double ideal) {
     for (int i = 0; i < 8; i++)
         for (int j =0; j <L; j++)
             sa[j][i] = sb[j][i] =0;
-    array<int32_t,L> na,nb;
-    for (int j =0; j <L; j++) na[j]=nb[j] =0;
+    vector<int32_t> na(L,0),nb(L,0);
+    //for (int j =0; j <L; j++) na[j]=nb[j] =0;
     int emptyA = 0;
     int emptyB = 0;
     if (filled.size() <=1) return;
@@ -481,8 +480,8 @@ void Othello<keyType>::setAlienPreference(double ideal) {
         }
     }
     for (int i = 0; i < ma+mb; i++) {
-        array<int32_t,L> diffa,diffb;
-        for (int j = 0; j< L; j++) diffa[j]=diffb[j] =0;
+        vector<int32_t> diffa(L,0),diffb(L,0);
+//        for (int j = 0; j< L; j++) diffa[j]=diffb[j] =0;
         for (auto j = VL[i].begin(); j!=VL[i].end(); j++) {
             valueType cur = get(*j);
             if (*j < ma) pdiff(diffa,cur);
@@ -497,7 +496,7 @@ void Othello<keyType>::setAlienPreference(double ideal) {
                 }
 
     }
-    array<int32_t,L> direction;
+    vector<int32_t> direction(L,0);
     for (int bitID = 0; bitID <L; bitID++) {
         double ratemin = 1.0;
         for (int dir = 0; dir <8*4; dir++) {
@@ -522,8 +521,7 @@ void Othello<keyType>::setAlienPreference(double ideal) {
             set(i,veB);
 
     for (int i = 0; i < ma+mb; i++) {
-        array<int32_t,L> diffa,diffb;
-        for (int j = 0; j< L; j++) diffa[j]=diffb[j] =0;
+        vector<int32_t> diffa(L,0),diffb(L,0);
         for (auto j = VL[i].begin(); j!=VL[i].end(); j++) {
             valueType cur = get(*j);
             if (*j < ma) pdiff(diffa,cur);
