@@ -5,7 +5,7 @@ all: test2 test4 test8 test16 testIndex
 GITVERSION= "no-version"
 
 CXXFLAGS+= -std=gnu++11 -DGITVERSION=\"$(GITVERSION)\"
-#CXXFLAGS+= -Wno-format -Wno-pointer-arith
+CXXFLAGS+= -Wno-format -Wno-pointer-arith
 
 CXXFLAGS+= -DKMERLENGTH=20 -O3  -march=native
 #-DKMERLENGTH=20 -DBIT_PER_BP=2 -g

@@ -24,7 +24,7 @@ template< class keyType>
 class Othello
 {
     typedef uint64_t valueType;
-#define MAX_REHASH 100 //!< Maximum number of rehash tries before report an error. If this limit is reached, Othello build fails. TODO: extend the length of ma and mb.
+#define MAX_REHASH 20 //!< Maximum number of rehash tries before report an error. If this limit is reached, Othello build fails. 
 public:
     vector<valueType> mem; //!< actual memory space for arrayA and arrayB. 
     uint32_t L; //!< the length of return value.
@@ -40,7 +40,7 @@ public:
     vector<uint32_t> fillcount; //!< Enabled only when the values of the query is not pre-defined. This supports othelloIndex query. fillcount[x]==1 if and only if there is an edge pointed to x,
 #define FILLCNTLEN (sizeof(uint32_t)*8)
 private:    
-    bool autoclear = false; //!< TODO, clears the memory allocated during construction automatically.
+    bool autoclear = false; //!<  clears the memory allocated during construction automatically.
     keyType *keys; 
     /*!
      * \brief Get the consecutive L bits starting from location loc*L bit.
@@ -135,19 +135,35 @@ public:
         keys = _keys;
         int hl1 = 6; //start from ma=64
         int hl2 = 6; //start from mb=64
-        while ((1<<hl2) <  keycount * 1) hl2++;
-        while ((1<<hl1) < keycount* 1.333334) hl1++;
-        ma = (1<<hl1);
-        mb = (1<<hl2);
+        while ((1UL<<hl2) <  keycount * 1) hl2++;
+        while ((1UL<<hl1) < keycount* 1.333334) hl1++; 
+        ma = (1UL<<hl1);
+        mb = (1UL<<hl2);
         mem.resize(1);
         mem.resize(((ma+mb)*(uint64_t) L)/(sizeof(mem[0])*8));
         while (mem.size()*sizeof(mem[0])*8<(ma+mb)*((uint64_t)L)) mem.push_back(0);
-        cout << "Othello" << human(keycount) <<" Keys, ma/mb = " << human(ma) <<"/"<<human(mb) <<" keyT"<< sizeof(keyType)*8<<"b  valueT" << sizeof(valueType)*8<<"b"<<" L="<<(int) L<<endl;
-        while ((!build) && (trycount<MAX_REHASH)) {
-            newHash();
-            build = trybuild( _values, keycount, _valuesize);
+        cout << "Building" <<endl;
+        trycount = 0;
+        while ( (!build) && (hl1<=31&&hl2<=31)) { 
+            while ((!build) && (trycount<MAX_REHASH)) {
+                newHash();
+                build = trybuild( _values, keycount, _valuesize);
+            }
+            if (!build) {
+                if (hl1 == hl2) hl1++; else hl2++;
+                ma = (1UL<<hl1);
+                mb = (1UL<<hl2);
+                mem.resize(1);
+                mem.resize(((ma+mb)*(uint64_t) L)/(sizeof(mem[0])*8));
+                cout << "Othello" << human(keycount) <<" Keys, ma/mb = " << human(ma) <<"/"<<human(mb) <<" keyT"<< sizeof(keyType)*8<<"b  valueT" << sizeof(valueType)*8<<"b"<<" L="<<(int) L<<endl;
+                while (mem.size()*sizeof(mem[0])*8<(ma+mb)*((uint64_t)L)) mem.push_back(0);
+                trycount = 0;
+            }
         }
-        cout << "Build Succ "<< build <<" After "<<trycount << "tries"<< endl;
+        if (build) 
+            cout << "Succ " << human(keycount) <<" Keys, ma/mb = " << human(ma) <<"/"<<human(mb) <<" keyT"<< sizeof(keyType)*8<<"b  valueT" << sizeof(valueType)*8<<"b"<<" L="<<(int) L <<" After "<<trycount << "tries"<< endl;
+        else 
+            cout << "Build Fail!" << endl;
     }
     //!\brief Construct othello with vectors.
     template<typename VT>
