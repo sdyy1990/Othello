@@ -200,8 +200,13 @@ public:
         memcpy(v+4,&s1,sizeof(uint32_t));
         memcpy(v+8,&s2,sizeof(uint32_t));
         int hl1 = 0, hl2 = 0;
-        while ((1<<hl1)!= ma) hl1++;
-        while ((1<<hl2)!= mb) hl2++;
+        if (ma == 0 || mb ==0) {
+            hl1 = hl2 = 0;
+        }
+        else {
+            while ((1<<hl1)!= ma) hl1++;
+            while ((1<<hl2)!= mb) hl2++;
+        }
         memcpy(v+0x10,&hl1, sizeof(uint32_t));
         memcpy(v+0x14,&hl2,sizeof(uint32_t));
     }
@@ -210,20 +215,24 @@ public:
        \note info is exported using *ExportInro()*
      */
     Othello(unsigned char *v) {
-        uint32_t hl1,hl2;
-        uint32_t s1,s2;
+        int32_t hl1,hl2;
+        int32_t s1,s2;
         memcpy(&(L),v,sizeof(uint32_t)); 
         memcpy(&(s1),v+4,sizeof(uint32_t));
         memcpy(&(s2),v+8,sizeof(uint32_t));
         memcpy(&hl1, v+0x10, sizeof(uint32_t));
         memcpy(&hl2, v+0x14, sizeof(uint32_t));
-        ma = (1<<hl1);
-        mb = (1<<hl2);
-        mem.resize(1);
-        mem.resize(((ma+mb)*(uint64_t) L)/(sizeof(mem[0])*8));
-        while (mem.size()*sizeof(mem[0])*8<(ma+mb)*((uint64_t)L)) mem.push_back(0);
-        Ha.setMaskSeed(ma-1,s1);
-        Hb.setMaskSeed(mb-1,s2);
+        if (hl1 > 0 && hl2 >0) {
+            ma = (1<<hl1);
+            mb = (1<<hl2);
+            mem.resize(1);
+            mem.resize(((ma+mb)*(uint64_t) L)/(sizeof(mem[0])*8));
+            while (mem.size()*sizeof(mem[0])*8<(ma+mb)*((uint64_t)L)) mem.push_back(0);
+            Ha.setMaskSeed(ma-1,s1);
+            Hb.setMaskSeed(mb-1,s2);
+        }
+        else 
+            ma = mb =0;
     }
 
     /*!

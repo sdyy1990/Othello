@@ -26,14 +26,14 @@ class MulOth {
     uint32_t L;
     vector<Othello<keyType> *> vOths; //!< list of *l-Othellos*
     unsigned char split;
-    bool addOth(vector<keyType> &keys, vector<valueType> &values) {
+    bool addOth(unsigned int groupid, vector<keyType> &keys, vector<valueType> &values) {
         Othello<keyType> *poth;
         poth = new Othello<keyType>(L, &keys[0], keys.size(), true, &values[0], sizeof(values[0]));
         if (!poth->build) {
             printf("Build Halt!\n");
             return false;
         }
-        vOths.push_back(poth);
+        vOths[groupid] = poth;
         return true;
     }
 public:
@@ -53,6 +53,7 @@ public:
         FILE *pFile;
         pFile = fopen (fname,"r");
         vOths.clear();
+        vOths.resize(1<<_split);
         char buf[1024];
         split = _split;
         if (split ==0) {
@@ -65,13 +66,13 @@ public:
                 keys.push_back(k);
                 values.push_back(v);
             }
-            if (!addOth(keys,values)) return;
+            if (!addOth(0,keys,values)) return;
             buildsucc = true;
             return;
         }
         if (fileIsSorted)  {
             uint32_t grpid = 0;
-            printf("Reading file for keys in group %02x/%02x\n", grpid,(1<<split)-1);
+            printf("Reading file for keys in group %2x/%2x\n", grpid,(1<<split)-1);
             vector<keyType> keys;
             vector<valueType> values;
             while (true) {
@@ -83,20 +84,20 @@ public:
                 uint32_t groupid;
                 helper->splitgrp(k,groupid,keyingroup);
                 if (groupid != grpid) {
-                    if (!addOth(keys,values)) return;
-                    grpid++;
-                    printf("Reading file for keys in group %02x/%02x\n", grpid,(1<<split)-1);
+                    if (!addOth(grpid,keys,values)) return;
+                    grpid = groupid;
+                    printf("Reading file for keys in group %2x/%0x\n", grpid,(1<<split)-1);
                     keys.clear();
                     values.clear();
                 }
                 keys.push_back(keyingroup);
                 values.push_back(v);
             }
-            if (!addOth(keys,values)) return;
+            if (!addOth(grpid,keys,values)) return;
         }
         else
             for (uint32_t grpid = 0; grpid < (1<<_split); grpid++) {
-                printf("Reading file for keys in group %02x/%02x\n", grpid,(1<<split)-1);
+                printf("Reading file for keys in group %2x/%2x\n", grpid,(1<<split)-1);
                 vector<keyType> keys;
                 vector<valueType> values;
                 rewind(pFile);
@@ -113,7 +114,8 @@ public:
                     values.push_back(v);
                 }
                 printf("keycount %d ", keys.size());
-                if (!addOth(keys,values)) return;
+                if (keys.size()>0)
+                    if (!addOth(grpid,keys,values)) return;
             }
 
         buildsucc = true;
@@ -130,7 +132,7 @@ public:
             return vOths[0]->queryInt(k);
         else {
             helper->splitgrp(k,grp,kgrp);
-            return vOths[grp]->queryInt(kgrp);
+            return (vOths[grp]!=NULL)?vOths[grp]->queryInt(kgrp):0;
         }
     }
     void printall () {
@@ -150,11 +152,16 @@ public:
         uint32_t split32 = split;
         memcpy(buf0x20, &split32, sizeof(uint32_t));
         fwrite(buf0x20,sizeof(buf0x20),1,pFile);
-        for (int i = 0; i <(1<<split); i++) {
-            vOths[i]->exportInfo(buf0x20);
+        for (int i = 0; i <(1<<split); i++) 
+        {
+            if (vOths[i]!=NULL) 
+                vOths[i]->exportInfo(buf0x20);
+            else 
+                memset(buf0x20,0, sizeof(buf0x20));
             fwrite(buf0x20,sizeof(buf0x20),1,pFile);
         }
         for (int i = 0; i <(1<<split); i++) {
+            if (vOths[i]!=NULL)
             vOths[i]->writeDataToBinaryFile(pFile);
 //           fwrite(&(vOths[i]->mem[0]),sizeof(vOths[i]->mem[0]), vOths[i]->mem.size(), pFile);
         }
@@ -182,19 +189,24 @@ public:
         uint32_t split32;
         memcpy(&split32, buf0x20, sizeof(uint32_t));
         split = split32;
+        vOths.clear();
         for (int i = 0; i < (1<<split); i++) {
             fread(buf0x20,sizeof(buf0x20),1,pFile);
-            Othello<keyType> *poth;
-            poth = new Othello<keyType>(buf0x20);
+            Othello<keyType> *poth = NULL;
+            uint64_t *ppoth; ppoth = (uint64_t*) &buf0x20;
+            if (*ppoth) 
+                poth = new Othello<keyType>(buf0x20);
             vOths.push_back(poth);
         }
         for (int i = 0; i < (1<< split); i++) {
-            vOths[i]->loadDataFromBinaryFile(pFile);
+            if (vOths[i] != NULL) {
+                vOths[i]->loadDataFromBinaryFile(pFile);
+                L= vOths[i]->L;
+            }
             //fread(&(vOths[i]->mem[0]),sizeof(vOths[i]->mem[0]), vOths[i]->mem.size(), pFile);
         }
         fclose(pFile);
         buildsucc = true;
-        L= vOths[0]->L;
     }
     ~MulOth() {
         for (auto p: vOths)

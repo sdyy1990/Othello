@@ -8,7 +8,7 @@ CXXFLAGS+= -std=gnu++11 -DGITVERSION=\"$(GITVERSION)\"
 CXXFLAGS+= -Wno-format -Wno-pointer-arith
 
 CXXFLAGS+= -DKMERLENGTH=20 -O3  -march=native
-#-DKMERLENGTH=20 -DBIT_PER_BP=2 -g
+#CXXFLAGS+= -DKMERLENGTH=20 -march=native -g
 
 
 SRC= testOthelloKeyValue.cc
