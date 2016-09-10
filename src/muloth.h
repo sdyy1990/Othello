@@ -66,8 +66,8 @@ public:
                 keys.push_back(k);
                 values.push_back(v);
             }
-            if (!addOth(0,keys,values)) return;
-            buildsucc = true;
+            buildsucc = addOth(0,keys,values);
+            fclose(pFile);
             return;
         }
         if (fileIsSorted)  {
@@ -84,7 +84,8 @@ public:
                 uint32_t groupid;
                 helper->splitgrp(k,groupid,keyingroup);
                 if (groupid != grpid) {
-                    if (!addOth(grpid,keys,values)) return;
+                    if (!addOth(grpid,keys,values)) 
+                        {fclose(pFile); return;}
                     grpid = groupid;
                     printf("Reading file for keys in group %2x/%0x\n", grpid,(1<<split)-1);
                     keys.clear();
@@ -93,7 +94,8 @@ public:
                 keys.push_back(keyingroup);
                 values.push_back(v);
             }
-            if (!addOth(grpid,keys,values)) return;
+            if (!addOth(grpid,keys,values)) 
+                {fclose(pFile); return;}
         }
         else
             for (uint32_t grpid = 0; grpid < (1<<_split); grpid++) {
@@ -115,11 +117,12 @@ public:
                 }
                 printf("keycount %d ", keys.size());
                 if (keys.size()>0)
-                    if (!addOth(grpid,keys,values)) return;
+                    if (!addOth(grpid,keys,values)) 
+                        {fclose(pFile); return;}
             }
 
         buildsucc = true;
-
+        fclose(pFile);
     }
 
     /*!
