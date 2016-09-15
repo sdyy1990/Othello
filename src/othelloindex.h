@@ -1,7 +1,7 @@
 #pragma once
 #include "othello.h"
 /*!
-  \file othellotable.h
+  \file othelloindex.h
   Describes the data structure *OthelloIndex*
 */
 
