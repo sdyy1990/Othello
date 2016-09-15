@@ -1,4 +1,4 @@
-all: test2 test4 test8 test16 testIndex 
+all: test2 test4 test8 test16 testIndex testLargeOthello
 
 
 #GITVERSION := $(shell git describe --abbrev=4 --dirty --always --tags)
@@ -7,7 +7,8 @@ GITVERSION= "no-version"
 CXXFLAGS+= -std=gnu++11 -DGITVERSION=\"$(GITVERSION)\"
 CXXFLAGS+= -Wno-format -Wno-pointer-arith
 
-CXXFLAGS+= -DKMERLENGTH=20 -O3  -march=native
+CXXFLAGS+= -DKMERLENGTH=20 -O3  -march=native -DHASHSEED1=0x74b0dc51 -DHASHSEED2=0x19495cff
+
 #CXXFLAGS+= -DKMERLENGTH=20 -march=native -g
 
 
@@ -25,6 +26,12 @@ test4: $(SRC) $(HEADERS)
 
 test8: $(SRC) $(HEADERS)
 	g++ $(CXXFLAGS) -o $@ $(SRC) -DVALUELENGTH=8
+
+test6: $(SRC) $(HEADERS)
+	g++ $(CXXFLAGS) -o $@ $(SRC) -DVALUELENGTH=6
+
+testLargeOthello: testLargeOthello.cc $(HEADERS)
+	$(CXX) $(CXXFLAGS) -o $@ $< -DVALUELENGTH=6
 
 test5: $(SRC) $(HEADERS)
 	g++ $(CXXFLAGS) -o $@ $(SRC) -DVALUELENGTH=5

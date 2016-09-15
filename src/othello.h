@@ -1,6 +1,6 @@
 #pragma once
 /*!
- \file othello.h 
+ \file othello.h
  Describes the data structure *l-Othello*...
 */
 
@@ -15,10 +15,10 @@
 #include "disjointset.h"
 using namespace std;
 
-/*! 
- * \brief Describes the data structure *l-Othello*. It classifies keys of *keyType* into *2^L* classes. 
+/*!
+ * \brief Describes the data structure *l-Othello*. It classifies keys of *keyType* into *2^L* classes.
  * \note Query a key of keyType always return uint64_t, however, only the lowest L bits are meaningful. \n
- * The array are all stored in an array of uint64_t. There are actually m_a+m_b cells in this array, each of length L. 
+ * The array are all stored in an array of uint64_t. There are actually m_a+m_b cells in this array, each of length L.
  */
 template< class keyType>
 class Othello
@@ -26,10 +26,10 @@ class Othello
     typedef uint64_t valueType;
 #define MAX_REHASH 20 //!< Maximum number of rehash tries before report an error. If this limit is reached, Othello build fails. 
 public:
-    vector<valueType> mem; //!< actual memory space for arrayA and arrayB. 
+    vector<valueType> mem; //!< actual memory space for arrayA and arrayB.
     uint32_t L; //!< the length of return value.
 //    uint32_t LMASK;  return value must be within [0..2^L-1], i.e., LMASK==((1<<L)-1);
-#define LMASK ((1ULL<<L)-1)    
+#define LMASK ((1ULL<<L)-1)
     uint32_t ma; //!< length of arrayA.
     uint32_t mb; //!< length of arrayB
     Hasher32<keyType> Ha; //<! hash function Ha
@@ -39,21 +39,21 @@ public:
     DisjointSet disj; //!< Disjoint Set data structure that helps to test the acyclicity.
     vector<uint32_t> fillcount; //!< Enabled only when the values of the query is not pre-defined. This supports othelloIndex query. fillcount[x]==1 if and only if there is an edge pointed to x,
 #define FILLCNTLEN (sizeof(uint32_t)*8)
-private:    
+private:
     bool autoclear = false; //!<  clears the memory allocated during construction automatically.
-    keyType *keys; 
+    keyType *keys;
     /*!
      * \brief Get the consecutive L bits starting from location loc*L bit.
      * \warning May return garbage info on the higher bits, needs (& LMASK) afterwards.
      */
-    inline valueType get(uint32_t loc) { // 
-        uint32_t st = loc * L;
+    inline valueType get(uint32_t loc) { //
+        uint64_t st = ((uint64_t) loc) * L;
         uint32_t mx = st & 0x3F; //mx = st % 64
         if ( L & (L-1) ) {
             //L &(L-1) !=0 ==> L is NOT some power of 2 ==> value may cross the uint64_t barrier.
             if ( (mx + L) > 64 ) {
                 //mx+L > 64 means the value cross the barrier.
-                //The highest (64-mx) bits of mem[st>>6], 
+                //The highest (64-mx) bits of mem[st>>6],
                 //the lowest L-(64-mx) bits of mem[(st>>6)+1], shl (64-mx)
                 return ((mem[st>>6]>>mx) | (mem[(st>>6)+1]<<(64-mx)));
             };
@@ -65,7 +65,7 @@ private:
 
     valueType inline set(uint32_t loc, valueType &value) {
         value &= LMASK;
-        uint32_t st = loc * L;
+        uint64_t st = ((uint64_t) loc) * L;
         uint32_t mx = st & 0x3F; //mx = st % 64
         if ( L & (L-1) ) {
             if ( (mx + L) > 64 ) {
@@ -78,7 +78,7 @@ private:
         }
         mem[st>>6] &= (~(LMASK << mx));
         mem[st>>6] |= (value << mx);
-        return value;    
+        return value;
     }
 
 
@@ -91,9 +91,16 @@ private:
     }
 
     void newHash() {
-        Ha.setMaskSeed(ma-1,rand());
-        Hb.setMaskSeed(mb-1,rand());
+        uint32_t s1 = rand();
+        uint32_t s2 = rand();
+#ifdef HASHSEED1
+        s1 = HASHSEED1;
+        s2 = HASHSEED2;
+#endif
+        Ha.setMaskSeed(ma-1,s1);
+        Hb.setMaskSeed(mb-1,s2);
         trycount++;
+        if (trycount>1) printf("NewHash for the %d time\n", trycount);
     }
 
     vector<int32_t> *first, *nxt1, *nxt2;
@@ -101,10 +108,10 @@ private:
     vector<bool> filled;
 
     /*!
-     \brief Fill *Othello* so that the query returns values as defined. 
+     \brief Fill *Othello* so that the query returns values as defined.
      \param [in] void * values, pointer to the array of values. Each value is of *valuesize* bytes.
      \param [in] uint32_t keycount.
-     \param [in] size_t valuesize. 
+     \param [in] size_t valuesize.
      \note  When *values* is NULL, mark edges as 0 or 1 according to their direction.
 
     */
@@ -113,6 +120,7 @@ private:
         bool succ;
         disj.setLength(ma+mb);
         if (succ = testHash(keycount)) {
+            printf("Hash Succ!\n");
             fillvalue(values, keycount,valuesize);
         }
         if (autoclear || (!succ))
@@ -133,36 +141,53 @@ public:
         L = _L;
         autoclear = _autoclear;
         keys = _keys;
-        int hl1 = 6; //start from ma=64
-        int hl2 = 6; //start from mb=64
+        int hl1 = 8; //start from ma=64
+        int hl2 = 7; //start from mb=64
         while ((1UL<<hl2) <  keycount * 1) hl2++;
-        while ((1UL<<hl1) < keycount* 1.333334) hl1++; 
+        while ((1UL<<hl1) < keycount* 1.333334) hl1++;
         ma = (1UL<<hl1);
         mb = (1UL<<hl2);
         mem.resize(1);
-        mem.resize(((ma+mb)*(uint64_t) L)/(sizeof(mem[0])*8));
-        while (mem.size()*sizeof(mem[0])*8<(ma+mb)*((uint64_t)L)) mem.push_back(0);
+
+        uint64_t bitcnt = (ma+mb);
+        bitcnt *= L;
+        while (bitcnt % (sizeof(valueType)*8)) bitcnt++;
+        bitcnt /= (sizeof(valueType)*8);
+        mem.resize(bitcnt,0ULL);
+        while ( ((uint64_t)mem.size())*sizeof(mem[0])*8ULL<(ma+mb)*((uint64_t)L) )
+            mem.push_back(0);
+
+
         cout << "Building" <<endl;
         trycount = 0;
-        while ( (!build) && (hl1<=31&&hl2<=31)) { 
+        while ( (!build) && (hl1<=31&&hl2<=31)) {
             while ((!build) && (trycount<MAX_REHASH)) {
                 newHash();
                 build = trybuild( _values, keycount, _valuesize);
             }
             if (!build) {
-                if (hl1 == hl2) hl1++; else hl2++;
+                if (hl1 == hl2) hl1++;
+                else hl2++;
                 ma = (1UL<<hl1);
                 mb = (1UL<<hl2);
                 mem.resize(1);
-                mem.resize(((ma+mb)*(uint64_t) L)/(sizeof(mem[0])*8));
-                cout << "Othello" << human(keycount) <<" Keys, ma/mb = " << human(ma) <<"/"<<human(mb) <<" keyT"<< sizeof(keyType)*8<<"b  valueT" << sizeof(valueType)*8<<"b"<<" L="<<(int) L<<endl;
-                while (mem.size()*sizeof(mem[0])*8<(ma+mb)*((uint64_t)L)) mem.push_back(0);
+                uint64_t bitcnt = (ma+mb);
+                bitcnt *= L;
+                while (bitcnt % (sizeof(valueType)*8)) bitcnt++;
+                bitcnt /= (sizeof(valueType)*8);
+                mem.resize(bitcnt,0ULL);
+                while ( ((uint64_t)mem.size())*sizeof(mem[0])*8ULL<(ma+mb)*((uint64_t)L) )
+                    mem.push_back(0);
+
+                cout << "Extend Othello Length to" << human(keycount) <<" Keys, ma/mb = " << human(ma) <<"/"<<human(mb) <<" keyT"<< sizeof(keyType)*8<<"b  valueT" << sizeof(valueType)*8<<"b"<<" L="<<(int) L<<endl;
                 trycount = 0;
             }
         }
-        if (build) 
+        printf("%08x %08x\n", Ha.s, Hb.s);
+        if (build)
             cout << "Succ " << human(keycount) <<" Keys, ma/mb = " << human(ma) <<"/"<<human(mb) <<" keyT"<< sizeof(keyType)*8<<"b  valueT" << sizeof(valueType)*8<<"b"<<" L="<<(int) L <<" After "<<trycount << "tries"<< endl;
-        else 
+
+        else
             cout << "Build Fail!" << endl;
     }
     //!\brief Construct othello with vectors.
@@ -211,27 +236,33 @@ public:
         memcpy(v+0x14,&hl2,sizeof(uint32_t));
     }
     /*!
-       \brief load the infomation of the *Othello* from memory. 
+       \brief load the infomation of the *Othello* from memory.
        \note info is exported using *ExportInro()*
      */
     Othello(unsigned char *v) {
         int32_t hl1,hl2;
         int32_t s1,s2;
-        memcpy(&(L),v,sizeof(uint32_t)); 
+        memcpy(&(L),v,sizeof(uint32_t));
         memcpy(&(s1),v+4,sizeof(uint32_t));
         memcpy(&(s2),v+8,sizeof(uint32_t));
         memcpy(&hl1, v+0x10, sizeof(uint32_t));
         memcpy(&hl2, v+0x14, sizeof(uint32_t));
+        printf("seeds%08x %08x\n", s1,s2);
         if (hl1 > 0 && hl2 >0) {
             ma = (1<<hl1);
             mb = (1<<hl2);
             mem.resize(1);
-            mem.resize(((ma+mb)*(uint64_t) L)/(sizeof(mem[0])*8));
-            while (mem.size()*sizeof(mem[0])*8<(ma+mb)*((uint64_t)L)) mem.push_back(0);
+            uint64_t bitcnt = (ma+mb);
+            bitcnt *= L;
+            while (bitcnt % (sizeof(valueType)*8)) bitcnt++;
+            bitcnt /= (sizeof(valueType)*8);
+            mem.resize(bitcnt,0ULL);
+            while ( ((uint64_t)mem.size())*sizeof(mem[0])*8ULL<(ma+mb)*((uint64_t)L) )
+                mem.push_back(0);
             Ha.setMaskSeed(ma-1,s1);
             Hb.setMaskSeed(mb-1,s2);
         }
-        else 
+        else
             ma = mb =0;
     }
 
@@ -239,7 +270,7 @@ public:
        \brief returns a 64-bit integer query value for a key.
     */
     uint64_t queryInt(const keyType &k) {
-		uint32_t ha,hb;
+        uint32_t ha,hb;
         return query(k,ha,hb);
     }
 
@@ -257,9 +288,9 @@ public:
     /*!
       \brief adjust the array so that for random alien query, return 1 with probability that is close to the *ideal* value.
       \param [in] double ideal. \n ideal = 1.0 means return 1 with higher probability. \n ideal = 0.0 means return 1 with loest probability.
-      \note This function is usually able to tune the probabilty within 0.2 ~ 0.8. 
+      \note This function is usually able to tune the probabilty within 0.2 ~ 0.8.
      */
-    void setAlienPreference(double ideal = 1.0); 
+    void setAlienPreference(double ideal = 1.0);
 private:
     void inline get_hash_1(const keyType &v, uint32_t &ret1) {
         ret1 = (Ha)(v);
@@ -289,7 +320,7 @@ public:
         get_hash_2(v,ret2);
     }
     /*!
-     \brief load the array from file. 
+     \brief load the array from file.
      \note only the arrayA and B are loaded. This must be called after using constructor Othello<keyType>::Othello(unsigned char *)
      */
     void loadDataFromBinaryFile(FILE *pF) {
@@ -301,20 +332,20 @@ public:
     void writeDataToBinaryFile(FILE *pF) {
         fwrite(&(mem[0]),sizeof(mem[0]), mem.size(), pF);
     }
-void padd (vector<int32_t> &A, valueType &t) {
-    const valueType one = 1;
-    for (int i = 0; i <L; i++)
-        if  (t & (one<<i))
-            A[i]++;
-}
+    void padd (vector<int32_t> &A, valueType &t) {
+        const valueType one = 1;
+        for (int i = 0; i <L; i++)
+            if  (t & (one<<i))
+                A[i]++;
+    }
 
-void pdiff(vector<int32_t> &A, valueType &t) {
-    const valueType one = 1;
-    for (int i = 0; i <L; i++)
-        if  (t & (one<<i))
-            A[i]--;
-        else A[i]++;
-}
+    void pdiff(vector<int32_t> &A, valueType &t) {
+        const valueType one = 1;
+        for (int i = 0; i <L; i++)
+            if  (t & (one<<i))
+                A[i]--;
+            else A[i]++;
+    }
 };
 
 /*
@@ -338,6 +369,7 @@ bool Othello<keyType>::testHash(uint32_t keycount) {
     first = new vector<int32_t> (ma+mb, -1);
     disj.clear();
     for (int i = 0; i < keycount; i++) {
+        if ((i & (i-1)) == 0) printf("Tesing keys # %d\n",i);
         get_hash(keys[i], ha, hb);
         if (disj.sameset(ha,hb)) {
             return false;
@@ -393,29 +425,29 @@ void Othello<keyType>::fillvalue(void *values, uint32_t keycount, size_t valuesi
                     }
 //                        valueKid = values[kid];
                     else {
-                        //! when hthis == ha, this is a edge pointing from U to V, i.e., value of this edge shall be set as 1. 
+                        //! when hthis == ha, this is a edge pointing from U to V, i.e., value of this edge shall be set as 1.
                         valueKid = (hthis == ha)?1:0;
                         fillcount[helse/FILLCNTLEN] |= (1<<(helse % FILLCNTLEN));
                     }
-                        
+
                     valueType newvalue = valueKid ^ get(hthis);
 //                    printf("%x %x %x===", valueKid, get(hthis), newvalue);
                     set(helse, newvalue);
-//                    printf("k%llx ha/hb %lx %lx: %x ^ %x = %x ^ %x = %x (%x), helse%x ,i%x, %d ==",
+//                    printf("k%llx ha/hb %lx %lx: %x ^ %x = %x ^ %x = %x (%x), helse%x ,i%x, %d\n",
 //                       keys[kid], ha, hb, get(hthis) & LMASK, newvalue & LMASK, get(ha) &LMASK, get(hb) &LMASK, (get(ha)^get(hb)) & LMASK, valueKid &LMASK, helse ,hthis ,(bool)((valueKid &LMASK)==((get(ha)^(get(hb)))&LMASK)));
-//                    printf("%x %x\n", get(0xcf)&LMASK, get(0x73e)&LMASK);
                     Q.push_back(helse);
                     filled[helse] = true;
                     kid = nxt->at(kid);
                 }
-                
+
             }
         }
 }
 
 template< class keyType>
 vector<uint32_t> Othello<keyType>::getCnt() {
-    vector<uint32_t> cnt; cnt.resize(L+L);
+    vector<uint32_t> cnt;
+    cnt.resize(L+L);
     for (int i = 0; i < ma; i++) {
         valueType gv = get(i);
         uint8_t *vv;
@@ -445,7 +477,8 @@ vector<uint32_t> Othello<keyType>::getCnt() {
 template< class keyType>
 vector<double> Othello<keyType>::getRatio() {
     vector<uint32_t> cnt = getCnt();
-    vector<double> ret; ret.resize(L);
+    vector<double> ret;
+    ret.resize(L);
     for (int i = 0; i < L; i++) {
         double p1 = 1.0 * cnt[i] / ma;
         double p2 = 1.0 * cnt[i+L] / mb;

@@ -26,7 +26,9 @@ class MulOth {
     uint32_t L;
     vector<Othello<keyType> *> vOths; //!< list of *l-Othellos*
     unsigned char split;
-    bool addOth(unsigned int groupid, vector<keyType> &keys, vector<valueType> &values) {
+
+    template<typename VT>
+    bool addOth(unsigned int groupid, vector<keyType> &keys, vector<VT> &values) {
         Othello<keyType> *poth;
         poth = new Othello<keyType>(L, &keys[0], keys.size(), true, &values[0], sizeof(values[0]));
         if (!poth->build) {
@@ -39,6 +41,19 @@ class MulOth {
 public:
     bool buildsucc; 
     IOHelper<keyType,valueType> *helper;
+    MulOth( uint32_t _L, uint32_t NN) {
+        split = 0;
+        L = _L;
+        vector<keyType> keys;
+        vector<uint8_t> values;
+        for (int i = 0 ; i < NN; i ++) {
+            keys.push_back((((uint64_t) i) << 32) + i + 1);
+            values.push_back(i & 0xFF);
+        }
+        vOths.clear();
+        vOths.resize(1);
+        addOth(0,keys,values);
+    }
     /*!
      \brief Construct a Grouped l-Othello from a file.
      \param uint32_t _L
