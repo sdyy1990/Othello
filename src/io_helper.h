@@ -26,6 +26,10 @@ public:
      \brief split a keyTypeype value into two parts: groupID/keyInGroup by the highest *splitbit* bits.
     */
     virtual void splitgrp(const keyType &key, uint32_t &grp, keyType &keyInGroup) = 0;
+    /*!
+     \brief combine groupID/keyInGroup to the origional key
+     */
+    virtual void combgrp(keyType &key, uint32_t &grp, keyType &keyInGroup) = 0;
 };
 
 
@@ -81,6 +85,12 @@ public:
         keyType lowmask = 1;
         lowmask <<= mvcnt;
         keyInGroup = (key & (lowmask-1));
+    }
+
+    void combgrp(keyType &key, uint32_t &grp, keyType &keyInGroup) {
+        key = grp;
+        key <<= (2*kmerlength - splitbit);
+        key |= (keyInGroup);
     }
 
 };

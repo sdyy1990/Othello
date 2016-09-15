@@ -1,4 +1,4 @@
-all: test2 test4 test8 test16 testIndex testLargeOthello
+all: test2 test4 test8 test16 testIndex testLargeOthello test8
 
 
 #GITVERSION := $(shell git describe --abbrev=4 --dirty --always --tags)

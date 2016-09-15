@@ -39,6 +39,8 @@ public:
     DisjointSet disj; //!< Disjoint Set data structure that helps to test the acyclicity.
     vector<uint32_t> fillcount; //!< Enabled only when the values of the query is not pre-defined. This supports othelloIndex query. fillcount[x]==1 if and only if there is an edge pointed to x,
 #define FILLCNTLEN (sizeof(uint32_t)*8)
+    uint32_t allowed_conflicts;
+    vector<keyType> removedKeys;
 private:
     bool autoclear = false; //!<  clears the memory allocated during construction automatically.
     keyType *keys;
@@ -120,7 +122,6 @@ private:
         bool succ;
         disj.setLength(ma+mb);
         if (succ = testHash(keycount)) {
-            printf("Hash Succ!\n");
             fillvalue(values, keycount,valuesize);
         }
         if (autoclear || (!succ))
@@ -133,11 +134,15 @@ public:
      \param [in] keyType *_keys, pointer to array of keys.
      \param [in] uint32_t keycount, number of keys, array size must match this.
      \param [in] bool _autoclear, clear memory used during construction once completed. Forbid future modification on the structure.
-     \param [in] valueType * _values, Optional, pointer to array of values. When *_values* is empty, fill othello values such that the query result classifies keys to 2 sets. See more in notes.
+     \param [in] void * _values, Optional, pointer to array of values. When *_values* is empty, fill othello values such that the query result classifies keys to 2 sets. See more in notes.
+     \param [in] uint32_t valuesize, must be specifed when *_values* is not NULL. This indicates the length of a valueType;
+     \param [in] _allowed_conflicts, default value is 10. during construction, Othello will remove at most this number of keys, instead of rehash.
      \note keycount should not exceed 2^29 for memory consideration.
      \n when *_values* is empty, classify keys into two sets X and Y, defined as follow: for each connected compoenents in G, select a node as the root, mark all edges in this connected compoenent as pointing away from the root. for all edges from U to V, query result is 1 (k in Y), for all edges from V to u, query result is 0 (k in X).
+
     */
-    Othello(uint8_t _L, keyType *_keys,  uint32_t keycount, bool _autoclear = true, void *_values = NULL, size_t _valuesize = 0  ) {
+    Othello(uint8_t _L, keyType *_keys,  uint32_t keycount, bool _autoclear = true, void *_values = NULL, size_t _valuesize = 0, int32_t _allowed_conflicts = -1 ) {
+        allowed_conflicts = _allowed_conflicts;
         L = _L;
         autoclear = _autoclear;
         keys = _keys;
@@ -148,7 +153,9 @@ public:
         ma = (1UL<<hl1);
         mb = (1UL<<hl2);
         mem.resize(1);
-
+        if (allowed_conflicts<0) {
+            allowed_conflicts = (ma<20)?0:ma-20;
+        }
         uint64_t bitcnt = (ma+mb);
         bitcnt *= L;
         while (bitcnt % (sizeof(valueType)*8)) bitcnt++;
@@ -192,8 +199,8 @@ public:
     }
     //!\brief Construct othello with vectors.
     template<typename VT>
-    Othello(uint8_t _L, vector<keyType> &keys, vector<VT> &values, bool _autoclear = true) :
-        Othello(_L, & (keys[0]),keys.size(), _autoclear, &(values[0]), sizeof(VT))
+    Othello(uint8_t _L, vector<keyType> &keys, vector<VT> &values, bool _autoclear = true, int32_t allowed_conflicts = -1) :
+        Othello(_L, & (keys[0]),keys.size(), _autoclear, &(values[0]), sizeof(VT), allowed_conflicts)
     {
     }
 
@@ -367,12 +374,17 @@ bool Othello<keyType>::testHash(uint32_t keycount) {
     nxt1  = new vector<int32_t> (keycount);
     nxt2  = new vector<int32_t> (keycount);
     first = new vector<int32_t> (ma+mb, -1);
+    removedKeys.clear();
     disj.clear();
     for (int i = 0; i < keycount; i++) {
-        if ((i & (i-1)) == 0) printf("Tesing keys # %d\n",i);
+        if (i>1048576) if ((i & (i-1)) == 0) printf("Tesing keys # %d\n",i);
         get_hash(keys[i], ha, hb);
+        
         if (disj.sameset(ha,hb)) {
-            return false;
+            removedKeys.push_back(keys[i]);
+            if (removedKeys.size()> allowed_conflicts) 
+                return false;
+            continue;
         }
         (*nxt1)[i] = (*first)[ha];
         (*first)[ha] = i;

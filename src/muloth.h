@@ -26,7 +26,6 @@ class MulOth {
     uint32_t L;
     vector<Othello<keyType> *> vOths; //!< list of *l-Othellos*
     unsigned char split;
-
     template<typename VT>
     bool addOth(unsigned int groupid, vector<keyType> &keys, vector<VT> &values) {
         Othello<keyType> *poth;
@@ -36,9 +35,17 @@ class MulOth {
             return false;
         }
         vOths[groupid] = poth;
+        if ((poth -> removedKeys).size()>0) {
+            for (keyType k : poth->removedKeys) {
+                keyType fullk; helper->combgrp(fullk,groupid,k);
+                printf("Key in Grp %x : %llx is removed \n", groupid, fullk);
+                removedKeys.push_back(fullk);
+            }
+        }
         return true;
     }
 public:
+    vector<keyType> removedKeys;
     bool buildsucc; 
     IOHelper<keyType,valueType> *helper;
     MulOth( uint32_t _L, uint32_t NN) {
@@ -183,6 +190,12 @@ public:
             vOths[i]->writeDataToBinaryFile(pFile);
 //           fwrite(&(vOths[i]->mem[0]),sizeof(vOths[i]->mem[0]), vOths[i]->mem.size(), pFile);
         }
+        
+        uint32_t nRemovedKeys = removedKeys.size();
+        fwrite(&nRemovedKeys,sizeof(nRemovedKeys),1,pFile);
+        for (int i = 0 ; i < nRemovedKeys; i++)
+            fwrite(&removedKeys[i],sizeof(keyType),1,pFile);
+
         fclose(pFile);
     }
 
@@ -223,6 +236,12 @@ public:
             }
             //fread(&(vOths[i]->mem[0]),sizeof(vOths[i]->mem[0]), vOths[i]->mem.size(), pFile);
         }
+        uint32_t nRemovedKeys = removedKeys.size();
+        fread(&nRemovedKeys,sizeof(nRemovedKeys),1,pFile);
+        removedKeys.resize(nRemovedKeys);
+        for (int i = 0 ; i < nRemovedKeys; i++)
+            fread(&removedKeys[i],sizeof(keyType),1,pFile);
+
         fclose(pFile);
         buildsucc = true;
     }
