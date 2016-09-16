@@ -21,6 +21,7 @@ public:
        \retval boolean return true if convert is success.
       */
     virtual bool convert(char *s, keyType *T, valueType *V)  = 0;
+    virtual bool convert(char *s, keyType *T)  = 0;
 
     /*!
      \brief split a keyTypeype value into two parts: groupID/keyInGroup by the highest *splitbit* bits.
@@ -46,7 +47,7 @@ public:
     uint8_t splitbit;   //!< group the keys according to the highest bits.
     ConstantLengthKmerHelper(uint8_t _kmerlength, uint8_t _splitbit): kmerlength(_kmerlength),splitbit(_splitbit) {};
     ~ConstantLengthKmerHelper() {};
-    bool convert(char *s, keyType *k, valueType *v) {
+    inline bool convert(char *s, keyType *k, valueType *v) {
         char *s0;
         s0 = s;
         switch (*s) {
@@ -77,7 +78,10 @@ public:
         return false;
 
     }
-
+    inline bool convert( char *s, keyType *k){
+        valueType v;
+        return convert(s,k,&v);
+    }
     void splitgrp(const keyType &key, uint32_t &grp, keyType &keyInGroup) {
         int mvcnt = 2 * kmerlength - splitbit;
         keyType high = (key >> mvcnt);

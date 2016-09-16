@@ -1,4 +1,4 @@
-all: test2 test4 test8 test16 testIndex testLargeOthello test8
+all: testMulIndex
 
 
 #GITVERSION := $(shell git describe --abbrev=4 --dirty --always --tags)
@@ -41,6 +41,9 @@ test1: $(SRC) $(HEADERS)
 
 test16: $(SRC) $(HEADERS)
 	g++ $(CXXFLAGS) -o $@ $(SRC) -DVALUELENGTH=16
+
+testMulIndex: testMulIndex.cc $(HEADERS)
+	g++ $(CXXFLAGS) -o $@ $< -DVALUELENGTH=16
 
 testIndex: testIndex.cc *.h
 	g++ $(CXXFLAGS) -o $@ testIndex.cc

@@ -1,5 +1,6 @@
 #pragma once
 #include "othelloindex.h"
+const char * VERSION = GITVERSION;
 /*!
  \file mulothindex.h
  Describes the data structure *MulOthIndex*
@@ -26,12 +27,21 @@ class MulOthIndex {
             return false;
         }
         vOthIdxs[groupid] = poth;
-        shift[groupid+1] = shift[groupid] + keys.size();
+        for (int t = groupid + 1; t< shift.size(); t++)
+           shift[t] += keys.size();
+		if ((poth-> removedKeys).size()>0){
+			for (keyType k : poth->removedKeys) {
+                keyType fullk; helper->combgrp(fullk,groupid,k);
+                printf("Key in Grp %x : %llx is removed \n", groupid, fullk);
+                removedKeys.push_back(fullk);
+			}
+		}
         return true;
     }
     IOHelper<keyType,valueType> *helper;
 public:
     bool buildsucc;
+	vector<keyType> removedKeys;
     MulOthIndex(const char * fname, unsigned char _split, class IOHelper<keyType,valueType> * _helper, bool fileIsSorted = false) : helper(_helper) {
         printf("Building MulOthelloIndex from file %s\n", fname);
         FILE *pFile;
@@ -49,7 +59,7 @@ public:
                 if (!helper->convert(buf,&k)) break;
                 keys.push_back(k);
             }
-            buildsucc = addOth(0,keys);
+            buildsucc = addOthIndex(0,keys);
             fclose(pFile);
             return;
         }
@@ -77,7 +87,7 @@ public:
                 }
                 keys.push_back(keyingroup);
             }
-            if (!addOth(grpid,keys))
+            if (!addOthIndex(grpid,keys))
             {
                 fclose(pFile);
                 return;
@@ -100,7 +110,7 @@ public:
                 }
                 printf("keycount %d ", keys.size());
                 if (keys.size()>0)
-                    if (!addOth(grpid,keys)) {
+                    if (!addOthIndex(grpid,keys)) {
                         fclose(pFile);
                         return;
                     }
@@ -121,4 +131,89 @@ public:
             return (vOthIdxs[grp]!=NULL)?shift[grp]+(vOthIdxs[grp]->query(kgrp)):0;
         }
     }
+    //! \brief write OthelloIndex to a file.
+    void writeToFile(const char* fname) {
+        FILE *pFile;
+        pFile = fopen (fname, "wb");
+        unsigned char buf0x20[0x20];
+        char *p;
+        p = (char *) &(buf0x20[0]);
+        memset(buf0x20,0, sizeof(buf0x20));
+        strcpy(p+0x4,VERSION);
+        uint32_t split32 = split;
+        memcpy(buf0x20, &split32, sizeof(uint32_t));
+        fwrite(buf0x20,sizeof(buf0x20),1,pFile);
+        for (int i = 0; i <(1<<split); i++) 
+        {
+            if (vOthIdxs[i]!=NULL) 
+                vOthIdxs[i]->exportInfo(buf0x20);
+            else 
+                memset(buf0x20,0, sizeof(buf0x20));
+            fwrite(buf0x20,sizeof(buf0x20),1,pFile);
+        }
+        fwrite(&shift[0],sizeof(shift[0]),1<<split,pFile);
+        for (int i = 0; i <(1<<split); i++) {
+            if (vOthIdxs[i]!=NULL)
+            vOthIdxs[i]->writeDataToBinaryFile(pFile);
+//           fwrite(&(vOths[i]->mem[0]),sizeof(vOths[i]->mem[0]), vOths[i]->mem.size(), pFile);
+        }
+        
+        uint32_t nRemovedKeys = removedKeys.size();
+        fwrite(&nRemovedKeys,sizeof(nRemovedKeys),1,pFile);
+        for (int i = 0 ; i < nRemovedKeys; i++)
+            fwrite(&removedKeys[i],sizeof(keyType),1,pFile);
+        fclose(pFile);
+    }
+
+    //! \brief construct a Grouped l-Othello Index from a file.
+    MulOthIndex(const char* fname, IOHelper<keyType,valueType> * _helper): helper(_helper) {
+        buildsucc = false;
+        printf("Read from binary file %s\n", fname);
+        FILE *pFile;
+        pFile = fopen (fname, "rb");
+        uint32_t compversion;
+        unsigned char buf0x20[0x20];
+        fread(buf0x20,sizeof(buf0x20),1,pFile);
+        char *p;
+        p = (char *) &(buf0x20[0]);
+#ifndef NO_VERSION_CHECK
+        if (strcmp(p+4,VERSION)) {
+            printf("Wrong version number\n");
+            fclose(pFile);
+            return;
+        }
+#endif
+        uint32_t split32;
+        memcpy(&split32, buf0x20, sizeof(uint32_t));
+        split = split32;
+        vOthIdxs.clear();
+        for (int i = 0; i < (1<<split); i++) {
+            fread(buf0x20,sizeof(buf0x20),1,pFile);
+            OthelloIndex<keyType> *poth = NULL;
+            uint64_t *ppoth; ppoth = (uint64_t*) &buf0x20;
+            if (*ppoth) 
+                poth = new OthelloIndex<keyType>(buf0x20);
+            vOthIdxs.push_back(poth);
+        }
+		shift.resize(1<<split);
+        fread(&shift[0],sizeof(shift[0]),1<<split,pFile);
+        for (int i = 0; i < (1<< split); i++) {
+            if (vOthIdxs[i] != NULL) {
+                vOthIdxs[i]->loadDataFromBinaryFile(pFile);
+            }
+            //fread(&(vOths[i]->mem[0]),sizeof(vOths[i]->mem[0]), vOths[i]->mem.size(), pFile);
+        }
+        uint32_t nRemovedKeys = removedKeys.size();
+        fread(&nRemovedKeys,sizeof(nRemovedKeys),1,pFile);
+        removedKeys.resize(nRemovedKeys);
+        for (int i = 0 ; i < nRemovedKeys; i++)
+            fread(&removedKeys[i],sizeof(keyType),1,pFile);
+
+        fclose(pFile);
+        buildsucc = true;
+    }
+    ~MulOthIndex() {
+		for (auto p: vOthIdxs)
+			delete p;
+	}
 };

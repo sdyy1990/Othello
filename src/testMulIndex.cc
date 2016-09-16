@@ -1,6 +1,7 @@
 #include <iostream>
 #include <map>
 #include <cstdlib>
+#include <set>
 #include <cstdio>
 #include <unistd.h>
 #include "othello.h"
@@ -42,7 +43,7 @@ int main(int argc, char * argv[]) {
         delete moth;
     }
     moth = new MulOthIndex<keyT>( argv[3],helper);
-
+    set<valueT> ss;
     for (int i = 2; i< argc; i+=2) {
         printf("Testing using keys from file %s\n", argv[i]);
         FILE *pFile;
@@ -55,10 +56,11 @@ int main(int argc, char * argv[]) {
             valueT v;
             if (!helper->convert(buf, &k, &v)) break;
             valueT qv = moth->query(k);
-
+            printf("%x\n",qv);
+            ss.insert(qv);
         }
         fclose(pFile);
-        printf("Test Succ\n");
+        printf("Test : %d %x %x %x\n", ss.size(), ss.size(), *ss.begin(), *ss.rbegin());
     }
     delete moth;
     return 0;
