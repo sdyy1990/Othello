@@ -43,6 +43,7 @@ public:
     bool buildsucc;
 	vector<keyType> removedKeys;
     MulOthIndex(const char * fname, unsigned char _split, class IOHelper<keyType,valueType> * _helper, bool fileIsSorted = false) : helper(_helper) {
+        split = _split;
         printf("Building MulOthelloIndex from file %s\n", fname);
         FILE *pFile;
         pFile = fopen (fname, "r");

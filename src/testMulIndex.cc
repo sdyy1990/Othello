@@ -56,11 +56,11 @@ int main(int argc, char * argv[]) {
             valueT v;
             if (!helper->convert(buf, &k, &v)) break;
             valueT qv = moth->query(k);
-            printf("%x\n",qv);
             ss.insert(qv);
+            cnt ++;
         }
         fclose(pFile);
-        printf("Test : %d %x %x %x\n", ss.size(), ss.size(), *ss.begin(), *ss.rbegin());
+        printf("Test Result:, #keys %lld, unique index %lld (%d - %d), removedkeys %d.\n", cnt, ss.size(), *ss.begin(), *ss.rbegin(), moth->removedKeys.size());
     }
     delete moth;
     return 0;
