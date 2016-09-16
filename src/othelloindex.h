@@ -9,7 +9,8 @@
     \brief OthelloIndex is a data structure that stores a minimum perfect hash function. 
     \n For n keys, the query value of keys range in [0..n-1]
     Query always returns uint32_t.
-    \note n should not exceed 2^29 for memory consideration. For even larger n, use the grouped version *MulOthIndex*.
+    \note n should not exceed 2^29 for memory consideration. For even larger n, use the grouped version *MulOthIndex*. \n
+    For better performance, the we use POPCNT instructions, which is supported by most mordern CPUs.\n
     The index of a key k is either Sum {cntfill[0..Ha(k)-1]} or Sum {cntfill[0..Hb(k)-1]}. This is decided by query result on *oth*.
 
  */
@@ -25,6 +26,7 @@ public:
      \brief Construct *OthelloIndex*
      \param [in] keyType * keys, pointer to array of keys.
      \param [in] uint32_t keycount, number of keys.
+     \note For n keys, the query value of keys range in [0..n-1]
      */
     OthelloIndex(keyType *_keys, uint32_t keycount) :
         Othello<keyType>(1,_keys, keycount)
@@ -55,7 +57,7 @@ public:
 
     /*!
      \brief load the array from file. 
-     \note only the arrayA and B are loaded. This must be called after using constructor Othello<keyType>::Othello(unsigned char *)
+     \note  the arrayA and B are loaded, in addition, read the array *fillcount* and array *offset*. This must be called after using constructor Othello<keyType>::Othello(unsigned char *)
      */
     void loadDataFromBinaryFile(FILE *pF) {
         fread(&(Othello<keyType>::mem[0]),sizeof(Othello<keyType>::mem[0]), Othello<keyType>::mem.size(), pF);

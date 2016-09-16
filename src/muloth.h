@@ -45,9 +45,10 @@ class MulOth {
         return true;
     }
 public:
-    vector<keyType> removedKeys;
+    vector<keyType> removedKeys; //!< list of skipped keys for all underlying *Othello*.
     bool buildsucc; 
     IOHelper<keyType,valueType> *helper;
+    //!\brief This generates toy data for test purpose.
     MulOth( uint32_t _L, uint32_t NN) {
         split = 0;
         L = _L;
@@ -165,7 +166,20 @@ public:
         for (auto V : vOths)
             V.printall();
     }
-    //! \brief write Grouped l-Othello to a file.
+    /*! \brief write Grouped l-Othello to a file.
+     \note file structure. \n
+          0x00 32bit split \n
+          0x04 version (reserved); \n
+          0x20 32Byte info for othello 0 \n
+          0x40 32Byte info for othello 1 \n
+          ... \n
+          ... \n
+          Array for othello 0 \n
+          .., \n
+          32bit nRemovedKeys \n
+          (64bit) keyType &removedKeys* 0\n
+
+     * */
     void writeToFile(const char* fname) {
         FILE *pFile;
         pFile = fopen (fname, "wb");
@@ -199,7 +213,7 @@ public:
         fclose(pFile);
     }
 
-    // \brief construct a Grouped l-Othello from a file.
+    //! \brief construct a Grouped l-Othello from a file.
     MulOth(const char* fname, IOHelper<keyType,valueType> * _helper): helper(_helper) {
         buildsucc = false;
         printf("Read from binary file %s\n", fname);

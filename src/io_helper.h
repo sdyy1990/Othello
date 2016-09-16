@@ -21,6 +21,7 @@ public:
        \retval boolean return true if convert is success.
       */
     virtual bool convert(char *s, keyType *T, valueType *V)  = 0;
+    //! \brief skip the value.
     virtual bool convert(char *s, keyType *T)  = 0;
 
     /*!
@@ -51,10 +52,7 @@ public:
         char *s0;
         s0 = s;
         switch (*s) {
-        case 'A':
-        case 'T':
-        case 'G':
-        case  'C':
+        case 'A':        case 'T':        case 'G':        case  'C':
             keyType ret = 0;
             while (*s == 'A' || *s == 'C' || *s =='T' || *s =='G') {
                 ret <<=2;

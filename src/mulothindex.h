@@ -16,8 +16,8 @@ const char * VERSION = GITVERSION;
 template <class keyType>
 class MulOthIndex {
     typedef uint64_t valueType;
-    vector<OthelloIndex<keyType> *> vOthIdxs;
-    vector<valueType> shift;
+    vector<OthelloIndex<keyType> *> vOthIdxs; //!< list of *OthelloIndex*s.
+    vector<valueType> shift; 
     unsigned char split;
     bool addOthIndex(unsigned int groupid, vector<keyType> &keys) {
         OthelloIndex<keyType> *poth;
@@ -41,7 +41,14 @@ class MulOthIndex {
     IOHelper<keyType,valueType> *helper;
 public:
     bool buildsucc;
-	vector<keyType> removedKeys;
+	vector<keyType> removedKeys; //!< list of skipped keys for all underlying *OthelloIndex*.
+    /*!
+     \brief Construct a Mul-OthelloIndex from a file.
+     \param char * fname  the file contains key/value pairs, each in a line. Although only the keys are used.
+     \param unsigned char _split  the keys are first classifed according to their highest *_split* bits. There are in total 2^_split groups. Classification method as described in *splitgrp*.
+	 \param IOHelper _helper identifies how to convert a raw data to keytype and group.
+     \param bool fileIsSorted When fileIsSorted, assume that the file is sorted so that the keys appear in the ascending order of groups.
+     * */
     MulOthIndex(const char * fname, unsigned char _split, class IOHelper<keyType,valueType> * _helper, bool fileIsSorted = false) : helper(_helper) {
         split = _split;
         printf("Building MulOthelloIndex from file %s\n", fname);
@@ -132,7 +139,20 @@ public:
             return (vOthIdxs[grp]!=NULL)?shift[grp]+(vOthIdxs[grp]->query(kgrp)):0;
         }
     }
-    //! \brief write OthelloIndex to a file.
+    /*! \brief write MulOthelloIndex to a file.
+      \note  file structure. \n
+      0x00 32bit split \n
+      0x04 version (reserved); \n
+      0x20 32Byte info for *OthelloIndex* 0 \n
+      0x40 32Byte info for *OthelloIndex* 1 \n
+      ..\n
+      ..\n
+      Array for OthelloIndex 0 \n
+      ..\n
+      32bit nRemovedKeys \n
+      (64bit) keyType *removedKeys* 0\n
+
+     * */
     void writeToFile(const char* fname) {
         FILE *pFile;
         pFile = fopen (fname, "wb");

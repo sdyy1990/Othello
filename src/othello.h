@@ -39,8 +39,8 @@ public:
     DisjointSet disj; //!< Disjoint Set data structure that helps to test the acyclicity.
     vector<uint32_t> fillcount; //!< Enabled only when the values of the query is not pre-defined. This supports othelloIndex query. fillcount[x]==1 if and only if there is an edge pointed to x,
 #define FILLCNTLEN (sizeof(uint32_t)*8)
-    uint32_t allowed_conflicts;
-    vector<keyType> removedKeys;
+    uint32_t allowed_conflicts; //!< The number of keys that can be skipped during construction.
+    vector<keyType> removedKeys; //!< The list of removed keys.
 private:
     bool autoclear = false; //!<  clears the memory allocated during construction automatically.
     keyType *keys;
@@ -339,6 +339,7 @@ public:
     void writeDataToBinaryFile(FILE *pF) {
         fwrite(&(mem[0]),sizeof(mem[0]), mem.size(), pF);
     }
+private:
     void padd (vector<int32_t> &A, valueType &t) {
         const valueType one = 1;
         for (int i = 0; i <L; i++)
