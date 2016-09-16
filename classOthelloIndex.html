@@ -246,7 +246,7 @@ class OthelloIndex&lt; keyType &gt;</h3>
 
 <p><a class="el" href="classOthelloIndex.html" title="OthelloIndex is a data structure that stores a minimum perfect hash function.   For n keys...">OthelloIndex</a> is a data structure that stores a minimum perfect hash function. <br/>
  For n keys, the query value of keys range in [0..n-1] Query always returns uint32_t. </p>
-<dl class="section note"><dt>Note</dt><dd>n should not exceed 2^29 for memory consideration. For even larger n, use the grouped version <em><a class="el" href="classMulOthIndex.html">MulOthIndex</a></em>. <br/>
+<dl class="section note"><dt>Note</dt><dd>n should not exceed 2^29 for memory consideration. For even larger n, use the grouped version <em><a class="el" href="classMulOthIndex.html" title="MulOthIndex is a extended version of OthelloIndex, it supports more than 2^29 keys.   The keys are first classifed into groups, each group is then maintained by one OthelloIndex. ">MulOthIndex</a></em>. <br/>
 For better performance, the we use POPCNT instructions, which is supported by most mordern CPUs.<br/>
 The index of a key k is either Sum {cntfill[0..Ha(k)-1]} or Sum {cntfill[0..Hb(k)-1]}. This is decided by query result on <em>oth</em>. </dd></dl>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
