@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['build',['build',['../classOthello.html#aa8df0267e7074717b74358db08e59728',1,'Othello']]]
+  ['allowed_5fconflicts',['allowed_conflicts',['../classOthello.html#a2d0f006c12acdeb8ccd08797c88f8e54',1,'Othello']]]
 ];

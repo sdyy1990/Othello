@@ -103,6 +103,10 @@ The keys are first classifed into groups, each group is then maintained by one <
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:ab75664af916732154b7812ce4d3ba5cb"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab75664af916732154b7812ce4d3ba5cb"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMulOth.html#ab75664af916732154b7812ce4d3ba5cb">MulOth</a> (uint32_t _L, uint32_t NN)</td></tr>
+<tr class="memdesc:ab75664af916732154b7812ce4d3ba5cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">This generates toy data for test purpose. <br/></td></tr>
+<tr class="separator:ab75664af916732154b7812ce4d3ba5cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af757476915bd6654154ed0ae482074f4"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMulOth.html#af757476915bd6654154ed0ae482074f4">MulOth</a> (uint32_t _L, const char *fname, unsigned char _split, class <a class="el" href="classIOHelper.html">IOHelper</a>&lt; keyType, valueType &gt; *_helper, bool fileIsSorted=false)</td></tr>
 <tr class="memdesc:af757476915bd6654154ed0ae482074f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a Grouped l-Othello from a file.  <a href="#af757476915bd6654154ed0ae482074f4">More...</a><br/></td></tr>
 <tr class="separator:af757476915bd6654154ed0ae482074f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -113,16 +117,20 @@ valueType&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href=
 <tr class="memitem:a4567526e1ebcc0ed9dff36f1643e44ed"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4567526e1ebcc0ed9dff36f1643e44ed"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>printall</b> ()</td></tr>
 <tr class="separator:a4567526e1ebcc0ed9dff36f1643e44ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a95bbed27b7a50e4249fcaf78c4223a85"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a95bbed27b7a50e4249fcaf78c4223a85"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMulOth.html#a95bbed27b7a50e4249fcaf78c4223a85">writeToFile</a> (const char *fname)</td></tr>
-<tr class="memdesc:a95bbed27b7a50e4249fcaf78c4223a85"><td class="mdescLeft">&#160;</td><td class="mdescRight">write Grouped l-Othello to a file. <br/></td></tr>
+<tr class="memitem:a95bbed27b7a50e4249fcaf78c4223a85"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMulOth.html#a95bbed27b7a50e4249fcaf78c4223a85">writeToFile</a> (const char *fname)</td></tr>
+<tr class="memdesc:a95bbed27b7a50e4249fcaf78c4223a85"><td class="mdescLeft">&#160;</td><td class="mdescRight">write Grouped l-Othello to a file.  <a href="#a95bbed27b7a50e4249fcaf78c4223a85">More...</a><br/></td></tr>
 <tr class="separator:a95bbed27b7a50e4249fcaf78c4223a85"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7da6d11a8bb8ddadc3c2ac7b612264f2"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7da6d11a8bb8ddadc3c2ac7b612264f2"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>MulOth</b> (const char *fname, <a class="el" href="classIOHelper.html">IOHelper</a>&lt; keyType, valueType &gt; *_helper)</td></tr>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMulOth.html#a7da6d11a8bb8ddadc3c2ac7b612264f2">MulOth</a> (const char *fname, <a class="el" href="classIOHelper.html">IOHelper</a>&lt; keyType, valueType &gt; *_helper)</td></tr>
+<tr class="memdesc:a7da6d11a8bb8ddadc3c2ac7b612264f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">construct a Grouped l-Othello from a file. <br/></td></tr>
 <tr class="separator:a7da6d11a8bb8ddadc3c2ac7b612264f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
+<tr class="memitem:a80b32650e615102dc7299c62fae25372"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a80b32650e615102dc7299c62fae25372"></a>
+vector&lt; keyType &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMulOth.html#a80b32650e615102dc7299c62fae25372">removedKeys</a></td></tr>
+<tr class="memdesc:a80b32650e615102dc7299c62fae25372"><td class="mdescLeft">&#160;</td><td class="mdescRight">list of skipped keys for all underlying <em><a class="el" href="classOthello.html" title="Describes the data structure l-Othello. It classifies keys of keyType into 2^L classes. ">Othello</a></em>. <br/></td></tr>
+<tr class="separator:a80b32650e615102dc7299c62fae25372"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af2d18734feba98d8905fa6f3a0f77231"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af2d18734feba98d8905fa6f3a0f77231"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>buildsucc</b></td></tr>
 <tr class="separator:af2d18734feba98d8905fa6f3a0f77231"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -202,6 +210,47 @@ template&lt;typename keyType &gt; </div>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a class="anchor" id="a95bbed27b7a50e4249fcaf78c4223a85"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename keyType &gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classMulOth.html">MulOth</a>&lt; keyType &gt;::writeToFile </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>fname</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>write Grouped l-Othello to a file. </p>
+<dl class="section note"><dt>Note</dt><dd>file structure. <br/>
+ 0x00 32bit split <br/>
+ 0x04 version (reserved); <br/>
+ 0x20 32Byte info for othello 0 <br/>
+ 0x40 32Byte info for othello 1 <br/>
+ ... <br/>
+ ... <br/>
+ Array for othello 0 <br/>
+ .., <br/>
+ 32bit nRemovedKeys <br/>
+ (64bit) keyType &amp;removedKeys* 0<br/>
+</dd></dl>
 
 </div>
 </div>

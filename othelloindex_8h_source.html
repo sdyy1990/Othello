@@ -90,66 +90,66 @@ $(document).ready(function(){initNavTree('othelloindex_8h_source.html','');});
 <div class="title">othelloindex.h</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#pragma once</span></div>
+<a href="othelloindex_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#pragma once</span></div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#include &quot;<a class="code" href="othello_8h.html">othello.h</a>&quot;</span></div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">class</span> keyType&gt;</div>
-<div class="line"><a name="l00017"></a><span class="lineno"><a class="line" href="classOthelloIndex.html">   17</a></span>&#160;<span class="keyword">class </span><a class="code" href="classOthelloIndex.html">OthelloIndex</a> : <span class="keyword">public</span> <a class="code" href="classOthello.html">Othello</a>&lt;keyType&gt; {</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    vector&lt;uint32_t&gt; offset;</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    uint32_t sum(uint32_t h) {</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;        uint32_t p = (h &amp; 0x1F);</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;        <span class="keywordflow">return</span> offset[h&gt;&gt;5] + __builtin_popcount(<a class="code" href="classOthello.html">Othello&lt;keyType&gt;::fillcount</a>[h&gt;&gt;5] &amp; ((1&lt;&lt;p)-1));</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    }</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="keyword">public</span>:    </div>
-<div class="line"><a name="l00029"></a><span class="lineno"><a class="line" href="classOthelloIndex.html#aa44f864fc18e8ed675a8718b92775a49">   29</a></span>&#160;    <a class="code" href="classOthelloIndex.html#aa44f864fc18e8ed675a8718b92775a49">OthelloIndex</a>(keyType *_keys, uint32_t keycount) :</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;        <a class="code" href="classOthello.html">Othello</a>&lt;keyType&gt;(1,_keys, keycount)</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;        {</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;        offset.resize(<a class="code" href="classOthello.html">Othello&lt;keyType&gt;::fillcount</a>.size());</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;        offset[0] = 0;</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 1 ; i &lt; offset.size(); i++) {</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;            offset[i] = offset[i-1] + __builtin_popcount(<a class="code" href="classOthello.html">Othello&lt;keyType&gt;::fillcount</a>[i-1]);</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;        }</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;          </div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    }</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <a class="code" href="classOthelloIndex.html#aa44f864fc18e8ed675a8718b92775a49">OthelloIndex</a>(<span class="keywordtype">unsigned</span> <span class="keywordtype">char</span> *v): </div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;        <a class="code" href="classOthello.html">Othello</a>&lt;keyType&gt;(v) {</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;        <a class="code" href="classOthello.html">Othello&lt;keyType&gt;::fillcount</a>.resize((<a class="code" href="classOthello.html">Othello&lt;keyType&gt;::ma</a>+<a class="code" href="classOthello.html">Othello&lt;keyType&gt;::mb</a>)/32);</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;        offset.resize(<a class="code" href="classOthello.html">Othello&lt;keyType&gt;::fillcount</a>.size());</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;        }</div>
-<div class="line"><a name="l00049"></a><span class="lineno"><a class="line" href="classOthelloIndex.html#adea7d33a0c3431ddf6f3836057013426">   49</a></span>&#160;    uint32_t <a class="code" href="classOthelloIndex.html#adea7d33a0c3431ddf6f3836057013426">query</a>(<span class="keyword">const</span> keyType &amp;k) {</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;        uint32_t ha,hb;</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;        uint64_t v = <a class="code" href="classOthello.html#a67a89c55b005d2d251119ee0a14685d6">Othello&lt;keyType&gt;::query</a>(k,ha,hb);</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;        uint32_t h = v?hb:ha;</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;        <span class="keywordflow">return</span> sum(h);</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;    }</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;</div>
-<div class="line"><a name="l00060"></a><span class="lineno"><a class="line" href="classOthelloIndex.html#a4ecbd60d9dd8c316dd89d145fef87249">   60</a></span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classOthelloIndex.html#a4ecbd60d9dd8c316dd89d145fef87249">loadDataFromBinaryFile</a>(FILE *pF) {</div>
-<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;        fread(&amp;(<a class="code" href="classOthello.html">Othello&lt;keyType&gt;::mem</a>[0]),<span class="keyword">sizeof</span>(<a class="code" href="classOthello.html">Othello&lt;keyType&gt;::mem</a>[0]), <a class="code" href="classOthello.html">Othello&lt;keyType&gt;::mem</a>.size(), pF);</div>
-<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;        fread(&amp;(<a class="code" href="classOthello.html">Othello&lt;keyType&gt;::fillcount</a>[0]),<span class="keyword">sizeof</span>(<a class="code" href="classOthello.html">Othello&lt;keyType&gt;::fillcount</a>[0]), <a class="code" href="classOthello.html">Othello&lt;keyType&gt;::fillcount</a>.size(), pF);</div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;        fread(&amp;(offset[0]),<span class="keyword">sizeof</span>(offset[0]),offset.size(),pF);</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    }</div>
-<div class="line"><a name="l00068"></a><span class="lineno"><a class="line" href="classOthelloIndex.html#aafe93a47ea76a43fc39c3995a4a75b06">   68</a></span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classOthelloIndex.html#aafe93a47ea76a43fc39c3995a4a75b06">writeDataToBinaryFile</a>(FILE *pF) {</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;        fwrite(&amp;(<a class="code" href="classOthello.html">Othello&lt;keyType&gt;::mem</a>[0]),<span class="keyword">sizeof</span>(<a class="code" href="classOthello.html">Othello&lt;keyType&gt;::mem</a>[0]), <a class="code" href="classOthello.html">Othello&lt;keyType&gt;::mem</a>.size(), pF);</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;        fwrite(&amp;(<a class="code" href="classOthello.html">Othello&lt;keyType&gt;::fillcount</a>[0]),<span class="keyword">sizeof</span>(<a class="code" href="classOthello.html">Othello&lt;keyType&gt;::fillcount</a>[0]), <a class="code" href="classOthello.html">Othello&lt;keyType&gt;::fillcount</a>.size(), pF);</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;        fwrite(&amp;(offset[0]),<span class="keyword">sizeof</span>(offset[0]),offset.size(),pF);</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    }</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;};</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">class</span> keyType&gt;</div>
+<div class="line"><a name="l00018"></a><span class="lineno"><a class="line" href="classOthelloIndex.html">   18</a></span>&#160;<span class="keyword">class </span><a class="code" href="classOthelloIndex.html">OthelloIndex</a> : <span class="keyword">public</span> <a class="code" href="classOthello.html">Othello</a>&lt;keyType&gt; {</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    vector&lt;uint32_t&gt; offset;</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    uint32_t sum(uint32_t h) {</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;        uint32_t p = (h &amp; 0x1F);</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;        <span class="keywordflow">return</span> offset[h&gt;&gt;5] + __builtin_popcount(<a class="code" href="classOthello.html">Othello&lt;keyType&gt;::fillcount</a>[h&gt;&gt;5] &amp; ((1&lt;&lt;p)-1));</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    }</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="keyword">public</span>:    </div>
+<div class="line"><a name="l00031"></a><span class="lineno"><a class="line" href="classOthelloIndex.html#aa44f864fc18e8ed675a8718b92775a49">   31</a></span>&#160;    <a class="code" href="classOthelloIndex.html#aa44f864fc18e8ed675a8718b92775a49">OthelloIndex</a>(keyType *_keys, uint32_t keycount) :</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;        <a class="code" href="classOthello.html">Othello</a>&lt;keyType&gt;(1,_keys, keycount)</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;        {</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;        offset.resize(<a class="code" href="classOthello.html">Othello&lt;keyType&gt;::fillcount</a>.size());</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;        offset[0] = 0;</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 1 ; i &lt; offset.size(); i++) {</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;            offset[i] = offset[i-1] + __builtin_popcount(<a class="code" href="classOthello.html">Othello&lt;keyType&gt;::fillcount</a>[i-1]);</div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;        }</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;          </div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    }</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <a class="code" href="classOthelloIndex.html#aa44f864fc18e8ed675a8718b92775a49">OthelloIndex</a>(<span class="keywordtype">unsigned</span> <span class="keywordtype">char</span> *v): </div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;        <a class="code" href="classOthello.html">Othello</a>&lt;keyType&gt;(v) {</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;        <a class="code" href="classOthello.html">Othello&lt;keyType&gt;::fillcount</a>.resize((<a class="code" href="classOthello.html">Othello&lt;keyType&gt;::ma</a>+<a class="code" href="classOthello.html">Othello&lt;keyType&gt;::mb</a>)/32);</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;        offset.resize(<a class="code" href="classOthello.html">Othello&lt;keyType&gt;::fillcount</a>.size());</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;        }</div>
+<div class="line"><a name="l00051"></a><span class="lineno"><a class="line" href="classOthelloIndex.html#adea7d33a0c3431ddf6f3836057013426">   51</a></span>&#160;    uint32_t <a class="code" href="classOthelloIndex.html#adea7d33a0c3431ddf6f3836057013426">query</a>(<span class="keyword">const</span> keyType &amp;k) {</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;        uint32_t ha,hb;</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;        uint64_t v = <a class="code" href="classOthello.html#a67a89c55b005d2d251119ee0a14685d6">Othello&lt;keyType&gt;::query</a>(k,ha,hb);</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;        uint32_t h = v?hb:ha;</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;        <span class="keywordflow">return</span> sum(h);</div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    }</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;</div>
+<div class="line"><a name="l00062"></a><span class="lineno"><a class="line" href="classOthelloIndex.html#a4ecbd60d9dd8c316dd89d145fef87249">   62</a></span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classOthelloIndex.html#a4ecbd60d9dd8c316dd89d145fef87249">loadDataFromBinaryFile</a>(FILE *pF) {</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;        fread(&amp;(<a class="code" href="classOthello.html">Othello&lt;keyType&gt;::mem</a>[0]),<span class="keyword">sizeof</span>(<a class="code" href="classOthello.html">Othello&lt;keyType&gt;::mem</a>[0]), <a class="code" href="classOthello.html">Othello&lt;keyType&gt;::mem</a>.size(), pF);</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;        fread(&amp;(<a class="code" href="classOthello.html">Othello&lt;keyType&gt;::fillcount</a>[0]),<span class="keyword">sizeof</span>(<a class="code" href="classOthello.html">Othello&lt;keyType&gt;::fillcount</a>[0]), <a class="code" href="classOthello.html">Othello&lt;keyType&gt;::fillcount</a>.size(), pF);</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;        fread(&amp;(offset[0]),<span class="keyword">sizeof</span>(offset[0]),offset.size(),pF);</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;    }</div>
+<div class="line"><a name="l00070"></a><span class="lineno"><a class="line" href="classOthelloIndex.html#aafe93a47ea76a43fc39c3995a4a75b06">   70</a></span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classOthelloIndex.html#aafe93a47ea76a43fc39c3995a4a75b06">writeDataToBinaryFile</a>(FILE *pF) {</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;        fwrite(&amp;(<a class="code" href="classOthello.html">Othello&lt;keyType&gt;::mem</a>[0]),<span class="keyword">sizeof</span>(<a class="code" href="classOthello.html">Othello&lt;keyType&gt;::mem</a>[0]), <a class="code" href="classOthello.html">Othello&lt;keyType&gt;::mem</a>.size(), pF);</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;        fwrite(&amp;(<a class="code" href="classOthello.html">Othello&lt;keyType&gt;::fillcount</a>[0]),<span class="keyword">sizeof</span>(<a class="code" href="classOthello.html">Othello&lt;keyType&gt;::fillcount</a>[0]), <a class="code" href="classOthello.html">Othello&lt;keyType&gt;::fillcount</a>.size(), pF);</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;        fwrite(&amp;(offset[0]),<span class="keyword">sizeof</span>(offset[0]),offset.size(),pF);</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    }</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;};</div>
 <div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;</div>
-<div class="ttc" id="classOthelloIndex_html"><div class="ttname"><a href="classOthelloIndex.html">OthelloIndex</a></div><div class="ttdoc">OthelloIndex is a data structure that stores a minimum perfect hash function.   For n keys...</div><div class="ttdef"><b>Definition:</b> othelloindex.h:17</div></div>
-<div class="ttc" id="classOthelloIndex_html_a4ecbd60d9dd8c316dd89d145fef87249"><div class="ttname"><a href="classOthelloIndex.html#a4ecbd60d9dd8c316dd89d145fef87249">OthelloIndex::loadDataFromBinaryFile</a></div><div class="ttdeci">void loadDataFromBinaryFile(FILE *pF)</div><div class="ttdoc">load the array from file. </div><div class="ttdef"><b>Definition:</b> othelloindex.h:60</div></div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;</div>
+<div class="ttc" id="classOthelloIndex_html"><div class="ttname"><a href="classOthelloIndex.html">OthelloIndex</a></div><div class="ttdoc">OthelloIndex is a data structure that stores a minimum perfect hash function.   For n keys...</div><div class="ttdef"><b>Definition:</b> othelloindex.h:18</div></div>
+<div class="ttc" id="classOthelloIndex_html_a4ecbd60d9dd8c316dd89d145fef87249"><div class="ttname"><a href="classOthelloIndex.html#a4ecbd60d9dd8c316dd89d145fef87249">OthelloIndex::loadDataFromBinaryFile</a></div><div class="ttdeci">void loadDataFromBinaryFile(FILE *pF)</div><div class="ttdoc">load the array from file. </div><div class="ttdef"><b>Definition:</b> othelloindex.h:62</div></div>
 <div class="ttc" id="classOthello_html"><div class="ttname"><a href="classOthello.html">Othello</a></div><div class="ttdoc">Describes the data structure l-Othello. It classifies keys of keyType into 2^L classes. </div><div class="ttdef"><b>Definition:</b> othello.h:24</div></div>
-<div class="ttc" id="classOthelloIndex_html_adea7d33a0c3431ddf6f3836057013426"><div class="ttname"><a href="classOthelloIndex.html#adea7d33a0c3431ddf6f3836057013426">OthelloIndex::query</a></div><div class="ttdeci">uint32_t query(const keyType &amp;k)</div><div class="ttdoc">return the index of key k, in range [0..n-1] </div><div class="ttdef"><b>Definition:</b> othelloindex.h:49</div></div>
-<div class="ttc" id="classOthelloIndex_html_aafe93a47ea76a43fc39c3995a4a75b06"><div class="ttname"><a href="classOthelloIndex.html#aafe93a47ea76a43fc39c3995a4a75b06">OthelloIndex::writeDataToBinaryFile</a></div><div class="ttdeci">void writeDataToBinaryFile(FILE *pF)</div><div class="ttdoc">write array to binary file. </div><div class="ttdef"><b>Definition:</b> othelloindex.h:68</div></div>
-<div class="ttc" id="classOthello_html_a67a89c55b005d2d251119ee0a14685d6"><div class="ttname"><a href="classOthello.html#a67a89c55b005d2d251119ee0a14685d6">Othello::query</a></div><div class="ttdeci">valueType query(const keyType &amp;k, uint32_t &amp;ha, uint32_t &amp;hb)</div><div class="ttdoc">compute the hash value of key and return query value. </div><div class="ttdef"><b>Definition:</b> othello.h:275</div></div>
+<div class="ttc" id="classOthelloIndex_html_adea7d33a0c3431ddf6f3836057013426"><div class="ttname"><a href="classOthelloIndex.html#adea7d33a0c3431ddf6f3836057013426">OthelloIndex::query</a></div><div class="ttdeci">uint32_t query(const keyType &amp;k)</div><div class="ttdoc">return the index of key k, in range [0..n-1] </div><div class="ttdef"><b>Definition:</b> othelloindex.h:51</div></div>
+<div class="ttc" id="classOthelloIndex_html_aafe93a47ea76a43fc39c3995a4a75b06"><div class="ttname"><a href="classOthelloIndex.html#aafe93a47ea76a43fc39c3995a4a75b06">OthelloIndex::writeDataToBinaryFile</a></div><div class="ttdeci">void writeDataToBinaryFile(FILE *pF)</div><div class="ttdoc">write array to binary file. </div><div class="ttdef"><b>Definition:</b> othelloindex.h:70</div></div>
+<div class="ttc" id="classOthello_html_a67a89c55b005d2d251119ee0a14685d6"><div class="ttname"><a href="classOthello.html#a67a89c55b005d2d251119ee0a14685d6">Othello::query</a></div><div class="ttdeci">valueType query(const keyType &amp;k, uint32_t &amp;ha, uint32_t &amp;hb)</div><div class="ttdoc">compute the hash value of key and return query value. </div><div class="ttdef"><b>Definition:</b> othello.h:313</div></div>
 <div class="ttc" id="othello_8h_html"><div class="ttname"><a href="othello_8h.html">othello.h</a></div></div>
-<div class="ttc" id="classOthelloIndex_html_aa44f864fc18e8ed675a8718b92775a49"><div class="ttname"><a href="classOthelloIndex.html#aa44f864fc18e8ed675a8718b92775a49">OthelloIndex::OthelloIndex</a></div><div class="ttdeci">OthelloIndex(keyType *_keys, uint32_t keycount)</div><div class="ttdoc">Construct OthelloIndex </div><div class="ttdef"><b>Definition:</b> othelloindex.h:29</div></div>
+<div class="ttc" id="classOthelloIndex_html_aa44f864fc18e8ed675a8718b92775a49"><div class="ttname"><a href="classOthelloIndex.html#aa44f864fc18e8ed675a8718b92775a49">OthelloIndex::OthelloIndex</a></div><div class="ttdeci">OthelloIndex(keyType *_keys, uint32_t keycount)</div><div class="ttdoc">Construct OthelloIndex </div><div class="ttdef"><b>Definition:</b> othelloindex.h:31</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><b>othelloindex.h</b></li>
+    <li class="navelem"><a class="el" href="othelloindex_8h.html">othelloindex.h</a></li>
     <li class="footer">Generated by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>

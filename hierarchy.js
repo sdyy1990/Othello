@@ -6,6 +6,7 @@ var hierarchy =
       [ "ConstantLengthKmerHelper< keyType, valueType >", "classConstantLengthKmerHelper.html", null ]
     ] ],
     [ "MulOth< keyType >", "classMulOth.html", null ],
+    [ "MulOthIndex< keyType >", "classMulOthIndex.html", null ],
     [ "Othello< keyType >", "classOthello.html", [
       [ "OthelloIndex< keyType >", "classOthelloIndex.html", null ]
     ] ]

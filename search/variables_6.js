@@ -1,5 +1,7 @@
 var searchData=
 [
-  ['s',['s',['../classHasher32.html#a582dcdd0ee12f51653af95382fc3710d',1,'Hasher32']]],
-  ['splitbit',['splitbit',['../classConstantLengthKmerHelper.html#af23e432d9ee3500af818f81a5f946e4b',1,'ConstantLengthKmerHelper']]]
+  ['ma',['ma',['../classOthello.html#aafbe2c8fbc45f6e52d8038c1d116b5fd',1,'Othello']]],
+  ['mask',['mask',['../classHasher32.html#a6201c520c3b99d29032cff699056a46c',1,'Hasher32']]],
+  ['mb',['mb',['../classOthello.html#a9c36c868d042d18305551780bf302ec2',1,'Othello']]],
+  ['mem',['mem',['../classOthello.html#aa9a1a35b4c261f01a033eb3ee63779fa',1,'Othello']]]
 ];

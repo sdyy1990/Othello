@@ -5,6 +5,7 @@ var annotated =
     [ "Hasher32", "classHasher32.html", "classHasher32" ],
     [ "IOHelper", "classIOHelper.html", "classIOHelper" ],
     [ "MulOth", "classMulOth.html", "classMulOth" ],
+    [ "MulOthIndex", "classMulOthIndex.html", "classMulOthIndex" ],
     [ "Othello", "classOthello.html", "classOthello" ],
     [ "OthelloIndex", "classOthelloIndex.html", "classOthelloIndex" ]
 ];

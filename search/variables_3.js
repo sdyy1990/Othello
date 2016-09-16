@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['kmerlength',['kmerlength',['../classConstantLengthKmerHelper.html#aa353b8590fc9d28e5eafca16f23f3c36',1,'ConstantLengthKmerHelper']]]
+  ['fillcount',['fillcount',['../classOthello.html#a7175650da26aa486c3ef468ad3f3ac5c',1,'Othello']]]
 ];

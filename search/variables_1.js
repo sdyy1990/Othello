@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['disj',['disj',['../classOthello.html#ad4cd46885f2374eb6840cda3dac0c0e0',1,'Othello']]]
+  ['build',['build',['../classOthello.html#aa8df0267e7074717b74358db08e59728',1,'Othello']]]
 ];

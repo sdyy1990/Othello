@@ -1,4 +1,6 @@
 var searchData=
 [
-  ['exportinfo',['exportInfo',['../classOthello.html#a7aa8d71b743b4075f582b13f94d0debb',1,'Othello']]]
+  ['disj',['disj',['../classOthello.html#ad4cd46885f2374eb6840cda3dac0c0e0',1,'Othello']]],
+  ['disjointset',['DisjointSet',['../classDisjointSet.html',1,'']]],
+  ['disjointset_2eh',['disjointset.h',['../disjointset_8h.html',1,'']]]
 ];

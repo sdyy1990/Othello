@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['muloth',['MulOth',['../classMulOth.html',1,'']]]
+  ['muloth',['MulOth',['../classMulOth.html',1,'']]],
+  ['mulothindex',['MulOthIndex',['../classMulOthIndex.html',1,'']]]
 ];

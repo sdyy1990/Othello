@@ -111,10 +111,18 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aab3991615ed20b37502bad45fa471f25"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classIOHelper.html#aab3991615ed20b37502bad45fa471f25">convert</a> (char *s, keyType *T, valueType *V)=0</td></tr>
 <tr class="memdesc:aab3991615ed20b37502bad45fa471f25"><td class="mdescLeft">&#160;</td><td class="mdescRight">convert a input-style line to key/value pair.  <a href="#aab3991615ed20b37502bad45fa471f25">More...</a><br/></td></tr>
 <tr class="separator:aab3991615ed20b37502bad45fa471f25"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab3a33b80791ad4c8861da6fe38c55a1c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ab3a33b80791ad4c8861da6fe38c55a1c"></a>
+virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classIOHelper.html#ab3a33b80791ad4c8861da6fe38c55a1c">convert</a> (char *s, keyType *T)=0</td></tr>
+<tr class="memdesc:ab3a33b80791ad4c8861da6fe38c55a1c"><td class="mdescLeft">&#160;</td><td class="mdescRight">skip the value. <br/></td></tr>
+<tr class="separator:ab3a33b80791ad4c8861da6fe38c55a1c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8304d8a8fae3e35016968c2f8106ebb6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a8304d8a8fae3e35016968c2f8106ebb6"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classIOHelper.html#a8304d8a8fae3e35016968c2f8106ebb6">splitgrp</a> (const keyType &amp;key, uint32_t &amp;grp, keyType &amp;keyInGroup)=0</td></tr>
 <tr class="memdesc:a8304d8a8fae3e35016968c2f8106ebb6"><td class="mdescLeft">&#160;</td><td class="mdescRight">split a keyTypeype value into two parts: groupID/keyInGroup by the highest <em>splitbit</em> bits. <br/></td></tr>
 <tr class="separator:a8304d8a8fae3e35016968c2f8106ebb6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae5758f9dafaa5ad716e9324f09a7e009"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae5758f9dafaa5ad716e9324f09a7e009"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classIOHelper.html#ae5758f9dafaa5ad716e9324f09a7e009">combgrp</a> (keyType &amp;key, uint32_t &amp;grp, keyType &amp;keyInGroup)=0</td></tr>
+<tr class="memdesc:ae5758f9dafaa5ad716e9324f09a7e009"><td class="mdescLeft">&#160;</td><td class="mdescRight">combine groupID/keyInGroup to the origional key <br/></td></tr>
+<tr class="separator:ae5758f9dafaa5ad716e9324f09a7e009"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><h3>template&lt;typename keyType, typename valueType&gt;<br/>

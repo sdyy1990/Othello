@@ -116,14 +116,14 @@ Collaboration diagram for Othello&lt; keyType &gt;:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:afd346cf71b6e29f85611b80e691ed2b9"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classOthello.html#afd346cf71b6e29f85611b80e691ed2b9">Othello</a> (uint8_t _L, keyType *_keys, uint32_t keycount, bool _autoclear=true, void *_values=NULL, size_t _valuesize=0)</td></tr>
-<tr class="memdesc:afd346cf71b6e29f85611b80e691ed2b9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct <em>l-Othello</em>.  <a href="#afd346cf71b6e29f85611b80e691ed2b9">More...</a><br/></td></tr>
-<tr class="separator:afd346cf71b6e29f85611b80e691ed2b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1b93e3c1865e2350fb9f3a7922887fcd"><td class="memTemplParams" colspan="2"><a class="anchor" id="a1b93e3c1865e2350fb9f3a7922887fcd"></a>
+<tr class="memitem:a5be050491d362f079481a971847ccf37"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classOthello.html#a5be050491d362f079481a971847ccf37">Othello</a> (uint8_t _L, keyType *_keys, uint32_t keycount, bool _autoclear=true, void *_values=NULL, size_t _valuesize=0, int32_t _allowed_conflicts=-1)</td></tr>
+<tr class="memdesc:a5be050491d362f079481a971847ccf37"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct <em>l-Othello</em>.  <a href="#a5be050491d362f079481a971847ccf37">More...</a><br/></td></tr>
+<tr class="separator:a5be050491d362f079481a971847ccf37"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a744d0381100aed47ea9851fc5a8a01ec"><td class="memTemplParams" colspan="2"><a class="anchor" id="a744d0381100aed47ea9851fc5a8a01ec"></a>
 template&lt;typename VT &gt; </td></tr>
-<tr class="memitem:a1b93e3c1865e2350fb9f3a7922887fcd"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classOthello.html#a1b93e3c1865e2350fb9f3a7922887fcd">Othello</a> (uint8_t _L, vector&lt; keyType &gt; &amp;keys, vector&lt; VT &gt; &amp;values, bool _autoclear=true)</td></tr>
-<tr class="memdesc:a1b93e3c1865e2350fb9f3a7922887fcd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct othello with vectors. <br/></td></tr>
-<tr class="separator:a1b93e3c1865e2350fb9f3a7922887fcd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a744d0381100aed47ea9851fc5a8a01ec"><td class="memTemplItemLeft" align="right" valign="top">&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classOthello.html#a744d0381100aed47ea9851fc5a8a01ec">Othello</a> (uint8_t _L, vector&lt; keyType &gt; &amp;keys, vector&lt; VT &gt; &amp;values, bool _autoclear=true, int32_t <a class="el" href="classOthello.html#a2d0f006c12acdeb8ccd08797c88f8e54">allowed_conflicts</a>=-1)</td></tr>
+<tr class="memdesc:a744d0381100aed47ea9851fc5a8a01ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct othello with vectors. <br/></td></tr>
+<tr class="separator:a744d0381100aed47ea9851fc5a8a01ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2238b665c34e93036226961dddf72810"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2238b665c34e93036226961dddf72810"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classOthello.html#a2238b665c34e93036226961dddf72810">finishBuild</a> ()</td></tr>
 <tr class="memdesc:a2238b665c34e93036226961dddf72810"><td class="mdescLeft">&#160;</td><td class="mdescRight">release memory space used during construction and forbid future modification of arrayA and arrayB. <br/></td></tr>
@@ -172,12 +172,6 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>get_hash</b> (const k
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classOthello.html#a31377cc49e910a8a00afbcc426cd0be3">writeDataToBinaryFile</a> (FILE *pF)</td></tr>
 <tr class="memdesc:a31377cc49e910a8a00afbcc426cd0be3"><td class="mdescLeft">&#160;</td><td class="mdescRight">write array to binary file. <br/></td></tr>
 <tr class="separator:a31377cc49e910a8a00afbcc426cd0be3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a31836203dc2af9dd35cfeef3a1c90bb3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a31836203dc2af9dd35cfeef3a1c90bb3"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>padd</b> (vector&lt; int32_t &gt; &amp;A, valueType &amp;t)</td></tr>
-<tr class="separator:a31836203dc2af9dd35cfeef3a1c90bb3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af3f2a328eedb1635edfef2105142af82"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af3f2a328eedb1635edfef2105142af82"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>pdiff</b> (vector&lt; int32_t &gt; &amp;A, valueType &amp;t)</td></tr>
-<tr class="separator:af3f2a328eedb1635edfef2105142af82"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -219,6 +213,14 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="
 vector&lt; uint32_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classOthello.html#a7175650da26aa486c3ef468ad3f3ac5c">fillcount</a></td></tr>
 <tr class="memdesc:a7175650da26aa486c3ef468ad3f3ac5c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enabled only when the values of the query is not pre-defined. This supports othelloIndex query. fillcount[x]==1 if and only if there is an edge pointed to x,. <br/></td></tr>
 <tr class="separator:a7175650da26aa486c3ef468ad3f3ac5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2d0f006c12acdeb8ccd08797c88f8e54"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2d0f006c12acdeb8ccd08797c88f8e54"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classOthello.html#a2d0f006c12acdeb8ccd08797c88f8e54">allowed_conflicts</a></td></tr>
+<tr class="memdesc:a2d0f006c12acdeb8ccd08797c88f8e54"><td class="mdescLeft">&#160;</td><td class="mdescRight">The number of keys that can be skipped during construction. <br/></td></tr>
+<tr class="separator:a2d0f006c12acdeb8ccd08797c88f8e54"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae5229cde293414d09acb012250a27162"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae5229cde293414d09acb012250a27162"></a>
+vector&lt; keyType &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classOthello.html#ae5229cde293414d09acb012250a27162">removedKeys</a></td></tr>
+<tr class="memdesc:ae5229cde293414d09acb012250a27162"><td class="mdescLeft">&#160;</td><td class="mdescRight">The list of removed keys. <br/></td></tr>
+<tr class="separator:ae5229cde293414d09acb012250a27162"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><h3>template&lt;class keyType&gt;<br/>
@@ -228,7 +230,7 @@ class Othello&lt; keyType &gt;</h3>
 <dl class="section note"><dt>Note</dt><dd>Query a key of keyType always return uint64_t, however, only the lowest L bits are meaningful. <br/>
 The array are all stored in an array of uint64_t. There are actually m_a+m_b cells in this array, each of length L. </dd></dl>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="afd346cf71b6e29f85611b80e691ed2b9"></a>
+<a class="anchor" id="a5be050491d362f079481a971847ccf37"></a>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
@@ -271,7 +273,13 @@ template&lt;class keyType&gt; </div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>_valuesize</em> = <code>0</code>&#160;</td>
+          <td class="paramname"><em>_valuesize</em> = <code>0</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int32_t&#160;</td>
+          <td class="paramname"><em>_allowed_conflicts</em> = <code>-1</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -292,7 +300,9 @@ template&lt;class keyType&gt; </div>
     <tr><td class="paramdir">[in]</td><td class="paramname">keyType</td><td>*_keys, pointer to array of keys. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">uint32_t</td><td>keycount, number of keys, array size must match this. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">bool</td><td>_autoclear, clear memory used during construction once completed. Forbid future modification on the structure. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">valueType</td><td>* _values, Optional, pointer to array of values. When *_values* is empty, fill othello values such that the query result classifies keys to 2 sets. See more in notes. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">void</td><td>* _values, Optional, pointer to array of values. When *_values* is empty, fill othello values such that the query result classifies keys to 2 sets. See more in notes. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">uint32_t</td><td>valuesize, must be specifed when *_values* is not NULL. This indicates the length of a valueType; </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">_allowed_conflicts,default</td><td>value is 10. during construction, <a class="el" href="classOthello.html" title="Describes the data structure l-Othello. It classifies keys of keyType into 2^L classes. ">Othello</a> will remove at most this number of keys, instead of rehash. </td></tr>
   </table>
   </dd>
 </dl>

@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['kmerlength',['kmerlength',['../classConstantLengthKmerHelper.html#aa353b8590fc9d28e5eafca16f23f3c36',1,'ConstantLengthKmerHelper']]]
+  ['io_5fhelper_2eh',['io_helper.h',['../io__helper_8h.html',1,'']]],
+  ['iohelper',['IOHelper',['../classIOHelper.html',1,'']]]
 ];

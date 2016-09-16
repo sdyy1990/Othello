@@ -8,7 +8,10 @@ var files =
     ] ],
     [ "io_helper.h", "io__helper_8h.html", "io__helper_8h" ],
     [ "muloth.h", "muloth_8h.html", "muloth_8h" ],
+    [ "mulothindex.h", "mulothindex_8h.html", "mulothindex_8h" ],
     [ "othello.h", "othello_8h.html", "othello_8h" ],
-    [ "othelloindex.h", "othelloindex_8h_source.html", null ],
+    [ "othelloindex.h", "othelloindex_8h.html", [
+      [ "OthelloIndex", "classOthelloIndex.html", "classOthelloIndex" ]
+    ] ],
     [ "typedefine.h", "typedefine_8h.html", "typedefine_8h" ]
 ];
