@@ -114,3 +114,27 @@ std::string human(uint64_t word) {
 }
 
 
+template <typename keyType, typename valueType> 
+class KmerFileReader {
+    FILE *f;
+    IOHelper<keyType,valueType> *helper;
+public:   
+    KmerFileReader(const char *fname, IOHelper<keyType,valueType> *_helper) {
+        helper = _helper;
+        char buf[1024];
+        strcpy(buf,fname);
+        if (buf[strlen(buf)-1]=='\n')
+            buf[strlen(buf)-1] = '\0';
+        f=fopen(buf,"r");
+        printf("OpenFile %s %x\n",fname,f);
+    }
+    void close() {
+        fclose(f);
+    }
+    bool getNext(keyType *T, valueType *V) {
+        char buf[1024];
+        if (fgets(buf,sizeof(buf),f)==NULL) return false;
+        return helper->convert(buf,T,V);
+    }
+};
+

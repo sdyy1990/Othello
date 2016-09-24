@@ -8,7 +8,7 @@ const char * VERSION = GITVERSION;
  */
 
 /*!
- \breif MulOthIndex is a extended version of OthelloIndex, it supports more than 2^29 keys. \n
+ \brief MulOthIndex is a extended version of OthelloIndex, it supports more than 2^29 keys. \n
   The keys are first classifed into groups, each group is then maintained by one *OthelloIndex*.
   \note Query a key of keyType always return uint64_t, however, only the lowest bits are meaningful.
 */
