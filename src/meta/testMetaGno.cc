@@ -58,6 +58,7 @@ int main(int argc, char * argv[]) {
     keyT cur = 0;
     int cnt = 0;
     map<uint32_t, uint64_t> freq;
+    vector<uint16_t> vSampleIDs;
     while (!PQ.empty()) {
         pair<keyT,uint32_t> PP = PQ.top(); PQ.pop();
         //printf("From file %d key %llx\n", PP.second, PP.first);
@@ -67,10 +68,11 @@ int main(int argc, char * argv[]) {
                 freq[cnt] ++;
                 cur = PP.first;
                 cnt = 1;
+                vSampleIDs.clear();
         }
         else 
             if (tempV[PP.second]>=0) cnt ++;
-
+        vSampleIDs.push_back(PP.second);
         if (readers[PP.second].getNext(&k,&v)) {
             tempV[PP.second] = v;
             PQ.push(make_pair(k,PP.second));
