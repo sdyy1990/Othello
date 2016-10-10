@@ -179,8 +179,33 @@ $(document).ready(function(){initNavTree('io__helper_8h_source.html','');});
 <div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;}</div>
 <div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;</div>
 <div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;</div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;<span class="keyword">template</span> &lt;<span class="keyword">typename</span> keyType, <span class="keyword">typename</span> valueType&gt; </div>
+<div class="line"><a name="l00118"></a><span class="lineno"><a class="line" href="classKmerFileReader.html">  118</a></span>&#160;<span class="keyword">class </span><a class="code" href="classKmerFileReader.html">KmerFileReader</a> {</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;    FILE *f;</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;    <a class="code" href="classIOHelper.html">IOHelper&lt;keyType,valueType&gt;</a> *helper;</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;<span class="keyword">public</span>:   </div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;    <a class="code" href="classKmerFileReader.html">KmerFileReader</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *fname, <a class="code" href="classIOHelper.html">IOHelper&lt;keyType,valueType&gt;</a> *_helper) {</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;        helper = _helper;</div>
+<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;        <span class="keywordtype">char</span> buf[1024];</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;        strcpy(buf,fname);</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;        <span class="keywordflow">if</span> (buf[strlen(buf)-1]==<span class="charliteral">&#39;\n&#39;</span>)</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;            buf[strlen(buf)-1] = <span class="charliteral">&#39;\0&#39;</span>;</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;        f=fopen(buf,<span class="stringliteral">&quot;r&quot;</span>);</div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;        printf(<span class="stringliteral">&quot;OpenFile %s %x\n&quot;</span>,fname,f);</div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;    }</div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;    <span class="keywordtype">void</span> close() {</div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;        fclose(f);</div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;    }</div>
+<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;    <span class="keywordtype">bool</span> getNext(keyType *T, valueType *V) {</div>
+<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;        <span class="keywordtype">char</span> buf[1024];</div>
+<div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;        <span class="keywordflow">if</span> (fgets(buf,<span class="keyword">sizeof</span>(buf),f)==NULL) <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;        <span class="keywordflow">return</span> helper-&gt;convert(buf,T,V);</div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;    }</div>
+<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;};</div>
+<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;</div>
 <div class="ttc" id="classIOHelper_html_a8304d8a8fae3e35016968c2f8106ebb6"><div class="ttname"><a href="classIOHelper.html#a8304d8a8fae3e35016968c2f8106ebb6">IOHelper::splitgrp</a></div><div class="ttdeci">virtual void splitgrp(const keyType &amp;key, uint32_t &amp;grp, keyType &amp;keyInGroup)=0</div><div class="ttdoc">split a keyTypeype value into two parts: groupID/keyInGroup by the highest splitbit bits...</div></div>
 <div class="ttc" id="classIOHelper_html_ae5758f9dafaa5ad716e9324f09a7e009"><div class="ttname"><a href="classIOHelper.html#ae5758f9dafaa5ad716e9324f09a7e009">IOHelper::combgrp</a></div><div class="ttdeci">virtual void combgrp(keyType &amp;key, uint32_t &amp;grp, keyType &amp;keyInGroup)=0</div><div class="ttdoc">combine groupID/keyInGroup to the origional key </div></div>
+<div class="ttc" id="classKmerFileReader_html"><div class="ttname"><a href="classKmerFileReader.html">KmerFileReader</a></div><div class="ttdef"><b>Definition:</b> io_helper.h:118</div></div>
 <div class="ttc" id="classIOHelper_html"><div class="ttname"><a href="classIOHelper.html">IOHelper</a></div><div class="ttdoc">interface for converting a key from its raw format to a keyTypeype. Split key into groups...</div><div class="ttdef"><b>Definition:</b> io_helper.h:14</div></div>
 <div class="ttc" id="classConstantLengthKmerHelper_html_af14dc8ec0dd311d541b2db4ea84092e8"><div class="ttname"><a href="classConstantLengthKmerHelper.html#af14dc8ec0dd311d541b2db4ea84092e8">ConstantLengthKmerHelper::combgrp</a></div><div class="ttdeci">void combgrp(keyType &amp;key, uint32_t &amp;grp, keyType &amp;keyInGroup)</div><div class="ttdoc">combine groupID/keyInGroup to the origional key </div><div class="ttdef"><b>Definition:</b> io_helper.h:92</div></div>
 <div class="ttc" id="classConstantLengthKmerHelper_html_a9e96cb37d81614d04facb76037695d36"><div class="ttname"><a href="classConstantLengthKmerHelper.html#a9e96cb37d81614d04facb76037695d36">ConstantLengthKmerHelper::convert</a></div><div class="ttdeci">bool convert(char *s, keyType *k, valueType *v)</div><div class="ttdoc">convert a input-style line to key/value pair. </div><div class="ttdef"><b>Definition:</b> io_helper.h:51</div></div>

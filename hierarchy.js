@@ -5,6 +5,7 @@ var hierarchy =
     [ "IOHelper< keyType, valueType >", "classIOHelper.html", [
       [ "ConstantLengthKmerHelper< keyType, valueType >", "classConstantLengthKmerHelper.html", null ]
     ] ],
+    [ "KmerFileReader< keyType, valueType >", "classKmerFileReader.html", null ],
     [ "MulOth< keyType >", "classMulOth.html", null ],
     [ "MulOthIndex< keyType >", "classMulOthIndex.html", null ],
     [ "Othello< keyType >", "classOthello.html", [

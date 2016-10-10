@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['othello',['Othello',['../classOthello.html',1,'']]],
-  ['othelloindex',['OthelloIndex',['../classOthelloIndex.html',1,'']]]
+  ['muloth',['MulOth',['../classMulOth.html',1,'']]],
+  ['mulothindex',['MulOthIndex',['../classMulOthIndex.html',1,'']]]
 ];
