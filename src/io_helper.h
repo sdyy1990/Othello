@@ -113,7 +113,7 @@ std::string human(uint64_t word) {
     return s;
 }
 
-
+#include <cstring>
 template <typename keyType, typename valueType> 
 class KmerFileReader {
     FILE *f;
@@ -131,10 +131,82 @@ public:
     void close() {
         fclose(f);
     }
+    ~KmerFileReader() {
+        close();
+    }
     bool getNext(keyType *T, valueType *V) {
         char buf[1024];
         if (fgets(buf,sizeof(buf),f)==NULL) return false;
         return helper->convert(buf,T,V);
     }
 };
+
+template <typename keyType, typename valueType> 
+struct KVpair {
+    keyType k;
+    valueType v;
+} __attribute__((packed));
+
+template <typename KVpair> 
+class BinaryKmerReader{
+    FILE * f;
+    static const int buflen = 16;
+    KVpair buf[1024];
+    int curr = 0;
+    int max = 0;
+public:
+    BinaryKmerReader(const char * fname) {
+        char buf[1024];
+        strcpy(buf,fname);
+        if (buf[strlen(buf)-1]=='\n')
+            buf[strlen(buf)-1] = '\0';
+        f=fopen(buf,"rb");
+        printf("OpenFile to read Kmers %s %x\n",fname,f);
+        curr = 0;
+    }
+    ~BinaryKmerReader() {
+        fclose(f);
+    }
+    bool getNext(KVpair *ret) {
+        if (curr == max) {
+            max = fread(buf,sizeof(buf[0]),buflen,f);
+            if (max == 0) return false;
+            curr = 0;
+        }
+        memcpy(ret, &buf[curr], sizeof(buf[curr]));
+        curr++;
+    }
+};
+
+template <typename KVpair> 
+class BinaryKmerWriter {
+    FILE *f;
+    int curr = 0;
+public:
+    BinaryKmerWriter( const char * fname) {
+        char buf[1024];
+        strcpy(buf,fname);
+        if (buf[strlen(buf)-1]=='\n')
+            buf[strlen(buf)-1] = '\0';
+        f=fopen(buf,"wb");
+        printf("OpenFile to write Kmers %s %x\n",fname,f);
+        curr = 0;
+    }
+    static const int buflen = 16;
+    KVpair buf[1024];
+    void write(KVpair *p) {
+        memcpy(&buf[curr],p,sizeof(buf[curr]));
+        curr++;
+        if (curr == buflen) {
+            fwrite(buf,sizeof(buf[0]),buflen,f);
+            curr = 0;
+        }
+    }
+    void finish() {
+        fwrite(buf,sizeof(buf[0]),curr,f);
+        curr = 0;
+        fclose(f);
+    }    
+};
+
 
