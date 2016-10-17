@@ -440,31 +440,41 @@ public:
 
 template <typename keyType> 
 class SortedKmerTxtReader : public KmerReader<keyType> {
-    BinaryKmerReader<keyType> *binaryReader; 
+    BinaryKmerReader<keyType> * binaryReader = NULL; 
+    uint32_t pointer;
+    vector<keyType> vK;
     public: 
     SortedKmerTxtReader(const char * fname, uint32_t kmerlength, const char *tmpfilename) {
         ConstantLengthKmerHelper<keyType, uint64_t> helper(kmerlength, 0);
         FileReader<keyType,uint64_t> *reader;
         reader = new KmerFileReader<keyType,uint64_t>(fname, &helper, false);
-        vector<keyType> vK;
         keyType k; uint64_t v;
         while (reader->getNext(&k, &v)) {
             vK.push_back(k);
         }
         sort(vK.begin(),vK.end());
         reader->finish();
-        string binaryfilename (tmpfilename);
-        BinaryKmerWriter<keyType> writer(binaryfilename.c_str());
-        for (uint64_t k:vK)    
-            writer.write(&k);
-        writer.finish();
-        binaryReader = new BinaryKmerReader<keyType> (binaryfilename.c_str());
+        if (tmpfilename != NULL) {
+            string binaryfilename (tmpfilename);
+            BinaryKmerWriter<keyType> writer(binaryfilename.c_str());
+            for (uint64_t k:vK)    
+                writer.write(&k);
+            writer.finish();
+            binaryReader = new BinaryKmerReader<keyType> (binaryfilename.c_str());
+        }
+        else pointer = 0;
     }
     bool getNext(keyType *k) {
-        return binaryReader->getNext(k);
+        if (binaryReader!= NULL)
+            return binaryReader->getNext(k);
+        else {
+            *k = vK[pointer++];
+            return (pointer < vK.size());
+        }
     }
     void finish() {
-        binaryReader->finish();
+        if (binaryReader)
+            binaryReader->finish();
     }
 };
 
@@ -512,7 +522,7 @@ public:
                 readers.push_back(new BinaryKmerReader<keyType>(fname.c_str()));
             else {
                 string tmpfname(tmpfolder); tmpfname = tmpfname + s + ".bintmp";
-                readers.push_back(new SortedKmerTxtReader<keyType>(fname.c_str(),KmerLength,tmpfname.c_str()));
+                readers.push_back(new SortedKmerTxtReader<keyType>(fname.c_str(),KmerLength,NULL));
             }
             keyType key; 
             readers[readers.size()-1]->getNext(&key);
@@ -543,6 +553,7 @@ public:
             }
             writer->write(&key, ret); 
         }
+        writer->finish();
     }
     vector< vector<uint16_t> > grpTmpValue;
 
@@ -581,10 +592,9 @@ public:
         for (int i = 0; i < levelcount; i++)
             localshift.push_back(localshift[i] + *max_element(NCBI_local[i].begin(), NCBI_local[i].end())+1);
 
-        combineMode = (fnames.size()>=800);
+        int nn = 20;
+        combineMode = (fnames.size()>nn);
         if (combineMode) {
-            int nn = 1;
-            while (nn*nn < fnames.size()) nn++;
             int curr = 0;
             int combineCount = 0;
             vector<string> * fnamesInThisgrp ;
@@ -624,8 +634,10 @@ public:
                 string fname = prefix + fnames[i] + suffix;
                 if (useBinaryKmerFile)
                     readers.push_back(new BinaryKmerReader<keyType>(fname.c_str()));
-                else
-                    readers.push_back(new SortedKmerTxtReader<keyType>(fname.c_str(),KmerLength,tmpFileDirectory));
+                else {
+                    string tmpfname(tmpFileDirectory); tmpfname = tmpfname + fnames[i] + ".bintmp";
+                    readers.push_back(new SortedKmerTxtReader<keyType>(fname.c_str(),KmerLength,tmpfname.c_str()));
+                }
                 keyType key;
                 readers[readers.size()-1]->getNext(&key);
                 KIDpair kid = {key, readers.size()-1, false};
