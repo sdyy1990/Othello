@@ -24,8 +24,7 @@ int main(int argc, char * argv[]) {
     int splitbit = atoi(splitbitStr.c_str());
     
     IOHelper<keyT,uint16_t> *helper;
-    helper = new ConstantLengthKmerHelper<keyT,uint16_t>(Kmer_length,splitbit);
-    taxoTreeBuilder<uint64_t, uint16_t> builder(argv[1],argv[2],argv[3],helper);
+    taxoTreeBuilder<uint64_t, uint16_t> builder(argv[1],argv[2],argv[3],Kmer_length, splitbit,false);
 
     MulOth<keyT,uint16_t> * moth;
     moth = new MulOth<keyT,uint16_t>(VALUELENGTH,splitbit, &builder);

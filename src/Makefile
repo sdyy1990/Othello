@@ -7,7 +7,7 @@ GITVERSION= "no-version"
 CXXFLAGS+= -std=gnu++11 -DGITVERSION=\"$(GITVERSION)\"
 CXXFLAGS+= -Wno-format -Wno-pointer-arith
 
-CXXFLAGS+= -DKMERLENGTH=20   -march=native -DHASHSEED1=0x74b0dc51 -DHASHSEED2=0x19495cff -g
+CXXFLAGS+= -DKMERLENGTH=20   -march=native -DHASHSEED1=0x74b0dc51 -DHASHSEED2=0x19495cff -O3
 
 #CXXFLAGS+= -DKMERLENGTH=20 -march=native -g
 

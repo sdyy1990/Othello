@@ -12,7 +12,7 @@
 #include "time.h"
 using namespace std;
 typedef unsigned long long keyT;
-typedef uint64_t valueT;
+typedef uint16_t valueT;
 
 
 vector<keyT> keys;
@@ -38,13 +38,13 @@ int main(int argc, char * argv[]) {
     sscanf(argv[1],"%d",&splitbit);
     helper = new ConstantLengthKmerHelper<keyT,valueT>(KMERLENGTH,splitbit);
 
-    MulOth<keyT> * moth;
+    MulOth<keyT,valueT> * moth;
     if (splitbit >=0) {
         printf("Split %d groups\n",1U<< splitbit);
         if (usebinaryfile) 
-            moth = new MulOth<keyT>(VALUELENGTH,splitbit, new compressFileReader<keyT, valueT>(argv[2], helper, 8, 2, true));
+            moth = new MulOth<keyT,valueT>(VALUELENGTH,splitbit, new compressFileReader<keyT, uint16_t>(argv[2], helper, 8, 2, true));
         else 
-            moth = new MulOth<keyT>(VALUELENGTH,argv[2],  splitbit, helper, true);
+            moth = new MulOth<keyT,valueT>(VALUELENGTH,argv[2],  splitbit, helper, true);
         if (!moth->buildsucc) return 1;
 
         printf("Build Succ, write to file %s\n", argv[3]);
@@ -55,7 +55,7 @@ int main(int argc, char * argv[]) {
 
         delete moth;
     }
-    moth = new MulOth<keyT>( argv[3],helper);
+    moth = new MulOth<keyT,valueT>( argv[3],helper);
 
     for (int i = 2; i< argc; i+=2) {
         printf("Testing using keys from file %s\n", argv[i]);

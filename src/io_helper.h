@@ -361,9 +361,15 @@ public:
 
 using namespace std;
 
+template <typename keyType>
+class KmerReader {
+public:
+    virtual void finish() =0;
+    virtual bool getNext(keyType *k) =0;
+};
 
 template <typename KVpair>
-class BinaryKmerReader {
+class BinaryKmerReader: public KmerReader<KVpair> {
     FILE * f;
     static const int buflen = 16;
     KVpair buf[1024];
@@ -432,6 +438,37 @@ public:
     }
 };
 
+template <typename keyType> 
+class SortedKmerTxtReader : public KmerReader<keyType> {
+    BinaryKmerReader<keyType> *binaryReader; 
+    public: 
+    SortedKmerTxtReader(const char * fname, uint32_t kmerlength) {
+        ConstantLengthKmerHelper<keyType, uint64_t> helper(kmerlength, 0);
+        FileReader<keyType,uint64_t> *reader;
+        reader = new KmerFileReader<keyType,uint64_t>(fname, &helper, false);
+        vector<keyType> vK;
+        keyType k; uint64_t v;
+        while (reader->getNext(&k, &v)) {
+            vK.push_back(k);
+        }
+        sort(vK.begin(),vK.end());
+        reader->finish();
+        string binaryfilename (fname);
+        binaryfilename = binaryfilename +".bintmp";
+        BinaryKmerWriter<keyType> writer(binaryfilename.c_str());
+        for (uint64_t k:vK)    
+            writer.write(&k);
+        writer.finish();
+        binaryReader = new BinaryKmerReader<keyType> (binaryfilename.c_str());
+    }
+    bool getNext(keyType *k) {
+        return binaryReader->getNext(k);
+    }
+    void finish() {
+        binaryReader->finish();
+    }
+};
+
 
 template <typename keyType, typename valueType>
 class taxoTreeBuilder: public FileReader <keyType, valueType> {
@@ -459,7 +496,7 @@ public:
     vector<vector<int> > NCBI_local;
     vector<int> localshift;
     vector<vector<string> > NCBI_ID;
-    vector<BinaryKmerReader<uint64_t> *> readers;
+    vector<KmerReader<uint64_t> *> readers;
     vector<MultivalueFileReaderWriter<uint64_t, uint16_t> *> grpreaders; //must be 64-bit kmers, and 16-bit grpids.
     priority_queue<KIDpair> PQ;
     bool combineMode = false; //used when there are >=800 files;
@@ -467,12 +504,15 @@ public:
     bool getFileIsSorted() {
         return true;
     }
-    void groupFile(string fname, vector<string> lf, string prefix, string suffix, int32_t idshift) {
-        vector<BinaryKmerReader<keyType> *> readers;
+    void groupFile(string fname, vector<string> lf, string prefix, string suffix, int32_t idshift, bool useBinaryKmerFile,uint32_t KmerLength) {
+        vector<KmerReader<keyType> *> readers;
         priority_queue<KIDpair> PQN;
         for (string s: lf) {
             string fname = prefix + s + suffix;
-            readers.push_back(new BinaryKmerReader<keyType>(fname.c_str()));
+            if (useBinaryKmerFile) 
+                readers.push_back(new BinaryKmerReader<keyType>(fname.c_str()));
+            else 
+                readers.push_back(new SortedKmerTxtReader<keyType>(fname.c_str(),KmerLength));
             keyType key; 
             readers[readers.size()-1]->getNext(&key);
             KIDpair kid = {key, idshift+readers.size()-1, false};
@@ -506,8 +546,8 @@ public:
     vector< vector<uint16_t> > grpTmpValue;
 
 
-    taxoTreeBuilder(const char * NCBIfname, const char * fnameprefix, const char * fnamesuffix, IOHelper <keyType, valueType> * _helper) {
-        FileReader<keyType,valueType>::helper = _helper;
+    taxoTreeBuilder(const char * NCBIfname, const char * fnameprefix, const char * fnamesuffix, uint32_t KmerLength, uint32_t splitbit, bool useBinaryKmerFile = true ) {
+        FileReader<keyType,valueType>::helper = new ConstantLengthKmerHelper<keyType,valueType> (KmerLength,splitbit);
         FILE * fNCBI;
         string prefix ( fnameprefix);
         string suffix (fnamesuffix);
@@ -559,7 +599,7 @@ public:
                 ss>> fnamegrp;
                 grpfnames.push_back(fnamegrp);
                 printf("merge kmer files %d %d to grp %s\n", curr, curr+fnamesInThisgrp->size()-1, fnamegrp.c_str());
-                groupFile(fnamegrp, *fnamesInThisgrp, prefix, suffix, curr);
+                groupFile(fnamegrp, *fnamesInThisgrp, prefix, suffix, curr, useBinaryKmerFile,KmerLength);
                 curr += fnamesInThisgrp->size();
             }
             combineCount = grpfnames.size();
@@ -579,7 +619,10 @@ public:
         else
             for (int i = 0 ; i < NCBI_ID.size(); i++) {
                 string fname = prefix + fnames[i] + suffix;
-                readers.push_back(new BinaryKmerReader<keyType>(fname.c_str()));
+                if (useBinaryKmerFile)
+                    readers.push_back(new BinaryKmerReader<keyType>(fname.c_str()));
+                else
+                    readers.push_back(new SortedKmerTxtReader<keyType>(fname.c_str(),KmerLength));
                 keyType key;
                 readers[readers.size()-1]->getNext(&key);
                 KIDpair kid = {key, readers.size()-1, false};
