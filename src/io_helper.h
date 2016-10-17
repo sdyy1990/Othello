@@ -47,6 +47,8 @@ public:
     virtual bool getNext(keyType *T, valueType *V) = 0;
     virtual void finish() =0;
     virtual void reset() = 0;
+    virtual ~FileReader() {
+    }
 };
 
 /*!
@@ -248,6 +250,7 @@ class MultivalueFileReaderWriter : public FileReader <keyType, valueType> {
     unsigned char buf[buflen * 2];
     uint32_t kl,vl;
     bool isRead;
+    bool isclosed = false;
 public:
     static const valueType EMPTYVALUE = ~0;
     bool valid(uint32_t value) {
@@ -271,10 +274,13 @@ public:
         max = 0;
     }
     void finish() {
+        if (!isclosed) {
         if (!isRead) {
             fwrite(buf,sizeof(buf[0]), curr, f);
         }
         fclose(f);
+        }
+        isclosed = true;
     }
     void reset() {
         rewind(f);
@@ -375,6 +381,7 @@ class BinaryKmerReader: public KmerReader<KVpair> {
     KVpair buf[1024];
     int curr = 0;
     int max = 0;
+    bool isclosed =false;
 public:
     BinaryKmerReader(const char * fname) {
         char buf[1024];
@@ -388,12 +395,13 @@ public:
         }
         curr = 0;
     }
-    ~BinaryKmerReader() {
-        fclose(f);
-    }
     void finish() {
+        if (!isclosed) {
         fclose(f);
+        }
+        isclosed = true;
     }
+    ~BinaryKmerReader() {        finish();    }
     bool getNext(KVpair *ret) {
         if (curr == max) {
             max = fread(buf,sizeof(buf[0]),buflen,f);
@@ -442,22 +450,23 @@ template <typename keyType>
 class SortedKmerTxtReader : public KmerReader<keyType> {
     BinaryKmerReader<keyType> * binaryReader = NULL; 
     uint32_t pointer;
-    vector<keyType> vK;
+    vector<keyType> * vK;
     public: 
     SortedKmerTxtReader(const char * fname, uint32_t kmerlength, const char *tmpfilename) {
         ConstantLengthKmerHelper<keyType, uint64_t> helper(kmerlength, 0);
         FileReader<keyType,uint64_t> *reader;
         reader = new KmerFileReader<keyType,uint64_t>(fname, &helper, false);
         keyType k; uint64_t v;
+        vK = new vector<keyType>();
         while (reader->getNext(&k, &v)) {
-            vK.push_back(k);
+            vK->push_back(k);
         }
-        sort(vK.begin(),vK.end());
-        reader->finish();
+        sort(vK->begin(),vK->end());
+        delete reader;
         if (tmpfilename != NULL) {
             string binaryfilename (tmpfilename);
             BinaryKmerWriter<keyType> writer(binaryfilename.c_str());
-            for (uint64_t k:vK)    
+            for (uint64_t k:*vK)    
                 writer.write(&k);
             writer.finish();
             binaryReader = new BinaryKmerReader<keyType> (binaryfilename.c_str());
@@ -468,14 +477,17 @@ class SortedKmerTxtReader : public KmerReader<keyType> {
         finish();
         if (binaryReader)
             delete binaryReader;
-        vK.clear();
     }
     bool getNext(keyType *k) {
         if (binaryReader!= NULL)
             return binaryReader->getNext(k);
         else {
-            *k = vK[pointer++];
-            return (pointer < vK.size());
+            if (pointer == vK->size()) {
+                delete vK;
+                return false;
+            }
+            *k = (*vK)[pointer++];
+            return true;
         }
     }
     void finish() {
@@ -543,9 +555,12 @@ public:
             uint32_t id = PQN.top().id;
             vector<uint16_t> ret;
             if (PQN.top().finished) {
-                for (auto r: readers) 
+                for (auto r: readers) { 
                     r->finish();
+                    delete r;
+                }
                 writer->finish();
+                delete writer;
                 return;
             }
             while (PQN.top().k == key) {
@@ -559,13 +574,8 @@ public:
             }
             writer->write(&key, ret); 
         }
-        writer->finish();
-        delete writer;
-        for (int i = 0 ; i < readers.size(); i++)
-            delete readers[i];
     }
     vector< vector<uint16_t> > grpTmpValue;
-
 
     taxoTreeBuilder(const char * NCBIfname, const char * fnameprefix, const char * fnamesuffix, const char * tmpFileDirectory, uint32_t KmerLength, uint32_t splitbit, bool useBinaryKmerFile = true ) {
         FileReader<keyType,valueType>::helper = new ConstantLengthKmerHelper<keyType,valueType> (KmerLength,splitbit);
@@ -601,7 +611,7 @@ public:
         for (int i = 0; i < levelcount; i++)
             localshift.push_back(localshift[i] + *max_element(NCBI_local[i].begin(), NCBI_local[i].end())+1);
 
-        int nn = 60;
+        int nn = 5;
         combineMode = (fnames.size()>nn);
         if (combineMode) {
             int curr = 0;
@@ -623,6 +633,7 @@ public:
                 printf("merge kmer files %d %d to grp %s\n", curr, curr+fnamesInThisgrp->size()-1, fnamegrp.c_str());
                 groupFile(fnamegrp, *fnamesInThisgrp, prefix, suffix, curr, useBinaryKmerFile,KmerLength,tmpFileDirectory);
                 curr += fnamesInThisgrp->size();
+                delete fnamesInThisgrp;
             }
             combineCount = grpfnames.size();
             for (string v: grpfnames) {
@@ -653,6 +664,16 @@ public:
                 PQ.push(kid);
             }
         fclose(fNCBI);
+    }
+    ~taxoTreeBuilder() {
+        if (combineMode)  {
+            for (int i = 0 ; i < grpreaders.size(); i++)
+                delete grpreaders[i];
+        }
+        else 
+            for (int i = 0 ; i < readers.size(); i++)
+                delete readers[i];
+        delete FileReader<keyType,valueType>::helper;
     }
     bool getNext( keyType *k, valueType *v) {
         int anslevel = 0;
