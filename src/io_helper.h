@@ -464,6 +464,12 @@ class SortedKmerTxtReader : public KmerReader<keyType> {
         }
         else pointer = 0;
     }
+    ~SortedKmerTxtReader() {
+        finish();
+        if (binaryReader)
+            delete binaryReader;
+        vK.clear();
+    }
     bool getNext(keyType *k) {
         if (binaryReader!= NULL)
             return binaryReader->getNext(k);
@@ -555,8 +561,8 @@ public:
         }
         writer->finish();
         delete writer;
-        for (auto k: readers)
-            delete k;
+        for (int i = 0 ; i < readers.size(); i++)
+            delete readers[i];
     }
     vector< vector<uint16_t> > grpTmpValue;
 
