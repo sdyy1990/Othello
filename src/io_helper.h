@@ -611,7 +611,7 @@ public:
         for (int i = 0; i < levelcount; i++)
             localshift.push_back(localshift[i] + *max_element(NCBI_local[i].begin(), NCBI_local[i].end())+1);
 
-        int nn = 5;
+        int nn = 50;
         combineMode = (fnames.size()>nn);
         if (combineMode) {
             int curr = 0;
