@@ -546,7 +546,7 @@ public:
     vector< vector<uint16_t> > grpTmpValue;
 
 
-    taxoTreeBuilder(const char * NCBIfname, const char * fnameprefix, const char * fnamesuffix, uint32_t KmerLength, uint32_t splitbit, bool useBinaryKmerFile = true ) {
+    taxoTreeBuilder(const char * NCBIfname, const char * fnameprefix, const char * fnamesuffix, const char * tmpFileDirectory, uint32_t KmerLength, uint32_t splitbit, bool useBinaryKmerFile = true ) {
         FileReader<keyType,valueType>::helper = new ConstantLengthKmerHelper<keyType,valueType> (KmerLength,splitbit);
         FILE * fNCBI;
         string prefix ( fnameprefix);
@@ -594,7 +594,9 @@ public:
                 else
                     fnamesInThisgrp = new vector<string> (fnames.begin()+curr, fnames.end());
                 stringstream ss;
-                ss<<prefix<<"TMP"<<grpfnames.size();
+                string tmpFolder(tmpFileDirectory);
+
+                ss<<tmpFolder<<"TMP"<<grpfnames.size();
                 string fnamegrp;
                 ss>> fnamegrp;
                 grpfnames.push_back(fnamegrp);

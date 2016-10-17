@@ -14,8 +14,8 @@ typedef uint16_t valueT;
 
 
 int main(int argc, char * argv[]) { 
-    if (argc < 5) {
-        printf("args: descriptiveFilename KmerFnamePrefix KmerFnameSuffix Kmer_length splitbits OutputFile\n");
+    if (argc < 8) {
+        printf("args: descriptiveFilename KmerFnamePrefix KmerFnameSuffix Kmer_length splitbits OutputFile workingDirectory\n");
         return 0;
     }    
     string Kmer_length_str = argv[4];
@@ -24,7 +24,7 @@ int main(int argc, char * argv[]) {
     int splitbit = atoi(splitbitStr.c_str());
     
     IOHelper<keyT,uint16_t> *helper;
-    taxoTreeBuilder<uint64_t, uint16_t> builder(argv[1],argv[2],argv[3],Kmer_length, splitbit,false);
+    taxoTreeBuilder<uint64_t, uint16_t> builder(argv[1],argv[2],argv[3],argv[7],Kmer_length, splitbit,false);
 
     MulOth<keyT,uint16_t> * moth;
     moth = new MulOth<keyT,uint16_t>(VALUELENGTH,splitbit, &builder);
