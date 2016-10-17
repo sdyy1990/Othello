@@ -442,7 +442,7 @@ template <typename keyType>
 class SortedKmerTxtReader : public KmerReader<keyType> {
     BinaryKmerReader<keyType> *binaryReader; 
     public: 
-    SortedKmerTxtReader(const char * fname, uint32_t kmerlength) {
+    SortedKmerTxtReader(const char * fname, uint32_t kmerlength, const char *tmpfilename) {
         ConstantLengthKmerHelper<keyType, uint64_t> helper(kmerlength, 0);
         FileReader<keyType,uint64_t> *reader;
         reader = new KmerFileReader<keyType,uint64_t>(fname, &helper, false);
@@ -453,8 +453,7 @@ class SortedKmerTxtReader : public KmerReader<keyType> {
         }
         sort(vK.begin(),vK.end());
         reader->finish();
-        string binaryfilename (fname);
-        binaryfilename = binaryfilename +".bintmp";
+        string binaryfilename (tmpfilename);
         BinaryKmerWriter<keyType> writer(binaryfilename.c_str());
         for (uint64_t k:vK)    
             writer.write(&k);
@@ -504,15 +503,17 @@ public:
     bool getFileIsSorted() {
         return true;
     }
-    void groupFile(string fname, vector<string> lf, string prefix, string suffix, int32_t idshift, bool useBinaryKmerFile,uint32_t KmerLength) {
+    void groupFile(string fname, vector<string> lf, string prefix, string suffix, int32_t idshift, bool useBinaryKmerFile,uint32_t KmerLength, const char * tmpfolder) {
         vector<KmerReader<keyType> *> readers;
         priority_queue<KIDpair> PQN;
         for (string s: lf) {
             string fname = prefix + s + suffix;
             if (useBinaryKmerFile) 
                 readers.push_back(new BinaryKmerReader<keyType>(fname.c_str()));
-            else 
-                readers.push_back(new SortedKmerTxtReader<keyType>(fname.c_str(),KmerLength));
+            else {
+                string tmpfname(tmpfolder); tmpfname = tmpfname + s + ".bintmp";
+                readers.push_back(new SortedKmerTxtReader<keyType>(fname.c_str(),KmerLength,tmpfname.c_str()));
+            }
             keyType key; 
             readers[readers.size()-1]->getNext(&key);
             KIDpair kid = {key, idshift+readers.size()-1, false};
@@ -601,7 +602,7 @@ public:
                 ss>> fnamegrp;
                 grpfnames.push_back(fnamegrp);
                 printf("merge kmer files %d %d to grp %s\n", curr, curr+fnamesInThisgrp->size()-1, fnamegrp.c_str());
-                groupFile(fnamegrp, *fnamesInThisgrp, prefix, suffix, curr, useBinaryKmerFile,KmerLength);
+                groupFile(fnamegrp, *fnamesInThisgrp, prefix, suffix, curr, useBinaryKmerFile,KmerLength,tmpFileDirectory);
                 curr += fnamesInThisgrp->size();
             }
             combineCount = grpfnames.size();
@@ -624,7 +625,7 @@ public:
                 if (useBinaryKmerFile)
                     readers.push_back(new BinaryKmerReader<keyType>(fname.c_str()));
                 else
-                    readers.push_back(new SortedKmerTxtReader<keyType>(fname.c_str(),KmerLength));
+                    readers.push_back(new SortedKmerTxtReader<keyType>(fname.c_str(),KmerLength,tmpFileDirectory));
                 keyType key;
                 readers[readers.size()-1]->getNext(&key);
                 KIDpair kid = {key, readers.size()-1, false};
