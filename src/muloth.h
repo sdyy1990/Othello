@@ -20,7 +20,7 @@ const char * VERSION = GITVERSION;
  * The keys are first classifed into groups, each group is then maintained by one *l-Othello*. 
  * \note Query a key of keyType always return uint64_t, however, only the lowest L bits are meaningful. \n
  */
-template <typename keyType>
+template <typename keyType, typename IOvalueType>
 class MulOth {
     typedef uint64_t valueType;
     uint32_t L;
@@ -47,7 +47,7 @@ class MulOth {
 public:
     vector<keyType> removedKeys; //!< list of skipped keys for all underlying *Othello*.
     bool buildsucc; 
-    IOHelper<keyType,valueType> *helper;
+    IOHelper<keyType,IOvalueType> *helper;
     //!\brief This generates toy data for test purpose.
     MulOth( uint32_t _L, uint32_t NN) {
         split = 0;
@@ -70,45 +70,39 @@ public:
 	 \param IOHelper _helper identifies how to convert a raw data to keytype and group.
      \param bool fileIsSorted When fileIsSorted, assume that the file is sorted so that the keys appear in the ascending order of groups.
      * */
-    MulOth(uint32_t _L, const char * fname, unsigned char _split, class IOHelper<keyType,valueType> * _helper, bool fileIsSorted = false) : helper(_helper) {
+    MulOth(uint32_t _L, unsigned char _split, class FileReader<keyType, uint16_t> * _reader) {
+        helper = _reader->helper;
         L = _L;
-        printf("Building Multi Othello from file %s \n",fname);
-        FILE *pFile;
-        pFile = fopen (fname,"r");
         vOths.clear();
         vOths.resize(1<<_split);
         char buf[1024];
         split = _split;
         if (split ==0) {
-            keyType k; valueType v; 
+            keyType k; IOvalueType v; 
             vector<keyType> keys;
-            vector<valueType> values;
+            vector<IOvalueType> values;
             while (true) {
-                if (fgets(buf,1024,pFile)==NULL) break;
-                if (!helper->convert(buf, &k, &v)) break;
+                if (!_reader->getNext(&k,&v)) break;
                 keys.push_back(k);
                 values.push_back(v);
             }
             buildsucc = addOth(0,keys,values);
-            fclose(pFile);
+            _reader->finish();
             return;
         }
-        if (fileIsSorted)  {
+        
+        if (_reader->getFileIsSorted())  {
             uint32_t grpid = 0;
             printf("Reading file for keys in group %2x/%2x\n", grpid,(1<<split)-1);
             vector<keyType> keys;
-            vector<valueType> values;
+            vector<IOvalueType> values;
             while (true) {
-                keyType k; valueType v;
-                void * pp;
-                if (fgets(buf,1024,pFile)==NULL) break;
-                if (!helper->convert(buf, &k, &v)) break;
-                keyType keyingroup;
-                uint32_t groupid;
-                helper->splitgrp(k,groupid,keyingroup);
+                keyType k; IOvalueType v;  keyType keyingroup;  uint32_t groupid;
+                if (!_reader->getNext(&k,&v)) break;
+                _reader->helper->splitgrp(k,groupid,keyingroup);
                 if (groupid != grpid) {
                     if (!addOth(grpid,keys,values)) 
-                        {fclose(pFile); return;}
+                        {_reader->finish(); return;}
                     grpid = groupid;
                     printf("Reading file for keys in group %2x/%0x\n", grpid,(1<<split)-1);
                     keys.clear();
@@ -118,22 +112,18 @@ public:
                 values.push_back(v);
             }
             if (!addOth(grpid,keys,values)) 
-                {fclose(pFile); return;}
+                { _reader->finish(); return;}
         }
         else
             for (uint32_t grpid = 0; grpid < (1<<_split); grpid++) {
                 printf("Reading file for keys in group %2x/%2x\n", grpid,(1<<split)-1);
                 vector<keyType> keys;
-                vector<valueType> values;
-                rewind(pFile);
+                vector<IOvalueType> values;
+                _reader->reset();
                 while (true) {
-                    keyType k;
-                    valueType v;
-                    if (fgets(buf,1024,pFile)==NULL) break;
-                    if (!helper->convert(buf, &k, &v)) break;
-                    keyType keyingroup;
-                    uint32_t groupid;
-                    helper->splitgrp(k,groupid,keyingroup);
+                    keyType k; IOvalueType v;  keyType keyingroup;  uint32_t groupid;
+                    if (!_reader->getNext(&k,&v)) break;
+                    _reader->helper->splitgrp(k,groupid,keyingroup);
                     if (groupid != grpid) continue;
                     keys.push_back(keyingroup);
                     values.push_back(v);
@@ -141,17 +131,22 @@ public:
                 printf("keycount %d ", keys.size());
                 if (keys.size()>0)
                     if (!addOth(grpid,keys,values)) 
-                        {fclose(pFile); return;}
+                        {_reader->finish(); return;}
             }
 
         buildsucc = true;
-        fclose(pFile);
+        _reader->finish();
+    }
+    MulOth(uint32_t _L, const char * fname, unsigned char _split, class IOHelper<keyType,IOvalueType> * _helper, bool fileIsSorted = false) :
+        MulOth(_L, _split, new KmerFileReader<keyType,IOvalueType>( fname, _helper, fileIsSorted))
+    {
+
     }
 
     /*!
        \brief returns a *L*-bit integer query value for a key.
       */
-    inline valueType query(const keyType &k) {
+    inline IOvalueType query(const keyType &k) {
         uint32_t grp;
         keyType kgrp;
         if (split ==0) 
@@ -214,9 +209,9 @@ public:
     }
 
     //! \brief construct a Grouped l-Othello from a file.
-    MulOth(const char* fname, IOHelper<keyType,valueType> * _helper): helper(_helper) {
+    MulOth(const char* fname, IOHelper<keyType,IOvalueType> * _helper): helper(_helper) {
         buildsucc = false;
-        printf("Read from binary file %s\n", fname);
+        printf("Read from binary Othello file %s\n", fname);
         FILE *pFile;
         pFile = fopen (fname, "rb");
         uint32_t compversion;
