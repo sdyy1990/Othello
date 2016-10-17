@@ -585,6 +585,7 @@ public:
                 KIDpair kid = {key, readers.size()-1, false};
                 PQ.push(kid);
             }
+        fclose(fNCBI);
     }
     bool getNext( keyType *k, valueType *v) {
         int anslevel = 0;
