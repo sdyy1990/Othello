@@ -554,6 +554,9 @@ public:
             writer->write(&key, ret); 
         }
         writer->finish();
+        delete writer;
+        for (auto k: readers)
+            delete k;
     }
     vector< vector<uint16_t> > grpTmpValue;
 
@@ -592,7 +595,7 @@ public:
         for (int i = 0; i < levelcount; i++)
             localshift.push_back(localshift[i] + *max_element(NCBI_local[i].begin(), NCBI_local[i].end())+1);
 
-        int nn = 20;
+        int nn = 60;
         combineMode = (fnames.size()>nn);
         if (combineMode) {
             int curr = 0;
