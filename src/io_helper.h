@@ -378,7 +378,7 @@ template <typename KVpair>
 class BinaryKmerReader: public KmerReader<KVpair> {
     FILE * f;
     static const int buflen = 16;
-    KVpair buf[1024];
+    KVpair buff[1024];
     int curr = 0;
     int max = 0;
     bool isclosed =false;
@@ -404,11 +404,12 @@ public:
     ~BinaryKmerReader() {        finish();    }
     bool getNext(KVpair *ret) {
         if (curr == max) {
-            max = fread(buf,sizeof(buf[0]),buflen,f);
+            max = fread(buff,sizeof(buff[0]),buflen,f);
+            *ret = (KVpair) ~0ULL;
             if (max == 0) return false;
             curr = 0;
         }
-        memcpy(ret, &buf[curr], sizeof(buf[curr]));
+        memcpy(ret, &buff[curr], sizeof(buff[curr]));
         curr++;
         return true;
     }
@@ -446,6 +447,7 @@ public:
     }
 };
 
+//! read kmer from unsorted txt file and sort .
 template <typename keyType> 
 class SortedKmerTxtReader : public KmerReader<keyType> {
     BinaryKmerReader<keyType> * binaryReader = NULL; 
@@ -563,7 +565,7 @@ public:
                 delete writer;
                 return;
             }
-            while (PQN.top().k == key) {
+            while (PQN.top().k == key && !PQN.top().finished) {
                 int tid = PQN.top().id;
                 ret.push_back(tid);
                 keyType nextk;
@@ -678,15 +680,13 @@ public:
     bool getNext( keyType *k, valueType *v) {
         int anslevel = 0;
         keyType key = PQ.top().k;
-        uint32_t id = PQ.top().id;
-        int ans = NCBI_local[0][id];
         vector<int> ret;
         if (PQ.top().finished) {
             finish();
             return false;
         }
        // printf("Find key %llx:", key);
-        while (PQ.top().k == key) {
+        while (PQ.top().k == key && !PQ.top().finished) {
             int tid;
             tid = PQ.top().id;
             keyType nextk;
@@ -705,9 +705,8 @@ public:
             //    printf("Next Has ::%d::", grpTmpValue[tid].size());
             }
             else {
-                ret.push_back(id);
+                ret.push_back(tid);
               //  printf(" %x\t",PQ.top().id);
-                keyType nextk;
                 finish = !readers[tid]->getNext(&nextk);
             }
             PQ.pop();
@@ -715,12 +714,10 @@ public:
             PQ.push(kid);
         }
         *k = key;
-        *v = ans;
-        if (ret.size() == 1) return true;
-        
-        for (int i = 1; i< levelcount; i++) {
+         
+        for (int i = 0; i< levelcount; i++) {
             bool flag = true;
-            for (int j = 1; j < ret.size() && flag; j++)
+            for (int j = 0; j < ret.size() && flag; j++)
                 flag = (NCBI_local[i][ret[j]]==NCBI_local[i][ret[0]]);
             if (flag) {
                 *v = localshift[i] + NCBI_local[i][ret[0]];

@@ -25,7 +25,7 @@ int main(int argc, char * argv[]) {
     if (argc < 4) {
         printf(" splitbits keyInputFile OutputFile 'B'.... \n");
         printf(" splitbits: a number <=16, divide the keys into 2^(splitbits) sets, according to the Least (splitbit) significant bits. \n");
-        printf(" splitbit == -1: -1, keyInputfile, outputfile: skip build, just query\n");
+        printf(" splitbit <0: -splitbit keyInputfile, outputfile: skip build, just query\n");
         printf(" if B is specified, user int64+uint16 Kmer-value binary files");
         return 0;
     }
@@ -36,7 +36,10 @@ int main(int argc, char * argv[]) {
     }
     int splitbit;
     sscanf(argv[1],"%d",&splitbit);
+    if (splitbit > 0) 
     helper = new ConstantLengthKmerHelper<keyT,valueT>(KMERLENGTH,splitbit);
+    else
+    helper = new ConstantLengthKmerHelper<keyT,valueT>(KMERLENGTH,-splitbit);
 
     MulOth<keyT,valueT> * moth;
     if (splitbit >=0) {
@@ -44,7 +47,7 @@ int main(int argc, char * argv[]) {
         if (usebinaryfile) 
             moth = new MulOth<keyT>(VALUELENGTH,splitbit, new compressFileReader<keyT, uint16_t>(argv[2], helper, 8, 2, true));
         else 
-            moth = new MulOth<keyT>(VALUELENGTH,argv[2],  splitbit, helper, true);
+            moth = new MulOth<keyT>(VALUELENGTH,splitbit, new KmerFileReader<keyT,uint16_t>(argv[2],helper,true) );
         if (!moth->buildsucc) return 1;
 
         printf("Build Succ, write to file %s\n", argv[3]);
@@ -55,10 +58,9 @@ int main(int argc, char * argv[]) {
 
         delete moth;
     }
-    moth = new MulOth<keyT,valueT>( argv[3],helper);
+    moth = new MulOth<keyT>( argv[3],helper);
 
-    for (int i = 2; i< argc; i+=2) {
-        printf("Testing using keys from file %s\n", argv[i]);
+        printf("Testing using keys from file %s\n", argv[2]);
         FileReader<keyT, valueT> *reader;
         if (usebinaryfile)
             reader = new compressFileReader<keyT,valueT>(argv[2], helper, 8, 2, true);
@@ -79,6 +81,7 @@ int main(int argc, char * argv[]) {
                     printf(" But it is removed during construction\n");
                     continue;
                 } else {
+                    continue;
                     reader -> finish();
                     return 0;
                 }
@@ -88,7 +91,6 @@ int main(int argc, char * argv[]) {
         }
         reader -> finish();
         printf("Test Succ\n");
-    }
     delete moth;
     return 0;
 }
