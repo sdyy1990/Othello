@@ -42,9 +42,9 @@ int main(int argc, char * argv[]) {
     if (splitbit >=0) {
         printf("Split %d groups\n",1U<< splitbit);
         if (usebinaryfile) 
-            moth = new MulOth<keyT,valueT>(VALUELENGTH,splitbit, new compressFileReader<keyT, uint16_t>(argv[2], helper, 8, 2, true));
+            moth = new MulOth<keyT>(VALUELENGTH,splitbit, new compressFileReader<keyT, uint16_t>(argv[2], helper, 8, 2, true));
         else 
-            moth = new MulOth<keyT,valueT>(VALUELENGTH,argv[2],  splitbit, helper, true);
+            moth = new MulOth<keyT>(VALUELENGTH,argv[2],  splitbit, helper, true);
         if (!moth->buildsucc) return 1;
 
         printf("Build Succ, write to file %s\n", argv[3]);

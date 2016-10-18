@@ -20,7 +20,7 @@ const char * VERSION = GITVERSION;
  * The keys are first classifed into groups, each group is then maintained by one *l-Othello*. 
  * \note Query a key of keyType always return uint64_t, however, only the lowest L bits are meaningful. \n
  */
-template <typename keyType, typename IOvalueType>
+template <typename keyType, typename IOvalueType = uint16_t>
 class MulOth {
     typedef uint64_t valueType;
     uint32_t L;
