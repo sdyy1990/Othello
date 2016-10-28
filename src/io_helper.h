@@ -609,7 +609,7 @@ public:
             fnames.push_back(vv[1]);
         }
         localshift.clear();
-        localshift.push_back(0);
+        localshift.push_back(1);
         for (int i = 0; i < levelcount; i++)
             localshift.push_back(localshift[i] + *max_element(NCBI_local[i].begin(), NCBI_local[i].end())+1);
 
@@ -666,6 +666,12 @@ public:
                 PQ.push(kid);
             }
         fclose(fNCBI);
+        string IDLfname(tmpFileDirectory); IDLfname+= "IDList.txt";
+        FILE * IDLf; IDLf = fopen(IDLfname.c_str(),"w");
+        for (int t : localshift) {
+            fprintf(IDLf,"%d\n",t);
+        } 
+        fclose(IDLf);
     }
     ~taxoTreeBuilder() {
         if (combineMode)  {
