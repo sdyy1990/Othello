@@ -48,7 +48,9 @@ public:
     vector<keyType> removedKeys; //!< list of skipped keys for all underlying *Othello*.
     bool buildsucc; 
     IOHelper<keyType,IOvalueType> *helper;
+
     //!\brief This generates toy data for test purpose.
+    /*
     MulOth( uint32_t _L, uint32_t NN) {
         split = 0;
         L = _L;
@@ -62,6 +64,7 @@ public:
         vOths.resize(1);
         addOth(0,keys,values);
     }
+    */
     /*!
      \brief Construct a Grouped l-Othello from a file.
      \param uint32_t _L
