@@ -88,7 +88,8 @@ $(document).ready(function(){initNavTree('io__helper_8h.html','');});
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
-<a href="#func-members">Functions</a>  </div>
+<a href="#func-members">Functions</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle">
 <div class="title">io_helper.h File Reference</div>  </div>
 </div><!--header-->
@@ -97,6 +98,11 @@ $(document).ready(function(){initNavTree('io__helper_8h.html','');});
 <code>#include &lt;sstream&gt;</code><br/>
 <code>#include &lt;iostream&gt;</code><br/>
 <code>#include &lt;iomanip&gt;</code><br/>
+<code>#include &lt;cstdio&gt;</code><br/>
+<code>#include &lt;errno.h&gt;</code><br/>
+<code>#include &lt;queue&gt;</code><br/>
+<code>#include &lt;algorithm&gt;</code><br/>
+<code>#include &lt;cstring&gt;</code><br/>
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for io_helper.h:</div>
 <div class="dyncontent">
@@ -117,10 +123,29 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classIOHelper.html">IOHelper&lt; keyType, valueType &gt;</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">interface for converting a key from its raw format to a keyTypeype. Split key into groups.  <a href="classIOHelper.html#details">More...</a><br/></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classFileReader.html">FileReader&lt; keyType, valueType &gt;</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classConstantLengthKmerHelper.html">ConstantLengthKmerHelper&lt; keyType, valueType &gt;</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classIOHelper.html" title="interface for converting a key from its raw format to a keyTypeype. Split key into groups...">IOHelper</a> for Constant-Length Kmers.  <a href="classConstantLengthKmerHelper.html#details">More...</a><br/></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classKmerFileReader.html">KmerFileReader&lt; keyType, valueType &gt;</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structKVpair.html">KVpair&lt; keyType, valueType &gt;</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classcompressFileReader.html">compressFileReader&lt; keyType, valueType &gt;</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMultivalueFileReaderWriter.html">MultivalueFileReaderWriter&lt; keyType, valueType &gt;</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classKmerReader.html">KmerReader&lt; keyType &gt;</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinaryKmerReader.html">BinaryKmerReader&lt; KVpair &gt;</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinaryKmerWriter.html">BinaryKmerWriter&lt; KVpair &gt;</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSortedKmerTxtReader.html">SortedKmerTxtReader&lt; keyType &gt;</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">read kmer from unsorted txt file and sort .  <a href="classSortedKmerTxtReader.html#details">More...</a><br/></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtaxoTreeBuilder.html">taxoTreeBuilder&lt; keyType, valueType &gt;</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
@@ -129,6 +154,29 @@ Functions</h2></td></tr>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="io__helper_8h.html#a132ae75333f455eb63e0474cf953cf65">human</a> (uint64_t word)</td></tr>
 <tr class="memdesc:a132ae75333f455eb63e0474cf953cf65"><td class="mdescLeft">&#160;</td><td class="mdescRight">convert a 64-bit Integer to human-readable format in K/M/G. e.g, 102400 is converted to "100K". <br/></td></tr>
 <tr class="separator:a132ae75333f455eb63e0474cf953cf65"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af7172c8e3ed4fd37263e63299340d997"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af7172c8e3ed4fd37263e63299340d997"></a>
+std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="io__helper_8h.html#af7172c8e3ed4fd37263e63299340d997">split</a> (const char *str, char deli)</td></tr>
+<tr class="memdesc:af7172c8e3ed4fd37263e63299340d997"><td class="mdescLeft">&#160;</td><td class="mdescRight">split a c-style string with delimineter chara. <br/></td></tr>
+<tr class="separator:af7172c8e3ed4fd37263e63299340d997"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4ed76f0508ecc509f47db3604af7c581"><td class="memTemplParams" colspan="2"><a class="anchor" id="a4ed76f0508ecc509f47db3604af7c581"></a>
+template&lt;typename keyType , typename valueType &gt; </td></tr>
+<tr class="memitem:a4ed76f0508ecc509f47db3604af7c581"><td class="memTemplItemLeft" align="right" valign="top">struct <a class="el" href="structKVpair.html">KVpair</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><b>__attribute__</b> ((packed))</td></tr>
+<tr class="separator:a4ed76f0508ecc509f47db3604af7c581"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7fdb34b29d9fd120365dccf986c59251"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a7fdb34b29d9fd120365dccf986c59251"></a>
+bool friend&#160;</td><td class="memItemRight" valign="bottom"><b>operator&lt;</b> (const <a class="el" href="structKVpair.html">KVpair</a> &amp;a, const <a class="el" href="structKVpair.html">KVpair</a> &amp;b)</td></tr>
+<tr class="separator:a7fdb34b29d9fd120365dccf986c59251"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:a53447c17f4c95cb6032c553352ae08da"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a53447c17f4c95cb6032c553352ae08da"></a>
+keyType&#160;</td><td class="memItemRight" valign="bottom"><b>k</b></td></tr>
+<tr class="separator:a53447c17f4c95cb6032c553352ae08da"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaff569a698fbd919c32398450f8d72b9"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aaff569a698fbd919c32398450f8d72b9"></a>
+valueType&#160;</td><td class="memItemRight" valign="bottom"><b>v</b></td></tr>
+<tr class="separator:aaff569a698fbd919c32398450f8d72b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5f413adfb113415a5dcc1cd60f88d02a"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5f413adfb113415a5dcc1cd60f88d02a"></a>
+<a class="el" href="classcompressFileReader.html">compressFileReader</a>&#160;</td><td class="memItemRight" valign="bottom"><b>__attribute__</b></td></tr>
+<tr class="separator:a5f413adfb113415a5dcc1cd60f88d02a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Contains IO utilities. </p>

@@ -1,4 +1,7 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classIOHelper.html" title="interface for converting a key from its raw format to a keyTypeype. Split key into groups..." alt="" coords="6,5,146,46"/>
-<area shape="rect" id="node2" href="$classConstantLengthKmerHelper.html" title="IOHelper for Constant&#45;Length Kmers. " alt="" coords="195,5,378,46"/>
+<area shape="rect" id="node1" href="$classFileReader.html" title="FileReader\&lt; keyType,\l valueType \&gt;" alt="" coords="6,103,157,145"/>
+<area shape="rect" id="node2" href="$classcompressFileReader.html" title="compressFileReader\l\&lt; keyType, valueType \&gt;" alt="" coords="215,5,379,46"/>
+<area shape="rect" id="node3" href="$classKmerFileReader.html" title="KmerFileReader\&lt; keyType,\l valueType \&gt;" alt="" coords="206,70,389,111"/>
+<area shape="rect" id="node4" href="$classMultivalueFileReaderWriter.html" title="MultivalueFileReaderWriter\l\&lt; keyType, valueType \&gt;" alt="" coords="208,135,387,177"/>
+<area shape="rect" id="node5" href="$classtaxoTreeBuilder.html" title="taxoTreeBuilder\&lt; keyType,\l valueType \&gt;" alt="" coords="208,201,387,242"/>
 </map>

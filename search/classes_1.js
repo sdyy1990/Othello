@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['disjointset',['DisjointSet',['../classDisjointSet.html',1,'']]]
+  ['compressfilereader',['compressFileReader',['../classcompressFileReader.html',1,'']]],
+  ['constantlengthkmerhelper',['ConstantLengthKmerHelper',['../classConstantLengthKmerHelper.html',1,'']]]
 ];

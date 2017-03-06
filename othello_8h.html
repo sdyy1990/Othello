@@ -108,7 +108,7 @@ Include dependency graph for othello.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="othello_8h__incl.png" border="0" usemap="#othello_8h" alt=""/></div>
 <map name="othello_8h" id="othello_8h">
-<area shape="rect" id="node8" href="hash_8h.html" title="hash.h" alt="" coords="455,80,516,107"/><area shape="rect" id="node10" href="io__helper_8h.html" title="io_helper.h" alt="" coords="599,80,684,107"/><area shape="rect" id="node14" href="disjointset_8h.html" title="disjointset.h" alt="" coords="31,80,123,107"/></map>
+<area shape="rect" id="node8" href="hash_8h.html" title="hash.h" alt="" coords="753,80,815,107"/><area shape="rect" id="node10" href="io__helper_8h.html" title="io_helper.h" alt="" coords="351,80,436,107"/><area shape="rect" id="node17" href="disjointset_8h.html" title="disjointset.h" alt="" coords="5,80,96,107"/></map>
 </div>
 </div><div class="textblock"><div class="dynheader">
 This graph shows which files directly or indirectly include this file:</div>
@@ -133,7 +133,7 @@ Macros</h2></td></tr>
 <tr class="memdesc:a582c5f2080e04d34716abb9d0f84991c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum number of rehash tries before report an error. If this limit is reached, <a class="el" href="classOthello.html" title="Describes the data structure l-Othello. It classifies keys of keyType into 2^L classes. ">Othello</a> build fails. <br/></td></tr>
 <tr class="separator:a582c5f2080e04d34716abb9d0f84991c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a82117abf48fef99562b7dc087c79bb5c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a82117abf48fef99562b7dc087c79bb5c"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>LMASK</b>&#160;&#160;&#160;((1ULL&lt;&lt;L)-1)</td></tr>
+#define&#160;</td><td class="memItemRight" valign="bottom"><b>LMASK</b>&#160;&#160;&#160;((L==64)?(~0ULL):((1ULL&lt;&lt;L)-1))</td></tr>
 <tr class="separator:a82117abf48fef99562b7dc087c79bb5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a567a4941660d32eac17520acce6b73ec"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a567a4941660d32eac17520acce6b73ec"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>FILLCNTLEN</b>&#160;&#160;&#160;(sizeof(uint32_t)*8)</td></tr>

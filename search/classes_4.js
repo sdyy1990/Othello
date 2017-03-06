@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['kmerfilereader',['KmerFileReader',['../classKmerFileReader.html',1,'']]]
+  ['hasher32',['Hasher32',['../classHasher32.html',1,'']]]
 ];
