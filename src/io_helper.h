@@ -405,7 +405,7 @@ public:
     bool getNext(KVpair *ret) {
         if (curr == max) {
             max = fread(buff,sizeof(buff[0]),buflen,f);
-            *ret = (KVpair) ~0ULL;
+	    memset(ret,0xFFFFFFFFUL,sizeof(KVpair));
             if (max == 0) return false;
             curr = 0;
         }

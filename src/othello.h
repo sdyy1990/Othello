@@ -29,7 +29,7 @@ public:
     vector<valueType> mem; //!< actual memory space for arrayA and arrayB.
     uint32_t L; //!< the length of return value.
 //    uint32_t LMASK;  return value must be within [0..2^L-1], i.e., LMASK==((1<<L)-1);
-#define LMASK ((1ULL<<L)-1)
+#define LMASK ((L==64)?(~0ULL):((1ULL<<L)-1))
     uint32_t ma; //!< length of arrayA.
     uint32_t mb; //!< length of arrayB
     Hasher32<keyType> Ha; //<! hash function Ha
@@ -254,7 +254,6 @@ public:
         memcpy(&(s2),v+8,sizeof(uint32_t));
         memcpy(&hl1, v+0x10, sizeof(uint32_t));
         memcpy(&hl2, v+0x14, sizeof(uint32_t));
-        printf("seeds%08x %08x\n", s1,s2);
         if (hl1 > 0 && hl2 >0) {
             ma = (1<<hl1);
             mb = (1<<hl2);
