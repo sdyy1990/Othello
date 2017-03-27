@@ -13,6 +13,7 @@
 #include "hash.h"
 #include "io_helper.h"
 #include "disjointset.h"
+#include <set>
 using namespace std;
 
 /*!
@@ -44,6 +45,8 @@ public:
 private:
     bool autoclear = false; //!<  clears the memory allocated during construction automatically.
     keyType *keys;
+    void * values;
+    uint32_t mykeycount;
     /*!
      * \brief Get the consecutive L bits starting from location loc*L bit.
      * \warning May return garbage info on the higher bits, needs (& LMASK) afterwards.
@@ -105,7 +108,7 @@ private:
         if (trycount>1) printf("NewHash for the %d time\n", trycount);
     }
 
-    vector<int32_t> *first, *nxt1, *nxt2;
+    vector<int32_t> *first = NULL, *nxt1 = NULL, *nxt2 = NULL;
     bool testHash(uint32_t keycount);
     vector<bool> filled;
 
@@ -118,6 +121,7 @@ private:
 
     */
     void fillvalue(void *values, uint32_t keycount, size_t valuesize);
+    void fillvalueBFS(void *values, uint32_t keycount, size_t valuesize,int root, bool usepublicFilled);
     bool trybuild(void *values, uint32_t keycount, size_t valuesize) {
         bool succ;
         disj.setLength(ma+mb);
@@ -126,6 +130,8 @@ private:
         }
         if (autoclear || (!succ))
             finishBuild();
+        //forbid using disj any more.
+        disj.setLength(1);
         return succ;
     }
 public:
@@ -142,6 +148,7 @@ public:
 
     */
     Othello(uint8_t _L, keyType *_keys,  uint32_t keycount, bool _autoclear = true, void *_values = NULL, size_t _valuesize = 0, int32_t _allowed_conflicts = -1 ) {
+        mykeycount = keycount;
         allowed_conflicts = _allowed_conflicts;
         L = _L;
         autoclear = _autoclear;
@@ -271,6 +278,27 @@ public:
         else
             ma = mb =0;
     }
+    /*!
+     * \brief after putting some keys into *keys*, call this function to add keys into Othello. values shall be stored in the array *values
+     */
+    void addkeys(int newkeys, void *values, uint32_t valuesize) {
+        for (int i = mykeycount; i< mykeycount+newkeys; i++){
+            uint32_t ha,hb;
+            get_hash(keys[i],ha,hb);
+            if (testConnected(ha,hb)) {
+                mykeycount += newkeys;
+                trybuild(values, mykeycount, L);
+            }
+            else {
+                (*nxt1)[i] = (*first)[ha];
+                (*first)[ha] = i;
+                (*nxt2)[i] = (*first)[hb];
+                (*first)[hb] = i;
+                fillvalueBFS(values, mykeycount+newkeys, valuesize, ha, false);
+            }
+        }
+
+    }
 
     /*!
        \brief returns a 64-bit integer query value for a key.
@@ -353,6 +381,15 @@ private:
                 A[i]--;
             else A[i]++;
     }
+//these three functions are for add and removal
+    bool testConnected(int32_t ha, int32_t hb);
+public:
+    /*!
+     \brief remove one key with the particular index from the keylist.
+     \param [in] uint32_t kid.
+     \note after this option, the number of keys, *mykeycount* decrease by 1. The key currently stored in *keys[kid]* will be replaced by the last key in *keys[]*.
+    */
+    void removeKey(uint32_t kid);
 };
 
 /*
@@ -371,18 +408,18 @@ std::array<uint8_t,L> operator ^ (const std::array<uint8_t,L>  &A,const std::arr
 template< class keyType>
 bool Othello<keyType>::testHash(uint32_t keycount) {
     uint32_t ha, hb;
-    nxt1  = new vector<int32_t> (keycount);
-    nxt2  = new vector<int32_t> (keycount);
-    first = new vector<int32_t> (ma+mb, -1);
+    if (nxt1 == NULL) nxt1  = new vector<int32_t> (keycount);
+    if (nxt2 == NULL) nxt2  = new vector<int32_t> (keycount);
+    if (first == NULL) first = new vector<int32_t> (ma+mb, -1);
     removedKeys.clear();
     disj.clear();
     for (int i = 0; i < keycount; i++) {
         if (i>1048576) if ((i & (i-1)) == 0) printf("Tesing keys # %d\n",i);
         get_hash(keys[i], ha, hb);
-        
+
         if (disj.sameset(ha,hb)) {
             removedKeys.push_back(keys[i]);
-            if (removedKeys.size()> allowed_conflicts) 
+            if (removedKeys.size()> allowed_conflicts)
                 return false;
             continue;
         }
@@ -396,9 +433,155 @@ bool Othello<keyType>::testHash(uint32_t keycount) {
 }
 
 template< class keyType>
-void Othello<keyType>::fillvalue(void *values, uint32_t keycount, size_t valuesize) {
-    list<uint32_t> Q;
+bool Othello<keyType>::testConnected(int ha0, int hb0) {
+    list<int32_t> q;
+    int t = (*first)[ha0];
+    while (t>=0) {
+        q.push_back(t); //edges from A to B: >0
+        t = nxt1[t];
+    }
+    while (!q.empty()) {
+        int kid = q.front();
+        bool isAtoB = (kid>0);
+        if (kid <0) kid = -kid;
+        q.pop_front();
+        uint32_t ha,hb;
+        get_hash(keys[kid], ha, hb);
+        if (hb == hb0) return true;
+        int t = (*first)[hb];
+        if (isAtoB) {
+            int t = (*first)[hb];
+            while (t>=0) {
+                if (t!=kid) q.push_back(-t);
+                t = nxt2[t];
+            }
+        }
+        else {
+            int t = (*first)[ha];
+            while (t>=0) {
+                if (t!=kid) q.push_back(t);
+                t = nxt1[t];
+            }
+        }
+    }
+    return false;
+}
+
+template< class keyType>
+void Othello<keyType>::removeKey(uint32_t kid) {
+    uint32_t ha, hb;
+    get_hash(keys[kid],ha,hb);
+    mykeycount --;
+    keys[kid] = keys[mykeycount];
+    memcpy(values+kid*L, values+mykeycount*L,L);
+    uint32_t hal, hbl;
+    get_hash(keys[mykeycount], hal, hbl);
+
+    //(*first)[ha] , (*nxt1) ...
+    if ((*first).at(ha) == kid) {
+        (*first).at(ha) = (*nxt1)[kid];
+    } else {
+        int t = (*first)[ha];
+        while ((*nxt1)[t] != kid) t = (*nxt1)[t];
+        (*nxt1)[t] = (*nxt1)[(*nxt1)[t]];
+    }
+    (*nxt1)[kid] = (*nxt1)[mykeycount];
+
+    if ((*first)[hal] == mykeycount) {
+        (*first)[hal] = kid;
+    } else {
+        int t = (*first)[hal];
+        while ((*nxt1)[t] != mykeycount) t = (*nxt1)[t];
+        (*nxt1)[t] = kid;
+    }
+
+    if ((*first)[hb] == kid) {
+        (*first)[hb] = (*nxt2)[kid];
+    } else {
+        int t = (*first)[hb];
+        while ((*nxt2)[t] !=kid) t = (*nxt2)[t];
+        (*nxt2)[t] = (*nxt2)[(*nxt2)[t]];
+    }
+    (*nxt2)[kid] = (*nxt2)[mykeycount];
+    if ((*first)[hbl] == mykeycount) {
+        (*first)[hbl] = kid;
+    }
+    else {
+        int t = (*first)[hbl];
+        while ((*nxt2)[t] != kid) t= (*nxt2)[t];
+        (*nxt2)[t] = kid;
+    }
+}
+
+template< class keyType>
+void Othello<keyType>::fillvalueBFS(void *values, uint32_t keycount, size_t valuesize, int root, bool usepublicFilled) {
+
     vector<int32_t> *nxt;
+    list<uint32_t> Q;
+    while (!Q.empty()) Q.pop_front();
+    Q.push_back(root);
+    std::set<uint32_t> s;
+    if (usepublicFilled)  
+        filled[root] = true;
+    else 
+            s.insert(root);
+    while (!Q.empty())
+    {
+        uint32_t nodeid = (*Q.begin());
+        Q.pop_front();
+        if (nodeid < ma) nxt = nxt1;
+        else nxt = nxt2;
+        int32_t kid = first->at(nodeid);
+        while (kid >=0) {
+            uint32_t ha,hb;
+            get_hash(keys[kid],ha,hb);
+            if (usepublicFilled) {
+                if (filled[ha] && filled[hb]) {
+                kid = nxt->at(kid);
+                continue;
+                }
+            }
+            else {
+                if (s.find(ha)!=s.end() && s.find(hb)!=s.end()) {
+                kid = nxt->at(kid);
+                continue;
+                }
+            }
+
+            bool isfa = (usepublicFilled)?filled[ha]:(s.find(ha)==s.end());
+            int helse = isfa ? hb : ha;
+            int hthis = isfa ? ha : hb;
+            //! m[hthis] is already filled, now fill m[helse].
+            valueType valueKid = 0;
+            if (values != NULL) {
+                uint8_t * loc = (uint8_t *) values;
+                loc += (kid * valuesize);
+                memcpy(&valueKid, loc, valuesize);
+            }
+            //valueKid = values[kid];
+            else {
+                //! when hthis == ha, this is a edge pointing from U to V, i.e., value of this edge shall be set as 1.
+                valueKid = (hthis == ha)?1:0;
+                fillcount[helse/FILLCNTLEN] |= (1<<(helse % FILLCNTLEN));
+            }
+
+            valueType newvalue = valueKid ^ get(hthis);
+            // printf("%x %x %x===", valueKid, get(hthis), newvalue);
+            set(helse, newvalue);
+            //printf("k%llx ha/hb %lx %lx: %x ^ %x = %x ^ %x = %x (%x), helse%x ,i%x, %d\n",
+            //keys[kid], ha, hb, get(hthis) & LMASK, newvalue & LMASK, get(ha) &LMASK, get(hb) &LMASK, (get(ha)^get(hb)) & LMASK, valueKid &LMASK, helse ,hthis ,(bool)((valueKid &LMASK)==((get(ha)^(get(hb)))&LMASK)));
+            Q.push_back(helse);
+            if (usepublicFilled) 
+                filled[helse] = true;
+            else 
+                s.insert(helse);
+            kid = nxt->at(kid);
+        }
+
+    }
+}
+template< class keyType>
+void Othello<keyType>::fillvalue(void *values, uint32_t keycount, size_t valuesize) {
     filled.resize(ma+mb);
     fill(filled.begin(), filled.end(), false);
     if (values == NULL) {
@@ -407,52 +590,10 @@ void Othello<keyType>::fillvalue(void *values, uint32_t keycount, size_t valuesi
     }
     for (int i = 0; i< ma+mb; i++)
         if (disj.isroot(i)) {
-            while (!Q.empty()) Q.pop_front();
-            Q.push_back(i);
             valueType vv;
             getrand(vv);
             set(i,vv);
-            filled[i] = true;
-            while (!Q.empty()) {
-                uint32_t nodeid = (*Q.begin());
-                Q.pop_front();
-                if (nodeid < ma) nxt = nxt1;
-                else nxt = nxt2;
-                int32_t kid = first->at(nodeid);
-                while (kid >=0) {
-                    uint32_t ha,hb;
-                    get_hash(keys[kid],ha,hb);
-                    if (filled[ha] && filled[hb]) {
-                        kid = nxt->at(kid);
-                        continue;
-                    }
-                    int helse = filled[ha] ? hb : ha;
-                    int hthis = filled[ha] ? ha : hb;
-                    //! m[hthis] is already filled, now fill m[helse].
-                    valueType valueKid = 0;
-                    if (values != NULL) {
-                        uint8_t * loc = (uint8_t *) values;
-                        loc += (kid * valuesize);
-                        memcpy(&valueKid, loc, valuesize);
-                    }
-//                        valueKid = values[kid];
-                    else {
-                        //! when hthis == ha, this is a edge pointing from U to V, i.e., value of this edge shall be set as 1.
-                        valueKid = (hthis == ha)?1:0;
-                        fillcount[helse/FILLCNTLEN] |= (1<<(helse % FILLCNTLEN));
-                    }
-
-                    valueType newvalue = valueKid ^ get(hthis);
-//                    printf("%x %x %x===", valueKid, get(hthis), newvalue);
-                    set(helse, newvalue);
-//                    printf("k%llx ha/hb %lx %lx: %x ^ %x = %x ^ %x = %x (%x), helse%x ,i%x, %d\n",
-//                       keys[kid], ha, hb, get(hthis) & LMASK, newvalue & LMASK, get(ha) &LMASK, get(hb) &LMASK, (get(ha)^get(hb)) & LMASK, valueKid &LMASK, helse ,hthis ,(bool)((valueKid &LMASK)==((get(ha)^(get(hb)))&LMASK)));
-                    Q.push_back(helse);
-                    filled[helse] = true;
-                    kid = nxt->at(kid);
-                }
-
-            }
+            fillvalueBFS(values, keycount, valuesize, i, true);
         }
 }
 

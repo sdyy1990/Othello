@@ -42,7 +42,7 @@ public:
     //! add new keys, so that the total number of elements equal to n.
     bool resize(int n) {
         while (fa->size()<n)
-            fa.push_back(-1);
+            fa->push_back(-1);
         
     }
 };
