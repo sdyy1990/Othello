@@ -8,7 +8,6 @@ using namespace std;
  * \brief Disjoint Set data structure. Helps to test the acyclicity of the graph during construction. 
  * */ 
 class DisjointSet {
-    int siz;
     vector<int32_t> *fa;
 public:
     uint32_t getfa(int i) {
@@ -39,5 +38,11 @@ public:
     }
     bool isroot(int a) {
         return ((*fa)[a]==a);
+    }
+    //! add new keys, so that the total number of elements equal to n.
+    bool resize(int n) {
+        while (fa->size()<n)
+            fa.push_back(-1);
+        
     }
 };
