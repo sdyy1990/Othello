@@ -46,7 +46,6 @@ public:
 private:
     bool autoclear = false; //!<  clears the memory allocated during construction automatically.
     keyType *keys;
-    void * values;
 
     /*!
      * \brief Get the consecutive L bits starting from location loc*L bit.
@@ -122,7 +121,7 @@ private:
 
     */
     void fillvalue(void *values, uint32_t keycount, size_t valuesize);
-    void fillvalueBFS(void *values, uint32_t keycount, size_t valuesize,int root, bool usepublicFilled);
+    void fillvalueBFS(void *values, size_t valuesize,int root, bool usepublicFilled);
     bool trybuild(void *values, uint32_t keycount, size_t valuesize) {
         bool succ;
         disj.setLength(ma+mb);
@@ -299,7 +298,7 @@ public:
                 (*first)[ha] = i;
                 (*nxt2)[i] = (*first)[hb];
                 (*first)[hb] = i;
-                fillvalueBFS(values, i, valuesize, ha, false);
+                fillvalueBFS(values, valuesize, ha, false);
             }
         }
         mykeycount += newkeys;
@@ -396,6 +395,14 @@ public:
      \note remember to adjust the value[] array if necessary.
     */
     void removeOneKey(uint32_t kid);
+    /*!
+     \brief update the value for one particular key.
+    */
+    void updatevalue(uint32_t kid, void * values, uint32_t valuesize) {
+        uint32_t ha,hb;
+        get_hash(keys[kid],ha,hb);
+        fillvalueBFS(values, valuesize, ha, false);
+    }
 };
 
 /*
@@ -519,7 +526,7 @@ void Othello<keyType>::removeOneKey(uint32_t kid) {
 }
 
 template< class keyType>
-void Othello<keyType>::fillvalueBFS(void *values, uint32_t keycount, size_t valuesize, int root, bool usepublicFilled) {
+void Othello<keyType>::fillvalueBFS(void *values, size_t valuesize, int root, bool usepublicFilled) {
 
     vector<int32_t> *nxt;
     list<uint32_t> Q;
@@ -598,7 +605,7 @@ void Othello<keyType>::fillvalue(void *values, uint32_t keycount, size_t valuesi
             valueType vv;
             getrand(vv);
             set(i,vv);
-            fillvalueBFS(values, keycount, valuesize, i, true);
+            fillvalueBFS(values,  valuesize, i, true);
         }
 }
 
