@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['othello',['Othello',['../classOthello.html#a5be050491d362f079481a971847ccf37',1,'Othello::Othello(uint8_t _L, keyType *_keys, uint32_t keycount, bool _autoclear=true, void *_values=NULL, size_t _valuesize=0, int32_t _allowed_conflicts=-1)'],['../classOthello.html#a744d0381100aed47ea9851fc5a8a01ec',1,'Othello::Othello(uint8_t _L, vector&lt; keyType &gt; &amp;keys, vector&lt; VT &gt; &amp;values, bool _autoclear=true, int32_t allowed_conflicts=-1)'],['../classOthello.html#aa5afa87c53e66e667dd7249966b2c315',1,'Othello::Othello(unsigned char *v)']]],
-  ['othelloindex',['OthelloIndex',['../classOthelloIndex.html#aa44f864fc18e8ed675a8718b92775a49',1,'OthelloIndex']]]
+  ['muloth',['MulOth',['../classMulOth.html#a2ec33c73d7dcfb0d5aceeccd9b60b18e',1,'MulOth::MulOth(uint32_t _L, uint32_t NN)'],['../classMulOth.html#a444fb0cd414a49b0d61b4139ea95345d',1,'MulOth::MulOth(uint32_t _L, unsigned char _split, class FileReader&lt; keyType, IOvalueType &gt; *_reader)'],['../classMulOth.html#a05eb3615e70486db786dd35956bfbf5f',1,'MulOth::MulOth(const char *fname, IOHelper&lt; keyType, IOvalueType &gt; *_helper)']]],
+  ['mulothindex',['MulOthIndex',['../classMulOthIndex.html#afa4c7e8bd9ccced160c9cda1f10e4bd0',1,'MulOthIndex::MulOthIndex(const char *fname, unsigned char _split, class IOHelper&lt; keyType, valueType &gt; *_helper, bool fileIsSorted=false)'],['../classMulOthIndex.html#ab55b2750af814ed963608afca21ed52c',1,'MulOthIndex::MulOthIndex(const char *fname, IOHelper&lt; keyType, valueType &gt; *_helper)']]]
 ];

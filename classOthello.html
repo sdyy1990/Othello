@@ -134,6 +134,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="clas
 <tr class="memitem:aa5afa87c53e66e667dd7249966b2c315"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classOthello.html#aa5afa87c53e66e667dd7249966b2c315">Othello</a> (unsigned char *v)</td></tr>
 <tr class="memdesc:aa5afa87c53e66e667dd7249966b2c315"><td class="mdescLeft">&#160;</td><td class="mdescRight">load the infomation of the <em><a class="el" href="classOthello.html" title="Describes the data structure l-Othello. It classifies keys of keyType into 2^L classes. ">Othello</a></em> from memory.  <a href="#aa5afa87c53e66e667dd7249966b2c315">More...</a><br/></td></tr>
 <tr class="separator:aa5afa87c53e66e667dd7249966b2c315"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a233dfaa93e4521c0ff774129ce06e8d5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a233dfaa93e4521c0ff774129ce06e8d5"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classOthello.html#a233dfaa93e4521c0ff774129ce06e8d5">addkeys</a> (int newkeys, void *values, uint32_t valuesize)</td></tr>
+<tr class="memdesc:a233dfaa93e4521c0ff774129ce06e8d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">after putting some keys into <em>keys</em>, call this function to add keys into <a class="el" href="classOthello.html" title="Describes the data structure l-Othello. It classifies keys of keyType into 2^L classes. ">Othello</a>. values shall be stored in the array *values <br/></td></tr>
+<tr class="separator:a233dfaa93e4521c0ff774129ce06e8d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a85218717dff722c15d11c1bacae80012"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a85218717dff722c15d11c1bacae80012"></a>
 uint64_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classOthello.html#a85218717dff722c15d11c1bacae80012">queryInt</a> (const keyType &amp;k)</td></tr>
 <tr class="memdesc:a85218717dff722c15d11c1bacae80012"><td class="mdescLeft">&#160;</td><td class="mdescRight">returns a 64-bit integer query value for a key. <br/></td></tr>
@@ -172,6 +176,13 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>get_hash</b> (const k
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classOthello.html#a31377cc49e910a8a00afbcc426cd0be3">writeDataToBinaryFile</a> (FILE *pF)</td></tr>
 <tr class="memdesc:a31377cc49e910a8a00afbcc426cd0be3"><td class="mdescLeft">&#160;</td><td class="mdescRight">write array to binary file. <br/></td></tr>
 <tr class="separator:a31377cc49e910a8a00afbcc426cd0be3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a110070c05125e6538a31e72b598e5383"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classOthello.html#a110070c05125e6538a31e72b598e5383">removeOneKey</a> (uint32_t kid)</td></tr>
+<tr class="memdesc:a110070c05125e6538a31e72b598e5383"><td class="mdescLeft">&#160;</td><td class="mdescRight">remove one key with the particular index from the keylist.  <a href="#a110070c05125e6538a31e72b598e5383">More...</a><br/></td></tr>
+<tr class="separator:a110070c05125e6538a31e72b598e5383"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a003453c297bdb3af0f149e10a84a3664"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a003453c297bdb3af0f149e10a84a3664"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classOthello.html#a003453c297bdb3af0f149e10a84a3664">updatevalue</a> (uint32_t kid, void *values, uint32_t valuesize)</td></tr>
+<tr class="memdesc:a003453c297bdb3af0f149e10a84a3664"><td class="mdescLeft">&#160;</td><td class="mdescRight">update the value for one particular key. <br/></td></tr>
+<tr class="separator:a003453c297bdb3af0f149e10a84a3664"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -213,6 +224,9 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="
 vector&lt; uint32_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classOthello.html#a7175650da26aa486c3ef468ad3f3ac5c">fillcount</a></td></tr>
 <tr class="memdesc:a7175650da26aa486c3ef468ad3f3ac5c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enabled only when the values of the query is not pre-defined. This supports othelloIndex query. fillcount[x]==1 if and only if there is an edge pointed to x,. <br/></td></tr>
 <tr class="separator:a7175650da26aa486c3ef468ad3f3ac5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae16fb4c7f90ee01f5e3ad0d725fc2cc6"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae16fb4c7f90ee01f5e3ad0d725fc2cc6"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>mykeycount</b></td></tr>
+<tr class="separator:ae16fb4c7f90ee01f5e3ad0d725fc2cc6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2d0f006c12acdeb8ccd08797c88f8e54"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2d0f006c12acdeb8ccd08797c88f8e54"></a>
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classOthello.html#a2d0f006c12acdeb8ccd08797c88f8e54">allowed_conflicts</a></td></tr>
 <tr class="memdesc:a2d0f006c12acdeb8ccd08797c88f8e54"><td class="mdescLeft">&#160;</td><td class="mdescRight">The number of keys that can be skipped during construction. <br/></td></tr>
@@ -459,6 +473,36 @@ template&lt;class keyType&gt; </div>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a class="anchor" id="a110070c05125e6538a31e72b598e5383"></a>
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;class keyType &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">void <a class="el" href="classOthello.html">Othello</a>&lt; keyType &gt;::removeOneKey </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>kid</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>remove one key with the particular index from the keylist. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">uint32_t</td><td>kid. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Note</dt><dd>after this option, the number of keys, <em>mykeycount</em> decrease by 1. The key currently stored in <em>keys[kid]</em> will be replaced by the last key in <em>keys[]</em>. <br/>
+ <em>valuesize</em> is the number of bytes of each value. </dd>
+<dd>
+remember to adjust the value[] array if necessary. </dd></dl>
 
 </div>
 </div>

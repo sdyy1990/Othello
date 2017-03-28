@@ -94,39 +94,48 @@ $(document).ready(function(){initNavTree('disjointset_8h_source.html','');});
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor"></span><span class="preprocessor">#include &lt;vector&gt;</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="keyword">using namespace </span>std;</div>
 <div class="line"><a name="l00010"></a><span class="lineno"><a class="line" href="classDisjointSet.html">   10</a></span>&#160;<span class="keyword">class </span><a class="code" href="classDisjointSet.html">DisjointSet</a> {</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;    <span class="keywordtype">int</span> siz;</div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;    vector&lt;int32_t&gt; *fa;</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;    uint32_t getfa(<span class="keywordtype">int</span> i) {</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;        <span class="keywordflow">if</span> ((*fa)[i] &lt; 0) (*fa)[i] = i;</div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;        <span class="keywordflow">else</span> <span class="keywordflow">if</span> ((*fa)[i]!=i)</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;            (*fa)[i] = getfa((*fa)[i]);</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;        <span class="keywordflow">return</span> (*fa)[i];</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    }</div>
-<div class="line"><a name="l00021"></a><span class="lineno"><a class="line" href="classDisjointSet.html#a4f5466c8d9fd8352210d6029c60a088c">   21</a></span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classDisjointSet.html#a4f5466c8d9fd8352210d6029c60a088c">finish</a>() {</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;        fa-&gt;clear();</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;        <span class="keyword">delete</span> fa;</div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;    vector&lt;int32_t&gt; *fa = NULL;</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;    uint32_t getfa(<span class="keywordtype">int</span> i) {</div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;        <span class="keywordflow">if</span> ((*fa)[i] &lt; 0) (*fa)[i] = i;</div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;        <span class="keywordflow">else</span> <span class="keywordflow">if</span> ((*fa)[i]!=i)</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;            (*fa)[i] = getfa((*fa)[i]);</div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;        <span class="keywordflow">return</span> (*fa)[i];</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    }</div>
+<div class="line"><a name="l00020"></a><span class="lineno"><a class="line" href="classDisjointSet.html#a4f5466c8d9fd8352210d6029c60a088c">   20</a></span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classDisjointSet.html#a4f5466c8d9fd8352210d6029c60a088c">finish</a>() {</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;        fa-&gt;clear();</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;        <span class="keyword">delete</span> fa;</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;        fa = NULL;</div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    }</div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <span class="keywordtype">void</span> setLength(<span class="keywordtype">int</span> n) {</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;        fa = <span class="keyword">new</span> vector&lt;int32_t&gt; (n,-1);</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    }</div>
-<div class="line"><a name="l00029"></a><span class="lineno"><a class="line" href="classDisjointSet.html#addaa08b4b8a5d4d824076ae4be7fbdab">   29</a></span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classDisjointSet.html#addaa08b4b8a5d4d824076ae4be7fbdab">clear</a>() {</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;        <span class="keywordflow">for</span> (<span class="keyword">auto</span> a : *fa)</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;            a = -1;</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    }</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    <span class="keywordtype">void</span> merge(<span class="keywordtype">int</span> a, <span class="keywordtype">int</span> b) {</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;        <span class="keywordflow">if</span> (a==0) swap(a,b);  <span class="comment">//a!=0</span></div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;        (*fa)[getfa(b)] = getfa(a);</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    }</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    <span class="keywordtype">bool</span> sameset(<span class="keywordtype">int</span> a, <span class="keywordtype">int</span> b) {</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;        <span class="keywordflow">return</span> getfa(a)==getfa(b);</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;        <span class="keywordflow">if</span> (fa == NULL) </div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;            fa = <span class="keyword">new</span> vector&lt;int32_t&gt; (n,-1);</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;        <span class="keywordflow">else</span> {</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;            fa-&gt;resize(0); fa-&gt;resize(n,-1); }</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    }</div>
+<div class="line"><a name="l00032"></a><span class="lineno"><a class="line" href="classDisjointSet.html#addaa08b4b8a5d4d824076ae4be7fbdab">   32</a></span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classDisjointSet.html#addaa08b4b8a5d4d824076ae4be7fbdab">clear</a>() {</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;        <span class="keywordflow">for</span> (<span class="keyword">auto</span> a : *fa)</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;            a = -1;</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    }</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    <span class="keywordtype">void</span> merge(<span class="keywordtype">int</span> a, <span class="keywordtype">int</span> b) {</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;        <span class="keywordflow">if</span> (a==0) swap(a,b);  <span class="comment">//a!=0</span></div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;        (*fa)[getfa(b)] = getfa(a);</div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    }</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    <span class="keywordtype">bool</span> isroot(<span class="keywordtype">int</span> a) {</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;        <span class="keywordflow">return</span> ((*fa)[a]==a);</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    <span class="keywordtype">bool</span> sameset(<span class="keywordtype">int</span> a, <span class="keywordtype">int</span> b) {</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;        <span class="keywordflow">return</span> getfa(a)==getfa(b);</div>
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    }</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;};</div>
-<div class="ttc" id="classDisjointSet_html_a4f5466c8d9fd8352210d6029c60a088c"><div class="ttname"><a href="classDisjointSet.html#a4f5466c8d9fd8352210d6029c60a088c">DisjointSet::finish</a></div><div class="ttdeci">void finish()</div><div class="ttdoc">Release the memory to save some space. </div><div class="ttdef"><b>Definition:</b> disjointset.h:21</div></div>
-<div class="ttc" id="classDisjointSet_html_addaa08b4b8a5d4d824076ae4be7fbdab"><div class="ttname"><a href="classDisjointSet.html#addaa08b4b8a5d4d824076ae4be7fbdab">DisjointSet::clear</a></div><div class="ttdeci">void clear()</div><div class="ttdoc">re-initilize the disjoint sets. </div><div class="ttdef"><b>Definition:</b> disjointset.h:29</div></div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="keywordtype">bool</span> isroot(<span class="keywordtype">int</span> a) {</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;        <span class="keywordflow">return</span> ((*fa)[a]==a);</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;    }</div>
+<div class="line"><a name="l00047"></a><span class="lineno"><a class="line" href="classDisjointSet.html#a83e4584e20756f41d9dc4536402347d2">   47</a></span>&#160;    <span class="keywordtype">bool</span> <a class="code" href="classDisjointSet.html#a83e4584e20756f41d9dc4536402347d2">resize</a>(<span class="keywordtype">int</span> n) {</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;        <span class="keywordflow">while</span> (fa-&gt;size()&lt;n)</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;            fa-&gt;push_back(-1);</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;        </div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;    }</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;};</div>
+<div class="ttc" id="classDisjointSet_html_a83e4584e20756f41d9dc4536402347d2"><div class="ttname"><a href="classDisjointSet.html#a83e4584e20756f41d9dc4536402347d2">DisjointSet::resize</a></div><div class="ttdeci">bool resize(int n)</div><div class="ttdoc">add new keys, so that the total number of elements equal to n. </div><div class="ttdef"><b>Definition:</b> disjointset.h:47</div></div>
+<div class="ttc" id="classDisjointSet_html_a4f5466c8d9fd8352210d6029c60a088c"><div class="ttname"><a href="classDisjointSet.html#a4f5466c8d9fd8352210d6029c60a088c">DisjointSet::finish</a></div><div class="ttdeci">void finish()</div><div class="ttdoc">Release the memory to save some space. </div><div class="ttdef"><b>Definition:</b> disjointset.h:20</div></div>
+<div class="ttc" id="classDisjointSet_html_addaa08b4b8a5d4d824076ae4be7fbdab"><div class="ttname"><a href="classDisjointSet.html#addaa08b4b8a5d4d824076ae4be7fbdab">DisjointSet::clear</a></div><div class="ttdeci">void clear()</div><div class="ttdoc">re-initilize the disjoint sets. </div><div class="ttdef"><b>Definition:</b> disjointset.h:32</div></div>
 <div class="ttc" id="classDisjointSet_html"><div class="ttname"><a href="classDisjointSet.html">DisjointSet</a></div><div class="ttdoc">Disjoint Set data structure. Helps to test the acyclicity of the graph during construction. </div><div class="ttdef"><b>Definition:</b> disjointset.h:10</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->

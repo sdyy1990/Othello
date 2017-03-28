@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['human',['human',['../io__helper_8h.html#a132ae75333f455eb63e0474cf953cf65',1,'io_helper.h']]]
+  ['getcnt',['getCnt',['../classOthello.html#aa3afd546caf7c278ca5f228c6e0ea779',1,'Othello']]],
+  ['getratio',['getRatio',['../classOthello.html#a3fbb5cdc59769f5423ac3e9c349c996c',1,'Othello']]]
 ];

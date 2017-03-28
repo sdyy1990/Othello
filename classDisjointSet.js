@@ -5,6 +5,7 @@ var classDisjointSet =
     [ "getfa", "classDisjointSet.html#aa5e460e34a25e3bb6b82e0691939c5ce", null ],
     [ "isroot", "classDisjointSet.html#a602cbde23923c4dbd2da461ba03055ef", null ],
     [ "merge", "classDisjointSet.html#a278631b4c22a61739f297d4bb3c81266", null ],
+    [ "resize", "classDisjointSet.html#a83e4584e20756f41d9dc4536402347d2", null ],
     [ "sameset", "classDisjointSet.html#a5e601809d43bf71cf622928fe2d250c0", null ],
     [ "setLength", "classDisjointSet.html#a5d977f28cf93ba9bc96b53feddb858be", null ]
 ];

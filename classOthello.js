@@ -3,6 +3,7 @@ var classOthello =
     [ "Othello", "classOthello.html#a5be050491d362f079481a971847ccf37", null ],
     [ "Othello", "classOthello.html#a744d0381100aed47ea9851fc5a8a01ec", null ],
     [ "Othello", "classOthello.html#aa5afa87c53e66e667dd7249966b2c315", null ],
+    [ "addkeys", "classOthello.html#a233dfaa93e4521c0ff774129ce06e8d5", null ],
     [ "exportInfo", "classOthello.html#a7aa8d71b743b4075f582b13f94d0debb", null ],
     [ "finishBuild", "classOthello.html#a2238b665c34e93036226961dddf72810", null ],
     [ "get_hash", "classOthello.html#a57750f5c830dcd1170df6131ff7aa574", null ],
@@ -14,7 +15,9 @@ var classOthello =
     [ "query", "classOthello.html#a67a89c55b005d2d251119ee0a14685d6", null ],
     [ "queryInt", "classOthello.html#a85218717dff722c15d11c1bacae80012", null ],
     [ "randomflip", "classOthello.html#ac0ba8cc1bdecc199c8bce2a098d4a56d", null ],
+    [ "removeOneKey", "classOthello.html#a110070c05125e6538a31e72b598e5383", null ],
     [ "setAlienPreference", "classOthello.html#a99ff9378fe5a9cd25efb995a0368d5cc", null ],
+    [ "updatevalue", "classOthello.html#a003453c297bdb3af0f149e10a84a3664", null ],
     [ "writeDataToBinaryFile", "classOthello.html#a31377cc49e910a8a00afbcc426cd0be3", null ],
     [ "allowed_conflicts", "classOthello.html#a2d0f006c12acdeb8ccd08797c88f8e54", null ],
     [ "build", "classOthello.html#aa8df0267e7074717b74358db08e59728", null ],
@@ -26,6 +29,7 @@ var classOthello =
     [ "ma", "classOthello.html#aafbe2c8fbc45f6e52d8038c1d116b5fd", null ],
     [ "mb", "classOthello.html#a9c36c868d042d18305551780bf302ec2", null ],
     [ "mem", "classOthello.html#aa9a1a35b4c261f01a033eb3ee63779fa", null ],
+    [ "mykeycount", "classOthello.html#ae16fb4c7f90ee01f5e3ad0d725fc2cc6", null ],
     [ "removedKeys", "classOthello.html#ae5229cde293414d09acb012250a27162", null ],
     [ "trycount", "classOthello.html#ae06e7ce36ba605f55874c087684c0026", null ]
 ];
