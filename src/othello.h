@@ -39,6 +39,7 @@ public:
     uint32_t trycount = 0; //!< number of rehash before a valid hash pair is found.
     DisjointSet disj; //!< Disjoint Set data structure that helps to test the acyclicity.
     vector<uint32_t> fillcount; //!< Enabled only when the values of the query is not pre-defined. This supports othelloIndex query. fillcount[x]==1 if and only if there is an edge pointed to x,
+    uint32_t mykeycount;
 #define FILLCNTLEN (sizeof(uint32_t)*8)
     uint32_t allowed_conflicts; //!< The number of keys that can be skipped during construction.
     vector<keyType> removedKeys; //!< The list of removed keys.
@@ -46,7 +47,7 @@ private:
     bool autoclear = false; //!<  clears the memory allocated during construction automatically.
     keyType *keys;
     void * values;
-    uint32_t mykeycount;
+
     /*!
      * \brief Get the consecutive L bits starting from location loc*L bit.
      * \warning May return garbage info on the higher bits, needs (& LMASK) afterwards.
@@ -216,6 +217,7 @@ public:
         delete nxt1;
         delete nxt2;
         delete first;
+        nxt1 = nxt2 = first= NULL;
         disj.finish();
         filled.clear();
     }
@@ -282,6 +284,9 @@ public:
      * \brief after putting some keys into *keys*, call this function to add keys into Othello. values shall be stored in the array *values
      */
     void addkeys(int newkeys, void *values, uint32_t valuesize) {
+        nxt1->resize(mykeycount+newkeys);
+        nxt2->resize(mykeycount+newkeys);
+
         for (int i = mykeycount; i< mykeycount+newkeys; i++){
             uint32_t ha,hb;
             get_hash(keys[i],ha,hb);
@@ -294,10 +299,10 @@ public:
                 (*first)[ha] = i;
                 (*nxt2)[i] = (*first)[hb];
                 (*first)[hb] = i;
-                fillvalueBFS(values, mykeycount+newkeys, valuesize, ha, false);
+                fillvalueBFS(values, i, valuesize, ha, false);
             }
         }
-
+        mykeycount += newkeys;
     }
 
     /*!
@@ -387,9 +392,10 @@ public:
     /*!
      \brief remove one key with the particular index from the keylist.
      \param [in] uint32_t kid.
-     \note after this option, the number of keys, *mykeycount* decrease by 1. The key currently stored in *keys[kid]* will be replaced by the last key in *keys[]*.
+     \note after this option, the number of keys, *mykeycount* decrease by 1. The key currently stored in *keys[kid]* will be replaced by the last key in *keys[]*. \n *valuesize* is the number of bytes of each value. 
+     \note remember to adjust the value[] array if necessary.
     */
-    void removeKey(uint32_t kid);
+    void removeOneKey(uint32_t kid);
 };
 
 /*
@@ -438,7 +444,7 @@ bool Othello<keyType>::testConnected(int ha0, int hb0) {
     int t = (*first)[ha0];
     while (t>=0) {
         q.push_back(t); //edges from A to B: >0
-        t = nxt1[t];
+        t = (*nxt1)[t];
     }
     while (!q.empty()) {
         int kid = q.front();
@@ -453,14 +459,14 @@ bool Othello<keyType>::testConnected(int ha0, int hb0) {
             int t = (*first)[hb];
             while (t>=0) {
                 if (t!=kid) q.push_back(-t);
-                t = nxt2[t];
+                t = (*nxt2)[t];
             }
         }
         else {
             int t = (*first)[ha];
             while (t>=0) {
                 if (t!=kid) q.push_back(t);
-                t = nxt1[t];
+                t = (*nxt1)[t];
             }
         }
     }
@@ -468,12 +474,11 @@ bool Othello<keyType>::testConnected(int ha0, int hb0) {
 }
 
 template< class keyType>
-void Othello<keyType>::removeKey(uint32_t kid) {
+void Othello<keyType>::removeOneKey(uint32_t kid) {
     uint32_t ha, hb;
     get_hash(keys[kid],ha,hb);
     mykeycount --;
     keys[kid] = keys[mykeycount];
-    memcpy(values+kid*L, values+mykeycount*L,L);
     uint32_t hal, hbl;
     get_hash(keys[mykeycount], hal, hbl);
 
@@ -548,7 +553,7 @@ void Othello<keyType>::fillvalueBFS(void *values, uint32_t keycount, size_t valu
                 }
             }
 
-            bool isfa = (usepublicFilled)?filled[ha]:(s.find(ha)==s.end());
+            bool isfa = (usepublicFilled)?filled[ha]:(s.find(ha)!=s.end());
             int helse = isfa ? hb : ha;
             int hthis = isfa ? ha : hb;
             //! m[hthis] is already filled, now fill m[helse].

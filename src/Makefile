@@ -1,4 +1,4 @@
-all:	SortAndCompressKV	testMulIndex testRatio test4
+all:	 testUpdate
 
 
 #GITVERSION := $(shell git describe --abbrev=4 --dirty --always --tags)

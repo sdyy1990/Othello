@@ -8,7 +8,7 @@ using namespace std;
  * \brief Disjoint Set data structure. Helps to test the acyclicity of the graph during construction. 
  * */ 
 class DisjointSet {
-    vector<int32_t> *fa;
+    vector<int32_t> *fa = NULL;
 public:
     uint32_t getfa(int i) {
         if ((*fa)[i] < 0) (*fa)[i] = i;
@@ -20,9 +20,13 @@ public:
     void finish() {
         fa->clear();
         delete fa;
+        fa = NULL;
     }
     void setLength(int n) {
-        fa = new vector<int32_t> (n,-1);
+        if (fa == NULL) 
+            fa = new vector<int32_t> (n,-1);
+        else {
+            fa->resize(0); fa->resize(n,-1); }
     }
     //! re-initilize the disjoint sets.
     void clear() {
