@@ -439,6 +439,7 @@ bool Othello<keyType>::testHash(uint32_t keycount) {
         get_hash(keys[i], ha, hb);
 
         if (disj.sameset(ha,hb)) {
+            printf("Conflict key %d: %llx\n", i , keys[i]);
             removedKeys.push_back(keys[i]);
             if (removedKeys.size()> allowed_conflicts)
                 return false;
@@ -528,7 +529,7 @@ void Othello<keyType>::removeOneKey(uint32_t kid) {
     }
     else {
         int t = (*first)[hbl];
-        while ((*nxt2)[t] != kid) t= (*nxt2)[t];
+        while ((*nxt2)[t] != mykeycount) t= (*nxt2)[t];
         (*nxt2)[t] = kid;
     }
 }
