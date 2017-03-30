@@ -10,11 +10,7 @@
 #include <algorithm>
 #include "io_helper.h"
 #include "time.h"
-<<<<<<< HEAD
-#include <cmath>
-=======
 #include <chrono>
->>>>>>> 1bd4b14f79cb9a00b403d20703f4cb1355688454
 using namespace std;
 typedef unsigned long long keyT;
 typedef uint16_t valueT;
@@ -150,7 +146,6 @@ int main(int argc, char * argv[]) {
         values[i] = (rand()&0xFFFF);
         oth.updatevalue(i,&(values[0]),sizeof(values[0]));
         if (!check(oth, keys[i], values[i])) printf("Err at %d\n",i); 
-<<<<<<< HEAD
     }
 
     oth.setAlienPreference(&(values[0]), sizeof(values[0]), 0.5);
@@ -166,9 +161,7 @@ int main(int argc, char * argv[]) {
     computeRates(oth);
     }
 
-=======
     }*/
->>>>>>> 1bd4b14f79cb9a00b403d20703f4cb1355688454
     free(keys);
     free(values);
     return 0;
