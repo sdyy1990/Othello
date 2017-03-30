@@ -31,6 +31,7 @@ bool inline check(Othello<keyT> & oth , keyT key, valueT value) {
 
 }
 int main(int argc, char * argv[]) {
+    srand(time(NULL));
     std::chrono::time_point<std::chrono::system_clock> clock1,clock2;
     std::chrono::duration<double> diffclock;
     int N;
@@ -40,22 +41,23 @@ int main(int argc, char * argv[]) {
     keys = (keyT*) valloc(sizeof(keyT) * Nmax);
     values = (valueT*) valloc(sizeof(valueT)*Nmax);
     for (int i = 0 ; i < Nmax; i++) {
-        keys[i] = ((((unsigned long long) rand())<<32) + rand() | 0x1LL);
+        keys[i] = ((((unsigned long long) i)<<48) +(((unsigned long long) rand()) << 16) + rand());
         values[i] = (rand()&0xFFFF);
     }
     clock2 = std::chrono::system_clock::now();    clock1 = clock2;
     Othello<keyT> oth(16,&keys[0],N, false, &values[0], sizeof(values[0]),0);
     clock2 = std::chrono::system_clock::now(); diffclock = clock2 - clock1;    clock1 = clock2;
-    printf("Othello keycount = %d\n", oth.mykeycount);
-    printf("Time used %.3lf\n", diffclock.count());
+    printf("Construction keycount = %d,", oth.mykeycount);
+    printf("Time used %.3lf,", diffclock.count());
 
+    clock2 = std::chrono::system_clock::now(); diffclock = clock2 - clock1;    clock1 = clock2;
     int updatecount;
     sscanf(argv[2],"%d",&updatecount);
     updatecount *= 1024;
     for (int t = 0 ; t < updatecount; t++) {
         if ((rand() & 1) == 0)  {
             int i = oth.mykeycount;
-            keys[i] = ((((unsigned long long) rand())<<32) + rand() | 0x1LL);
+            keys[i] = ((((unsigned long long) t)<<30) ^  rand() | 0x1LL);
             values[i] = (rand()&0xFFFF);
             oth.addkeys(1, &(values[0]), sizeof(values[0]));
         }
@@ -65,8 +67,29 @@ int main(int argc, char * argv[]) {
             oth.removeOneKey(i);
         }
     }
-    printf("After %d K updates, Othello keycount = %d\n", updatecount>>10, oth.mykeycount);
-    printf("Time used %.3lf\n", diffclock.count());
+    clock2 = std::chrono::system_clock::now(); diffclock = clock2 - clock1;    clock1 = clock2;
+    printf("After %d K updates, Othello keycount = %d, \t", updatecount>>10, oth.mykeycount);
+    printf("Time used %.3lf\t,", diffclock.count());
+
+
+    clock2 = std::chrono::system_clock::now(); diffclock = clock2 - clock1;    clock1 = clock2;
+    unsigned long long ap = 0;
+    for (int t = 0 ; t < updatecount; t++) {
+        if ((rand() & 1) == 0)  {
+            int i = oth.mykeycount;
+            keys[i] = ((((unsigned long long) t)<<32) ^ rand() | 0x1LL);
+            values[i] = (rand()&0xFFFF);
+            ap += (values[i] | keys[i]);
+        }
+        else {
+            int i = rand() % oth.mykeycount;
+            values[i] = values[oth.mykeycount-1];
+            ap += (values[i] );
+        }
+    }
+    clock2 = std::chrono::system_clock::now(); diffclock = clock2 - clock1;    clock1 = clock2;
+    printf("NOP Time used %.3lf\n", diffclock.count());
+
     /*
     for (int i = 0 ; i < oth.mykeycount; i++) if (!check(oth, keys[i], values[i])) printf("Err at %d\n",i); 
     printf("Add 100 keys\n");

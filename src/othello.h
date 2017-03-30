@@ -280,9 +280,9 @@ public:
             ma = mb =0;
     }
     /*!
-     * \brief after putting some keys into *keys*, call this function to add keys into Othello. values shall be stored in the array *values
+     * \brief after putting some keys into *keys*, call this function to add keys into Othello. values shall be stored in the array *values --> return true if succ.
      */
-    void addkeys(int newkeys, void *values, uint32_t valuesize) {
+    bool addkeys(int newkeys, void *values, uint32_t valuesize) {
         nxt1->resize(mykeycount+newkeys);
         nxt2->resize(mykeycount+newkeys);
 
@@ -291,7 +291,14 @@ public:
             get_hash(keys[i],ha,hb);
             if (testConnected(ha,hb)) {
                 mykeycount += newkeys;
-                trybuild(values, mykeycount, L);
+                bool build = false;
+                while ((!build) && (trycount<MAX_REHASH)) {
+                    newHash();
+                    build = trybuild(values, mykeycount, L);
+                }
+                if (!build) {
+                    return false;
+                }
             }
             else {
                 (*nxt1)[i] = (*first)[ha];
@@ -302,6 +309,7 @@ public:
             }
         }
         mykeycount += newkeys;
+        return true;
     }
 
     /*!
@@ -486,20 +494,30 @@ void Othello<keyType>::removeOneKey(uint32_t kid) {
     uint32_t ha, hb;
     get_hash(keys[kid],ha,hb);
     mykeycount --;
-    keys[kid] = keys[mykeycount];
-    uint32_t hal, hbl;
-    get_hash(keys[mykeycount], hal, hbl);
 
     //(*first)[ha] , (*nxt1) ...
     if ((*first).at(ha) == kid) {
-        (*first).at(ha) = (*nxt1)[kid];
+        (*first)[ha] = (*nxt1)[kid];
     } else {
         int t = (*first)[ha];
         while ((*nxt1)[t] != kid) t = (*nxt1)[t];
         (*nxt1)[t] = (*nxt1)[(*nxt1)[t]];
     }
-    (*nxt1)[kid] = (*nxt1)[mykeycount];
+    if ((*first)[hb] == kid) {
+        (*first)[hb] = (*nxt2)[kid];
+    } else {
+        int t = (*first)[hb];
+        while ((*nxt2)[t] !=kid) t = (*nxt2)[t];
+        (*nxt2)[t] = (*nxt2)[(*nxt2)[t]];
+    }
+    
+    if (kid == mykeycount) return; 
+    keys[kid] = keys[mykeycount];
+    uint32_t hal, hbl;
+    get_hash(keys[mykeycount], hal, hbl);
 
+
+    (*nxt1)[kid] = (*nxt1)[mykeycount];
     if ((*first)[hal] == mykeycount) {
         (*first)[hal] = kid;
     } else {
@@ -508,13 +526,6 @@ void Othello<keyType>::removeOneKey(uint32_t kid) {
         (*nxt1)[t] = kid;
     }
 
-    if ((*first)[hb] == kid) {
-        (*first)[hb] = (*nxt2)[kid];
-    } else {
-        int t = (*first)[hb];
-        while ((*nxt2)[t] !=kid) t = (*nxt2)[t];
-        (*nxt2)[t] = (*nxt2)[(*nxt2)[t]];
-    }
     (*nxt2)[kid] = (*nxt2)[mykeycount];
     if ((*first)[hbl] == mykeycount) {
         (*first)[hbl] = kid;

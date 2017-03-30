@@ -9,7 +9,7 @@ CXXFLAGS+= -Wno-format -Wno-pointer-arith
 
 #CXXFLAGS+= -DKMERLENGTH=20   -march=native -DHASHSEED1=0x74b0dc51 -DHASHSEED2=0x19495cff -g
 
-CXXFLAGS+= -DKMERLENGTH=20 -march=native -g
+CXXFLAGS+= -DKMERLENGTH=20 -march=native -O3
 
 
 SRC= testOthelloKeyValue.cc
