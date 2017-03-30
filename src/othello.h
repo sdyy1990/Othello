@@ -286,7 +286,7 @@ public:
         nxt1->resize(mykeycount+newkeys);
         nxt2->resize(mykeycount+newkeys);
 
-        for (int i = mykeycount; i< mykeycount+newkeys; i++){
+        for (int i = mykeycount; i< mykeycount+newkeys; i++) {
             uint32_t ha,hb;
             get_hash(keys[i],ha,hb);
             if (testConnected(ha,hb)) {
@@ -336,7 +336,7 @@ public:
       \param [in] double ideal. \n ideal = 1.0 means return 1 with higher probability. \n ideal = 0.0 means return 1 with loest probability.
       \note This function is usually able to tune the probabilty within 0.2 ~ 0.8.
      */
-    void setAlienPreference(double ideal = 1.0);
+    void setAlienPreference(void * values, uint32_t valuesize, int  ideal = -1);
 private:
     void inline get_hash_1(const keyType &v, uint32_t &ret1) {
         ret1 = (Ha)(v);
@@ -399,7 +399,7 @@ public:
     /*!
      \brief remove one key with the particular index from the keylist.
      \param [in] uint32_t kid.
-     \note after this option, the number of keys, *mykeycount* decrease by 1. The key currently stored in *keys[kid]* will be replaced by the last key in *keys[]*. \n *valuesize* is the number of bytes of each value. 
+     \note after this option, the number of keys, *mykeycount* decrease by 1. The key currently stored in *keys[kid]* will be replaced by the last key in *keys[]*. \n *valuesize* is the number of bytes of each value.
      \note remember to adjust the value[] array if necessary.
     */
     void removeOneKey(uint32_t kid);
@@ -410,6 +410,14 @@ public:
         uint32_t ha,hb;
         get_hash(keys[kid],ha,hb);
         fillvalueBFS(values, valuesize, ha, false);
+    }
+    valueType getRandomWithIdeal(int ideal) {
+        valueType v = 0;
+        while (ideal) {
+            v |= (0x1 << (rand() % L));
+            ideal --;
+        }
+        return v;
     }
 };
 
@@ -545,10 +553,10 @@ void Othello<keyType>::fillvalueBFS(void *values, size_t valuesize, int root, bo
     while (!Q.empty()) Q.pop_front();
     Q.push_back(root);
     std::set<uint32_t> s;
-    if (usepublicFilled)  
+    if (usepublicFilled)
         filled[root] = true;
-    else 
-            s.insert(root);
+    else
+        s.insert(root);
     while (!Q.empty())
     {
         uint32_t nodeid = (*Q.begin());
@@ -561,14 +569,14 @@ void Othello<keyType>::fillvalueBFS(void *values, size_t valuesize, int root, bo
             get_hash(keys[kid],ha,hb);
             if (usepublicFilled) {
                 if (filled[ha] && filled[hb]) {
-                kid = nxt->at(kid);
-                continue;
+                    kid = nxt->at(kid);
+                    continue;
                 }
             }
             else {
                 if (s.find(ha)!=s.end() && s.find(hb)!=s.end()) {
-                kid = nxt->at(kid);
-                continue;
+                    kid = nxt->at(kid);
+                    continue;
                 }
             }
 
@@ -595,9 +603,9 @@ void Othello<keyType>::fillvalueBFS(void *values, size_t valuesize, int root, bo
             //printf("k%llx ha/hb %lx %lx: %x ^ %x = %x ^ %x = %x (%x), helse%x ,i%x, %d\n",
             //keys[kid], ha, hb, get(hthis) & LMASK, newvalue & LMASK, get(ha) &LMASK, get(hb) &LMASK, (get(ha)^get(hb)) & LMASK, valueKid &LMASK, helse ,hthis ,(bool)((valueKid &LMASK)==((get(ha)^(get(hb)))&LMASK)));
             Q.push_back(helse);
-            if (usepublicFilled) 
+            if (usepublicFilled)
                 filled[helse] = true;
-            else 
+            else
                 s.insert(helse);
             kid = nxt->at(kid);
         }
@@ -698,7 +706,7 @@ double getrate(uint32_t ma, uint32_t mb, uint32_t da, uint32_t db) {
 
 
 template< class keyType>
-void Othello<keyType>::setAlienPreference(double ideal) {
+void Othello<keyType>::setAlienPreference(void * values, uint32_t valuesize, int ideal) {
     int da[] = {1,1,0,-1,-1,-1,0,1};
     int db[] = {0,1,1,1,0,-1,-1,-1};
     vector< array<int32_t,8> > sa (L, array<int32_t,8>());
@@ -710,8 +718,53 @@ void Othello<keyType>::setAlienPreference(double ideal) {
     //for (int j =0; j <L; j++) na[j]=nb[j] =0;
     int emptyA = 0;
     int emptyB = 0;
-    if (filled.size() <=1) return;
-    printf("Adjust bitmap goal: return 1 with rate %.3lf\n",ideal);
+    if (true) {
+        filled.resize(ma+mb);
+        fill(filled.begin(),filled.end(),false);
+        for (int i = 0; i < mykeycount; i++) {
+            uint32_t ha,hb;
+            get_hash(keys[i], ha,hb);
+            filled[ha] = filled[hb] = true;
+            disj.merge(ha,hb);
+        }
+    }
+    printf("Adjust bitmap goal: return 1 with random fill of %d 1s",ideal);
+    if (ideal<0) {
+        fill(filled.begin(),filled.end(),false);
+        for (int i = 0 ; i < ma+mb; i++)
+            if (disj.isroot(i)) {
+                valueType vv;
+                getrand(vv);
+                set(i,vv);
+                fillvalueBFS(values,  valuesize, i, true);
+            }
+        for (int i = 0 ; i < ma+mb; i++)
+            if (!filled[i]) {
+                valueType vv;
+                getrand(vv);
+                set(i,vv);
+            }
+
+        return;
+    }
+    else {
+        fill(filled.begin(),filled.end(),false);
+        for (int i = 0 ; i < ma+mb; i++)
+            if (disj.isroot(i)) {
+                valueType vv = getRandomWithIdeal(ideal);
+                set(i,vv);
+                fillvalueBFS(values,  valuesize, i, true);
+            }
+        for (int i = 0 ; i < ma+mb; i++)
+            if (!filled[i]) {
+                valueType vv = getRandomWithIdeal(ideal);
+                set(i,vv);
+            }
+        return;
+
+
+    }
+    /*
     valueType vv;
     vector<list<uint32_t> > VL(ma+mb, list<uint32_t>());
     for (int i = 0; i< ma+mb; i++) {
@@ -729,7 +782,7 @@ void Othello<keyType>::setAlienPreference(double ideal) {
     }
     for (int i = 0; i < ma+mb; i++) {
         vector<int32_t> diffa(L,0),diffb(L,0);
-//        for (int j = 0; j< L; j++) diffa[j]=diffb[j] =0;
+    //        for (int j = 0; j< L; j++) diffa[j]=diffb[j] =0;
         for (auto j = VL[i].begin(); j!=VL[i].end(); j++) {
             valueType cur = get(*j);
             if (*j < ma) pdiff(diffa,cur);
@@ -784,8 +837,7 @@ void Othello<keyType>::setAlienPreference(double ideal) {
             valueType newvalue =  get(*j)^vv;
             set(*j, newvalue);
         }
-
-    }
+    */
 
 
 
