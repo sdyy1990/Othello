@@ -110,7 +110,11 @@ int main(int argc, char * argv[]) {
         }
     }
     clock2 = std::chrono::system_clock::now(); diffclock = clock2 - clock1;    clock1 = clock2;
-    printf("NOP Time used %.3lf\n", diffclock.count());
+    printf("NOP Time used %.3lf,", diffclock.count());
+
+    oth.setAlienPreference(&(values[0]), sizeof(values[0]), -1);
+    clock2 = std::chrono::system_clock::now(); diffclock = clock2 - clock1;    clock1 = clock2;
+    printf("Balance Time used %.3lf\n", diffclock.count());
 
     /*
     for (int i = 0 ; i < oth.mykeycount; i++) if (!check(oth, keys[i], values[i])) printf("Err at %d\n",i); 

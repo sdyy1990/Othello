@@ -728,7 +728,7 @@ void Othello<keyType>::setAlienPreference(void * values, uint32_t valuesize, int
             disj.merge(ha,hb);
         }
     }
-    printf("Adjust bitmap goal: return 1 with random fill of %d 1s",ideal);
+    //printf("Adjust bitmap goal: return 1 with random fill of %d 1s",ideal);
     if (ideal<0) {
         fill(filled.begin(),filled.end(),false);
         for (int i = 0 ; i < ma+mb; i++)
